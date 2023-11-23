@@ -6,6 +6,7 @@ export default class WebComponent extends HTMLElement {
 		this.shadow = this.attachShadow({ mode: "open" });
 	}
 
+	// TODO: review if I really need all of these variables
 	private table!: HTMLTableElement;
 	private tbody!: HTMLTableSectionElement;
 	private ths!: NodeListOf<HTMLTableCellElement>;
@@ -47,7 +48,8 @@ export default class WebComponent extends HTMLElement {
 		this.ths = this.table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
-				this.cols.push({ name: th.textContent || "", index: th.cellIndex });
+				const name = th.children[0]?.getAttribute("title") || th.textContent || "";
+				if (name) this.cols.push({ name: name, index: th.cellIndex });
 			});
 		}
 		this.rows = element.querySelectorAll("tbody tr");
@@ -91,16 +93,16 @@ export default class WebComponent extends HTMLElement {
 		// Sort
 		if (column_index >= 0 && this.rows_array.length > 0) {
 			this.rows_array.sort((r1, r2) => {
-				const v1 = r1.children[column_index].textContent;
-				const v2 = r2.children[column_index].textContent;
-				if (v1 && v2) {
-					if (direction === "ascending") {
-						if (v1 < v2) return -1;
-						if (v1 > v2) return 1;
-					} else {
-						if (v1 < v2) return 1;
-						if (v1 > v2) return -1;
-					}
+				const c1 = r1.children[column_index] as HTMLTableCellElement;
+				const c2 = r2.children[column_index] as HTMLTableCellElement;
+				const v1 = c1.dataset.sort || c1.textContent || "";
+				const v2 = c2.dataset.sort || c2.textContent || "";
+				if (direction === "ascending") {
+					if (v1 < v2) return -1;
+					if (v1 > v2) return 1;
+				} else {
+					if (v1 < v2) return 1;
+					if (v1 > v2) return -1;
 				}
 				return 0;
 			});
@@ -110,7 +112,7 @@ export default class WebComponent extends HTMLElement {
 				th.classList.remove("sort-ascending");
 				th.classList.remove("sort-descending");
 				if (th.textContent === column) {
-					th.classList.add(`table-${direction}`);
+					th.classList.add(`sort-${direction}`);
 				}
 			});
 
