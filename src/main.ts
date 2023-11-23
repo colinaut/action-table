@@ -48,7 +48,7 @@ export default class WebComponent extends HTMLElement {
 		this.ths = this.table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
-				const name = th.children[0]?.getAttribute("title") || th.textContent || "";
+				const name = th.dataset.col || th.children[0]?.getAttribute("title") || th.textContent || "";
 				if (name) this.cols.push({ name: name, index: th.cellIndex });
 			});
 		}
