@@ -1,4 +1,4 @@
-export default class WebComponent extends HTMLElement {
+export class ActionTable extends HTMLElement {
 	private shadow: ShadowRoot;
 
 	constructor() {
@@ -41,18 +41,40 @@ export default class WebComponent extends HTMLElement {
 		/* ------------------------ Grab elements from slots ------------------------ */
 		const slot = this.shadowRoot?.querySelector("slot");
 		if (!slot) return;
-		const element = slot.assignedElements()[0];
-		this.table = element.matches("table") ? (element as HTMLTableElement) : (element.querySelector("table") as HTMLTableElement);
+		const element = slot.assignedElements();
+
+		this.table = element.filter((el) => {
+			if (el.matches("table")) return el as HTMLTableElement;
+			if (el.querySelector("table")) return el.querySelector("table") as HTMLTableElement;
+			return false;
+		})[0];
+		console.log("🚀 ~ file: main.ts:51 ~ ActionTable ~ this.table=element.filter ~ this.table:", this.table);
+
+		// this.table = element.matches("table") ? (element as HTMLTableElement) : (element.querySelector("table") as HTMLTableElement);
 		if (!this.table) return;
 		this.tbody = this.table.querySelector("tbody") as HTMLTableSectionElement;
+
+		/* ----------------- Get Column Names and Indexes ----------------- */
+		const arrow_svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+        <path d="M9 16.172l-6.071-6.071-1.414 1.414 8.485 8.485 8.485-8.485-1.414-1.414-6.071 6.071v-16.172h-2z"></path>
+        </svg>
+        `;
 		this.ths = this.table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
 				const name = th.dataset.col || th.children[0]?.getAttribute("title") || th.textContent || "";
-				if (name) this.cols.push({ name: name, index: th.cellIndex });
+				if (name) {
+					this.cols.push({ name: name, index: th.cellIndex });
+					const span = document.createElement("span");
+					span.classList.add("sort-arrow");
+					// span.innerHTML = arrow_svg;
+					th.append(span);
+				}
 			});
 		}
-		this.rows = element.querySelectorAll("tbody tr");
+		console.log("action-table cols", this.cols);
+
+		this.rows = this.table.querySelectorAll("tbody tr");
 		this.rows_array = Array.from(this.rows);
 
 		/* ----------------- Sort Table Element if attribute is set ----------------- */
@@ -72,9 +94,16 @@ export default class WebComponent extends HTMLElement {
 			"click",
 			(event) => {
 				const el = event.target as HTMLTableCellElement;
-				if (el.tagName === "TH" && el.textContent) {
-					this.direction = el.textContent === this.sort ? "descending" : "ascending";
-					this.sort_table(el.textContent, this.direction);
+				if (el.tagName === "TH") {
+					const name = el.dataset.col || el.children[0]?.getAttribute("title") || el.textContent || "";
+					if (name) {
+						if (this.sort === name && this.direction === "ascending") {
+							this.direction = "descending";
+						} else {
+							this.direction = "ascending";
+						}
+						this.sort_table(name, this.direction);
+					}
 				}
 			},
 			false
@@ -121,10 +150,60 @@ export default class WebComponent extends HTMLElement {
 	}
 
 	private render(): void {
+		console.log("render action-table");
+
 		const html = `<div><slot></slot></div>`;
 		const css = `<style></style>`;
 
 		this.shadow.innerHTML = `${css}${html}`;
 	}
 }
-customElements.define("action-table", WebComponent);
+
+export class ActionTableFilter extends HTMLElement {
+	private shadow: ShadowRoot;
+
+	constructor() {
+		super();
+		this.shadow = this.attachShadow({ mode: "open" });
+	}
+
+	static get observedAttributes(): string[] {
+		return ["col", "options", "label", "switch"];
+	}
+
+	get col(): string {
+		return this.getAttribute("col") || "";
+	}
+
+	get options(): string {
+		return this.getAttribute("options") || "";
+	}
+
+	get label(): string {
+		return this.getAttribute("label") || "";
+	}
+
+	get switch(): string {
+		return this.getAttribute("switch") || "";
+	}
+
+	private addEventListeners(): void {}
+
+	public connectedCallback(): void {
+		this.render();
+
+		this.addEventListeners();
+	}
+
+	private render(): void {
+		const html = `${this.label ? `<label>${this.label}</label>` : ""}<select>${this.options
+			.split(",")
+			.map((option) => `<option value="${option}">${option}</option>`)}</select>`;
+		const css = `<style></style>`;
+
+		this.shadow.innerHTML = `${css}${html}`;
+	}
+}
+
+customElements.define("action-table", ActionTable);
+customElements.define("action-table-filter", ActionTableFilter);
