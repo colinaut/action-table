@@ -10,9 +10,10 @@ export class ActionTable extends HTMLElement {
 	private table!: HTMLTableElement;
 	private tbody!: HTMLTableSectionElement;
 	private ths!: NodeListOf<HTMLTableCellElement>;
-	private cols: { name: string; index: number }[] = [];
+	private cols: { name: string; index: number; filter?: string }[] = [];
 	private rows!: NodeListOf<HTMLTableRowElement>;
-	private rows_array!: Array<HTMLTableRowElement>;
+	private rowsArray!: Array<HTMLTableRowElement>;
+	private rowsArrayFiltered!: Array<HTMLTableRowElement>;
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 Attributes                                 */
@@ -47,18 +48,12 @@ export class ActionTable extends HTMLElement {
 			if (el.matches("table")) return el as HTMLTableElement;
 			if (el.querySelector("table")) return el.querySelector("table") as HTMLTableElement;
 			return false;
-		})[0];
+		})[0] as HTMLTableElement;
 		console.log("🚀 ~ file: main.ts:51 ~ ActionTable ~ this.table=element.filter ~ this.table:", this.table);
 
-		// this.table = element.matches("table") ? (element as HTMLTableElement) : (element.querySelector("table") as HTMLTableElement);
-		if (!this.table) return;
 		this.tbody = this.table.querySelector("tbody") as HTMLTableSectionElement;
 
 		/* ----------------- Get Column Names and Indexes ----------------- */
-		const arrow_svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
-        <path d="M9 16.172l-6.071-6.071-1.414 1.414 8.485 8.485 8.485-8.485-1.414-1.414-6.071 6.071v-16.172h-2z"></path>
-        </svg>
-        `;
 		this.ths = this.table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
@@ -75,11 +70,12 @@ export class ActionTable extends HTMLElement {
 		console.log("action-table cols", this.cols);
 
 		this.rows = this.table.querySelectorAll("tbody tr");
-		this.rows_array = Array.from(this.rows);
+		this.rowsArray = Array.from(this.rows);
+		this.rowsArrayFiltered = this.rowsArray;
 
 		/* ----------------- Sort Table Element if attribute is set ----------------- */
 		if (this.sort) {
-			this.sort_table(this.sort, this.direction);
+			this.sortTable();
 		}
 
 		this.addEventListeners();
@@ -100,33 +96,66 @@ export class ActionTable extends HTMLElement {
 						if (this.sort === name && this.direction === "ascending") {
 							this.direction = "descending";
 						} else {
+							this.sort = name;
 							this.direction = "ascending";
 						}
-						this.sort_table(name, this.direction);
+						this.sortTable();
 					}
 				}
 			},
 			false
 		);
+
+		// TODO: add function to filter for numbers against a value range
+		// TODO: add function to filter for dates against a date range
+		// TODO: add function to filter for an array of strings so can have multiple select dropdown
+
+		// Add listener for custom event "action-table-filter" which logs the event detail
+		this.shadow.addEventListener("action-table-filter", (event) => {
+			const { col, value } = (<CustomEvent>event).detail;
+			// if value = "" that resets the filter for that column
+			this.cols = this.cols.map((c) => {
+				if (c.name.toLowerCase() === col.toLowerCase()) {
+					c.filter = value;
+				}
+				return c;
+			});
+			this.filterTable();
+			this.sortTable();
+		});
 	}
 
-	private sort_table(column: string, direction: string) {
-		console.log("sort_table", column, direction);
-		this.sort = column;
+	private filterTable() {
+		this.rowsArray.forEach((row) => {
+			row.style.display = "";
+			const cells = row.children as HTMLCollectionOf<HTMLElement>;
+			this.cols.forEach((col) => {
+				if (col.filter) {
+					const content = cells[col.index].textContent?.toLowerCase() || cells[col.index].dataset.sort?.toLowerCase() || "";
+					if (content.includes(col.filter.toLowerCase())) {
+					} else {
+						row.style.display = "none";
+					}
+				}
+			});
+		});
+		this.sortTable();
+	}
 
+	private sortTable() {
 		// Get column index from column name
-		const column_index = this.cols.findIndex((c) => c.name === column);
-		console.log("🚀 ~ file: main.ts:83 ~ WebComponent ~ sort_table ~ column_index:", column_index);
-		console.log("🚀 ~ file: main.ts:83 ~ WebComponent ~ sort_table ~ this.rows_array:", this.rows_array);
+		const column_index = this.cols.findIndex((c) => c.name === this.sort);
+		console.log("🚀 ~ file: main.ts:83 ~ WebComponent ~ sortTable ~ column_index:", column_index);
+		console.log("🚀 ~ file: main.ts:83 ~ WebComponent ~ sortTable ~ this.rows_array:", this.rowsArray);
 
 		// Sort
-		if (column_index >= 0 && this.rows_array.length > 0) {
-			this.rows_array.sort((r1, r2) => {
+		if (column_index >= 0 && this.rowsArrayFiltered.length > 0) {
+			this.rowsArray.sort((r1, r2) => {
 				const c1 = r1.children[column_index] as HTMLTableCellElement;
 				const c2 = r2.children[column_index] as HTMLTableCellElement;
 				const v1 = c1.dataset.sort || c1.textContent || "";
 				const v2 = c2.dataset.sort || c2.textContent || "";
-				if (direction === "ascending") {
+				if (this.direction === "ascending") {
 					if (v1 < v2) return -1;
 					if (v1 > v2) return 1;
 				} else {
@@ -140,12 +169,12 @@ export class ActionTable extends HTMLElement {
 			this.ths.forEach((th) => {
 				th.classList.remove("sort-ascending");
 				th.classList.remove("sort-descending");
-				if (th.textContent === column) {
-					th.classList.add(`sort-${direction}`);
+				if (th.textContent === this.sort) {
+					th.classList.add(`sort-${this.direction}`);
 				}
 			});
 
-			this.rows_array.forEach((row) => this.tbody.appendChild(row));
+			this.rowsArray.forEach((row) => this.tbody.appendChild(row));
 		}
 	}
 
@@ -187,7 +216,21 @@ export class ActionTableFilter extends HTMLElement {
 		return this.getAttribute("switch") || "";
 	}
 
-	private addEventListeners(): void {}
+	private addEventListeners(): void {
+		// Add event listener that detects changes in the select element
+		this.shadow.addEventListener("change", (event) => {
+			const el = event.target as HTMLSelectElement;
+			if (el.tagName === "SELECT") {
+				const col = this.col;
+				if (col) {
+					const value = el.value;
+					const detail = { col, value };
+					this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
+					console.log("🚀 ~ file: main.ts:200 ~ ActionTableFilter ~ this.shadow.addEventListener ~ detail:", detail);
+				}
+			}
+		});
+	}
 
 	public connectedCallback(): void {
 		this.render();
@@ -196,7 +239,7 @@ export class ActionTableFilter extends HTMLElement {
 	}
 
 	private render(): void {
-		const html = `${this.label ? `<label>${this.label}</label>` : ""}<select>${this.options
+		const html = `${this.label ? `<label>${this.label}</label> ` : ""}<select data-col="${this.col}"><option value="">All</option>${this.options
 			.split(",")
 			.map((option) => `<option value="${option}">${option}</option>`)}</select>`;
 		const css = `<style></style>`;
