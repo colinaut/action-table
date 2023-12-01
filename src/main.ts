@@ -42,6 +42,11 @@ export class ActionTable extends HTMLElement {
 		/* ------------------------ Grab elements from slots ------------------------ */
 		const slot = this.shadowRoot?.querySelector("slot");
 		if (!slot) return;
+		// Detect slot changes
+		// slot.addEventListener("slotchange", () => {
+		// 	let nodes = slot.assignedNodes();
+		// 	console.log(`Element in Slot "${slot}" changed`, nodes);
+		// });
 		const element = slot.assignedElements();
 
 		this.table = element.filter((el) => {
@@ -49,7 +54,7 @@ export class ActionTable extends HTMLElement {
 			if (el.querySelector("table")) return el.querySelector("table") as HTMLTableElement;
 			return false;
 		})[0] as HTMLTableElement;
-		console.log("🚀 ~ file: main.ts:51 ~ ActionTable ~ this.table=element.filter ~ this.table:", this.table);
+		// console.log("🚀 ~ file: main.ts:51 ~ ActionTable ~ this.table=element.filter ~ this.table:", this.table);
 
 		this.tbody = this.table.querySelector("tbody") as HTMLTableSectionElement;
 
@@ -113,6 +118,8 @@ export class ActionTable extends HTMLElement {
 		// Add listener for custom event "action-table-filter" which logs the event detail
 		this.shadow.addEventListener("action-table-filter", (event) => {
 			const { col, value } = (<CustomEvent>event).detail;
+			console.log(`Filter ${col} to ${value}`);
+
 			// if value = "" that resets the filter for that column
 			this.cols = this.cols.map((c) => {
 				if (c.name.toLowerCase() === col.toLowerCase()) {
@@ -121,7 +128,6 @@ export class ActionTable extends HTMLElement {
 				return c;
 			});
 			this.filterTable();
-			this.sortTable();
 		});
 	}
 
@@ -145,11 +151,10 @@ export class ActionTable extends HTMLElement {
 	private sortTable() {
 		// Get column index from column name
 		const column_index = this.cols.findIndex((c) => c.name === this.sort);
-		console.log("🚀 ~ file: main.ts:83 ~ WebComponent ~ sortTable ~ column_index:", column_index);
-		console.log("🚀 ~ file: main.ts:83 ~ WebComponent ~ sortTable ~ this.rows_array:", this.rowsArray);
-
 		// Sort
 		if (column_index >= 0 && this.rowsArrayFiltered.length > 0) {
+			console.log(`sort by ${this.sort} ${this.direction}`);
+
 			this.rowsArray.sort((r1, r2) => {
 				const c1 = r1.children[column_index] as HTMLTableCellElement;
 				const c2 = r2.children[column_index] as HTMLTableCellElement;
@@ -196,6 +201,8 @@ export class ActionTableFilter extends HTMLElement {
 		this.shadow = this.attachShadow({ mode: "open" });
 	}
 
+	// TODO: Add exact attribute that switches the filter to be exact match rather than includes
+
 	static get observedAttributes(): string[] {
 		return ["col", "options", "label", "switch"];
 	}
@@ -226,7 +233,7 @@ export class ActionTableFilter extends HTMLElement {
 					const value = el.value;
 					const detail = { col, value };
 					this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
-					console.log("🚀 ~ file: main.ts:200 ~ ActionTableFilter ~ this.shadow.addEventListener ~ detail:", detail);
+					// console.log("🚀 ~ file: main.ts:200 ~ ActionTableFilter ~ this.shadow.addEventListener ~ detail:", detail);
 				}
 			}
 		});

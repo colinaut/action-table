@@ -26,7 +26,7 @@
 						<td>white</td>
 					</tr>
 					<tr>
-						<td>dog</td>
+						<td>small dog</td>
 						<td>Sophia</td>
 						<td>black</td>
 					</tr>
@@ -63,5 +63,22 @@
 				</tbody>
 			</table>
 		</action-table>
+		<button id="test-button">change Steve to Gus</button>
+		<script type="text/javascript">
+			// document ready
+			document.addEventListener("DOMContentLoaded", function () {
+				document.getElementById("test-button").addEventListener("click", function () {
+					console.log("test button clicked");
+					//change all cells with Steve to Gus
+					document.querySelectorAll("td").forEach(function (td) {
+						if (td.textContent === "Steve") {
+							td.textContent = "Gus";
+							// change previous cell to dog
+							td.previousElementSibling.textContent = "dog";
+						}
+					});
+				});
+			});
+		</script>
 	</body>
 </html>
