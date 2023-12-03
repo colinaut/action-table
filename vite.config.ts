@@ -7,7 +7,6 @@ import packageJson from "./package.json";
 // TODO: improve how docs are generated
 
 // https://vitejs.dev/config/
-import { resolve } from "path";
 
 export default defineConfig(({ mode }) => {
 	return {
