@@ -7,13 +7,10 @@ export class ActionTable extends HTMLElement {
 	}
 
 	// TODO: review if I really need all of these variables
-	private table!: HTMLTableElement;
 	private tbody!: HTMLTableSectionElement;
 	private ths!: NodeListOf<HTMLTableCellElement>;
 	private cols: { name: string; index: number; filter?: string }[] = [];
-	private rows!: NodeListOf<HTMLTableRowElement>;
 	private rowsArray!: Array<HTMLTableRowElement>;
-	private rowsArrayFiltered!: Array<HTMLTableRowElement>;
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 Attributes                                 */
@@ -49,17 +46,29 @@ export class ActionTable extends HTMLElement {
 		// });
 		const element = slot.assignedElements();
 
-		this.table = element.filter((el) => {
+		const table = element.filter((el) => {
 			if (el.matches("table")) return el as HTMLTableElement;
 			if (el.querySelector("table")) return el.querySelector("table") as HTMLTableElement;
 			return false;
 		})[0] as HTMLTableElement;
-		// console.log("🚀 ~ file: main.ts:51 ~ ActionTable ~ this.table=element.filter ~ this.table:", this.table);
 
-		this.tbody = this.table.querySelector("tbody") as HTMLTableSectionElement;
+		this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
 
-		/* ----------------- Get Column Names and Indexes ----------------- */
-		this.ths = this.table.querySelectorAll("th");
+		this.getColumns(table);
+
+		const rows = this.tbody.querySelectorAll("tbody tr") as NodeListOf<HTMLTableRowElement>;
+		this.rowsArray = Array.from(rows);
+
+		/* ----------------- Sort Table Element if attribute is set ----------------- */
+		if (this.sort) {
+			this.sortTable();
+		}
+
+		this.addEventListeners();
+	}
+
+	private getColumns(table: HTMLTableElement): Array<{ name: string; index: number; filter?: string }> {
+		this.ths = table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
 				// Column name is based on data-col attribute or title attribute of first child or text content of th or first child text content
@@ -75,17 +84,7 @@ export class ActionTable extends HTMLElement {
 			});
 		}
 		console.log("action-table cols", this.cols);
-
-		this.rows = this.table.querySelectorAll("tbody tr");
-		this.rowsArray = Array.from(this.rows);
-		this.rowsArrayFiltered = this.rowsArray;
-
-		/* ----------------- Sort Table Element if attribute is set ----------------- */
-		if (this.sort) {
-			this.sortTable();
-		}
-
-		this.addEventListeners();
+		return this.cols;
 	}
 
 	public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -179,7 +178,7 @@ export class ActionTable extends HTMLElement {
 		// Get column index from column name
 		const column_index = this.cols.findIndex((c) => c.name === sort);
 		// Sort
-		if (column_index >= 0 && this.rowsArrayFiltered.length > 0) {
+		if (column_index >= 0 && this.rowsArray.length > 0) {
 			console.log(`sort by ${sort} ${direction}`);
 
 			this.rowsArray.sort((r1, r2) => {
