@@ -44,6 +44,14 @@ export class ActionTableFilter extends HTMLElement {
 		});
 	}
 
+	public resetFilter() {
+		console.log(`reset filter ${this.col}`);
+		const select = this.shadowRoot?.querySelector("select");
+		if (select) {
+			select.value = "";
+		}
+	}
+
 	public connectedCallback(): void {
 		this.render();
 

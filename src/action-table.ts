@@ -44,9 +44,9 @@ export class ActionTable extends HTMLElement {
 		// 	let nodes = slot.assignedNodes();
 		// 	console.log(`Element in Slot "${slot}" changed`, nodes);
 		// });
-		const element = slot.assignedElements();
+		const elements = slot.assignedElements();
 
-		const table = element.filter((el) => {
+		const table = elements.filter((el) => {
 			if (el.matches("table")) return el as HTMLTableElement;
 			if (el.querySelector("table")) return el.querySelector("table") as HTMLTableElement;
 			return false;
@@ -133,6 +133,17 @@ export class ActionTable extends HTMLElement {
 			return { name: c.name, index: c.index, filter: "" };
 		});
 		this.filterTable();
+		const slot = this.shadowRoot?.querySelector("slot");
+		const elements = slot?.assignedElements();
+		interface ActionTableFilter extends HTMLElement {
+			resetFilter(): void;
+		}
+		elements?.forEach((el) => {
+			el.querySelectorAll("action-table-filter").forEach((el) => {
+				const filter = el as ActionTableFilter;
+				filter.resetFilter();
+			});
+		});
 	}
 
 	public filterTable(col = "", value = "") {
