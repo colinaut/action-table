@@ -13,7 +13,7 @@ export class ActionTableFilter extends HTMLElement {
 	}
 
 	get col(): string {
-		return this.getAttribute("col") || "";
+		return this.getAttribute("col")?.trim().toLowerCase() || "";
 	}
 
 	get options(): string {

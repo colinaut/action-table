@@ -73,6 +73,7 @@
 			</table>
 		</action-table>
 		<button id="test-button">change Steve to Gus</button>
+		<button id="test-button2">Reset Filter for Animal</button>
 		<script type="text/javascript">
 			// document ready
 			document.addEventListener("DOMContentLoaded", function () {
@@ -86,6 +87,12 @@
 							td.previousElementSibling.textContent = "dog";
 						}
 					});
+				});
+				document.getElementById("test-button2").addEventListener("click", function () {
+					console.log("test button 2 clicked");
+					//change all cells with Steve to Gus
+					const actionTable = document.querySelector("action-table");
+					actionTable.filter("animal");
 				});
 			});
 		</script>

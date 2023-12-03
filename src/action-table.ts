@@ -24,13 +24,13 @@ export class ActionTable extends HTMLElement {
 	}
 
 	get sort(): string {
-		return this.getAttribute("sort")?.toLowerCase() || "";
+		return this.getAttribute("sort")?.trim().toLowerCase() || "";
 	}
 	set sort(value) {
 		if (typeof value === "string") this.setAttribute("sort", value);
 	}
 	get direction(): string {
-		return this.getAttribute("direction")?.toLowerCase() || "ascending";
+		return this.getAttribute("direction")?.trim().toLowerCase() || "ascending";
 	}
 	set direction(value) {
 		if (typeof value === "string") this.setAttribute("direction", value);
@@ -42,6 +42,11 @@ export class ActionTable extends HTMLElement {
 		/* ------------------------ Grab elements from slots ------------------------ */
 		const slot = this.shadowRoot?.querySelector("slot");
 		if (!slot) return;
+		// Detect slot changes
+		// slot.addEventListener("slotchange", () => {
+		// 	let nodes = slot.assignedNodes();
+		// 	console.log(`Element in Slot "${slot}" changed`, nodes);
+		// });
 		const element = slot.assignedElements();
 
 		this.table = element.filter((el) => {
@@ -58,7 +63,8 @@ export class ActionTable extends HTMLElement {
 		if (this.ths) {
 			this.ths.forEach((th) => {
 				// Column name is based on data-col attribute or title attribute of first child or text content of th or first child text content
-				const name = th.dataset.col || th.children[0]?.getAttribute("title") || th.textContent || th.children[0]?.textContent || "";
+				let name = th.dataset.col || th.children[0]?.getAttribute("title") || th.textContent || th.children[0]?.textContent || "";
+				name = name.trim().toLowerCase();
 				if (name) {
 					this.cols.push({ name: name, index: th.cellIndex });
 					const span = document.createElement("span");
@@ -92,8 +98,8 @@ export class ActionTable extends HTMLElement {
 			(event) => {
 				const el = event.target as HTMLTableCellElement;
 				if (el.tagName === "TH") {
-					let name = el.dataset.col || el.textContent || el.children[0]?.textContent || el.children[0]?.getAttribute("title") || "";
-					name = name.toLowerCase();
+					let name = el.dataset.col || el.children[0]?.getAttribute("title") || el.textContent || "";
+					name = name.trim().toLowerCase();
 					if (name) {
 						if (this.sort === name && this.direction === "ascending") {
 							this.direction = "descending";
@@ -120,7 +126,9 @@ export class ActionTable extends HTMLElement {
 		});
 	}
 
-	private filterTable(col = "", value = "") {
+	public filterTable(col = "", value = "") {
+		col = col?.trim().toLowerCase();
+		value = value?.trim().toLowerCase();
 		// Add filter to cols array
 		// if value = "" that resets the filter for that column
 		this.cols = this.cols.map((c) => {
@@ -137,7 +145,7 @@ export class ActionTable extends HTMLElement {
 			this.cols.forEach((col) => {
 				if (col.filter) {
 					let content = cells[col.index].textContent || cells[col.index].dataset.sort || "";
-					content = content.toLowerCase();
+					content = content?.trim().toLowerCase();
 					if (content.includes(col.filter)) {
 					} else {
 						row.style.display = "none";
@@ -151,12 +159,13 @@ export class ActionTable extends HTMLElement {
 
 	private getCellSortValue(cell: HTMLTableCellElement) {
 		let cellContent: string | number = cell.dataset.sort || cell.textContent || "";
-		cellContent = cellContent.trim().toLowerCase();
 		cellContent = Number(cellContent) ? Number(cellContent) : cellContent;
 		return cellContent;
 	}
 
-	private sortTable(sort = this.sort, direction = this.direction) {
+	public sortTable(sort = this.sort, direction = this.direction) {
+		sort = sort?.trim().toLowerCase();
+		direction = direction?.trim().toLowerCase();
 		// Get column index from column name
 		const column_index = this.cols.findIndex((c) => c.name === sort);
 		// Sort
