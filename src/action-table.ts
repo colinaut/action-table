@@ -124,6 +124,16 @@ export class ActionTable extends HTMLElement {
 			console.log(`Filter ${col} to ${value}`);
 			this.filterTable(col, value);
 		});
+		this.shadow.addEventListener("action-table-filter-reset", () => {
+			this.resetFilters();
+		});
+	}
+
+	public resetFilters(): void {
+		this.cols = this.cols.map((c) => {
+			return { name: c.name, index: c.index, filter: "" };
+		});
+		this.filterTable();
 	}
 
 	public filterTable(col = "", value = "") {

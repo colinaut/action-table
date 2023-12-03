@@ -60,4 +60,32 @@ export class ActionTableFilter extends HTMLElement {
 	}
 }
 
+export class ActionTableFilterReset extends HTMLElement {
+	private shadow: ShadowRoot;
+
+	constructor() {
+		super();
+		this.shadow = this.attachShadow({ mode: "open" });
+	}
+
+	public connectedCallback(): void {
+		this.render();
+		this.addEventListeners();
+	}
+
+	private render(): void {
+		const html = `<button part="reset-button"><slot>Reset Filters</slot></button>`;
+
+		this.shadow.innerHTML = `${html}`;
+	}
+
+	private addEventListeners(): void {
+		// Add event listener that detects changes in the select element
+		this.shadow.addEventListener("click", () => {
+			this.dispatchEvent(new CustomEvent("action-table-filter-reset", { bubbles: true }));
+		});
+	}
+}
+
 customElements.define("action-table-filter", ActionTableFilter);
+customElements.define("action-table-filter-reset", ActionTableFilterReset);

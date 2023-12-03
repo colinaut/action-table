@@ -36,3 +36,7 @@ td {
     border: 1px solid #ccc;
     padding: .2em .4em;
 }
+.filters {
+    display: flex;
+    gap: 1em;
+}

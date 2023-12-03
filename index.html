@@ -9,8 +9,11 @@
 	</head>
 	<body>
 		<action-table>
-			<action-table-filter label="Show Only" options="rabbit,dog,raccoon,cat" col="animal"></action-table-filter>
-			<action-table-filter label="Show Only" options="black,white,brown,gray" col="color"></action-table-filter>
+			<div class="filters">
+				<action-table-filter label="Show Only" options="rabbit,dog,raccoon,cat" col="animal"></action-table-filter>
+				<action-table-filter label="Show Only" options="black,white,brown,gray" col="color"></action-table-filter>
+				<action-table-filter-reset></action-table-filter-reset>
+			</div>
 			<table>
 				<thead>
 					<tr>
@@ -73,7 +76,6 @@
 			</table>
 		</action-table>
 		<button id="test-button">change Steve to Gus</button>
-		<button id="test-button2">Reset Filter for Animal</button>
 		<script type="text/javascript">
 			// document ready
 			document.addEventListener("DOMContentLoaded", function () {
@@ -87,13 +89,6 @@
 							td.previousElementSibling.textContent = "dog";
 						}
 					});
-				});
-				document.getElementById("test-button2").addEventListener("click", function () {
-					console.log("test button 2 clicked");
-					//change all cells with Steve to Gus
-					const actionTable = document.querySelector("action-table");
-					console.log("🚀 ~ file: index.html:95 ~ actionTable:", actionTable);
-					actionTable.filterTable("animal");
 				});
 			});
 		</script>
