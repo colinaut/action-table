@@ -7,6 +7,8 @@ import packageJson from "./package.json";
 // TODO: improve how docs are generated
 
 // https://vitejs.dev/config/
+import { resolve } from "path";
+
 export default defineConfig(({ mode }) => {
 	return {
 		esbuild: {
@@ -18,10 +20,15 @@ export default defineConfig(({ mode }) => {
 				polyfill: false,
 			},
 			rollupOptions: {
-				// Grabs file name from package.json for dist
+				input: {
+					main: resolve(__dirname, "index.html"),
+					"action-table": resolve(__dirname, "src/action-table.ts"),
+					"action-table-filter": resolve(__dirname, "src/action-table-filter.ts"),
+				},
 				output: [
 					{
-						entryFileNames: () => `${parse(packageJson.main).name}.js`,
+						entryFileNames: `[name].js`,
+						assetFileNames: `assets/[name].[ext]`,
 						dir: "dist",
 					},
 				],

@@ -4,9 +4,91 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Web Component Starter</title>
-		<script type="module" crossorigin src="/web-component.js"></script>
+		<script type="module" crossorigin src="/action-table.js"></script>
+		<script type="module" crossorigin src="/action-table-filter.js"></script>
+		<link rel="stylesheet" crossorigin href="/assets/main.css">
 	</head>
 	<body>
-		<web-component>Basic Slot Text</web-component>
+		<action-table>
+			<action-table-filter label="Show Only" options="rabbit,dog,raccoon,cat" col="animal"></action-table-filter>
+			<action-table-filter label="Show Only" options="black,white,brown,gray" col="color"></action-table-filter>
+			<table>
+				<thead>
+					<tr>
+						<th>Animal</th>
+						<th>Name</th>
+						<th>Color</th>
+						<th>Number</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>rabbit</td>
+						<td>Attila</td>
+						<td>white</td>
+						<td>8</td>
+					</tr>
+					<tr>
+						<td>small dog</td>
+						<td>Sophia</td>
+						<td>black</td>
+						<td>54</td>
+					</tr>
+					<tr>
+						<td>rabbit</td>
+						<td>Cindy Lop Ear</td>
+						<td>brown</td>
+						<td>35</td>
+					</tr>
+					<tr>
+						<td>raccoon</td>
+						<td>Sewer</td>
+						<td>gray</td>
+						<td>12</td>
+					</tr>
+					<tr>
+						<td>dog</td>
+						<td>Ziggy</td>
+						<td>gray</td>
+						<td>99</td>
+					</tr>
+					<tr>
+						<td>raccoon</td>
+						<td>Wrapper</td>
+						<td>brown</td>
+						<td>2</td>
+					</tr>
+					<tr>
+						<td>cat</td>
+						<td>Tommy</td>
+						<td>brown</td>
+						<td>42</td>
+					</tr>
+					<tr>
+						<td>cat</td>
+						<td>Steve</td>
+						<td>black</td>
+						<td>76</td>
+					</tr>
+				</tbody>
+			</table>
+		</action-table>
+		<button id="test-button">change Steve to Gus</button>
+		<script type="text/javascript">
+			// document ready
+			document.addEventListener("DOMContentLoaded", function () {
+				document.getElementById("test-button").addEventListener("click", function () {
+					console.log("test button clicked");
+					//change all cells with Steve to Gus
+					document.querySelectorAll("td").forEach(function (td) {
+						if (td.textContent === "Steve") {
+							td.textContent = "Gus";
+							// change previous cell to dog
+							td.previousElementSibling.textContent = "dog";
+						}
+					});
+				});
+			});
+		</script>
 	</body>
 </html>
