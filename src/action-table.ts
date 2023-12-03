@@ -129,10 +129,6 @@ export class ActionTable extends HTMLElement {
 	}
 
 	public resetFilters(): void {
-		this.cols = this.cols.map((c) => {
-			return { name: c.name, index: c.index, filter: "" };
-		});
-		this.filterTable();
 		const slot = this.shadowRoot?.querySelector("slot");
 		const elements = slot?.assignedElements();
 		interface ActionTableFilter extends HTMLElement {

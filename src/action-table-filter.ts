@@ -50,6 +50,8 @@ export class ActionTableFilter extends HTMLElement {
 		if (select) {
 			select.value = "";
 		}
+		const detail = { col: this.col, value: "" };
+		this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
 	}
 
 	public connectedCallback(): void {
