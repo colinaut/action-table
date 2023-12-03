@@ -163,7 +163,7 @@ export class ActionTable extends HTMLElement {
 		return cellContent;
 	}
 
-	public sortTable(sort = this.sort, direction = this.direction) {
+	sortTable(sort = this.sort, direction = this.direction) {
 		sort = sort?.trim().toLowerCase();
 		direction = direction?.trim().toLowerCase();
 		// Get column index from column name
