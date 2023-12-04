@@ -129,7 +129,9 @@ export class ActionTable extends HTMLElement {
 
 	public filterTable(col = "", value = "") {
 		col = col?.trim().toLowerCase();
-		value = value?.trim().toLowerCase();
+		if (typeof value === "string") {
+			value = value.trim();
+		}
 		// Add filter to cols array
 		// if value = "" that resets the filter for that column
 		this.cols = this.cols.map((c) => {
@@ -144,11 +146,27 @@ export class ActionTable extends HTMLElement {
 			row.style.display = "";
 			const cells = row.children as HTMLCollectionOf<HTMLElement>;
 			this.cols.forEach((col) => {
-				if (col.filter) {
-					let content = cells[col.index].textContent || cells[col.index].dataset.sort || "";
-					content = content?.trim().toLowerCase();
-					const regex = new RegExp(col.filter);
+				let content = cells[col.index].textContent || cells[col.index].dataset.sort || "";
+				content = content?.trim();
+
+				if (col.filter && typeof col.filter === "string") {
+					const regex = new RegExp(col.filter, "i");
 					if (regex.test(content)) {
+						// row.style.display = "table-row";
+					} else {
+						row.style.display = "none";
+					}
+				} else if (col.filter && Array.isArray(col.filter)) {
+					const filterArray = col.filter as string[];
+					let regexString = "(";
+					filterArray.forEach((value, i) => {
+						regexString += `${value}`;
+						regexString += i < filterArray.length - 1 ? "|" : "";
+					});
+					regexString += ")";
+					const regex = new RegExp(regexString, "i");
+					if (regex.test(content)) {
+						// row.style.display = "table-row";
 					} else {
 						row.style.display = "none";
 					}

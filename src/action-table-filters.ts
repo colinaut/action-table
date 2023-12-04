@@ -38,10 +38,19 @@ export class ActionTableFilters extends HTMLElement {
 			if (el.type === "checkbox") {
 				const input = el as HTMLInputElement;
 				input.addEventListener("change", () => {
-					let detail = { col: input.name, value: input.value };
-					if (!input.checked) {
-						detail = { col: input.name, value: "" };
-					}
+					const checkboxValues = Array.from(this.filters)
+						.filter((filter) => {
+							if (filter.type === "checkbox") {
+								const checkbox = filter as HTMLInputElement;
+								return checkbox.type === "checkbox" && checkbox.name === input.name && checkbox.checked;
+							} else {
+								return false;
+							}
+						})
+						.map((checkbox) => checkbox.value);
+
+					let detail = { col: input.name, value: checkboxValues };
+
 					this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
 				});
 			}
