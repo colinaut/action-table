@@ -30,11 +30,7 @@ export class ActionTableFilters extends HTMLElement {
 	}
 
 	private addEventListeners(): void {
-		// Add event listener that detects changes in the select element
-
 		this.filters?.forEach((el) => {
-			console.log("el:", el);
-			// TODO: allow multiple checkboxes for an array of filters
 			if (el.type === "checkbox") {
 				const input = el as HTMLInputElement;
 				input.addEventListener("change", () => {

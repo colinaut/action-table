@@ -40,3 +40,8 @@ td {
     display: flex;
     gap: 1em;
 }
+action-table-filters {
+    display: flex;
+    flex-direction: column;
+    gap: .3em;
+}
