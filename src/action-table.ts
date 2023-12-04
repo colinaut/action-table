@@ -1,9 +1,6 @@
 export class ActionTable extends HTMLElement {
-	private shadow: ShadowRoot;
-
 	constructor() {
 		super();
-		// this.shadow = this.attachShadow({ mode: "open" });
 	}
 
 	// TODO: review if I really need all of these variables
@@ -150,7 +147,8 @@ export class ActionTable extends HTMLElement {
 				if (col.filter) {
 					let content = cells[col.index].textContent || cells[col.index].dataset.sort || "";
 					content = content?.trim().toLowerCase();
-					if (content.includes(col.filter)) {
+					const regex = new RegExp(col.filter);
+					if (regex.test(content)) {
 					} else {
 						row.style.display = "none";
 					}
