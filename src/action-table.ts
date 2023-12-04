@@ -3,7 +3,7 @@ export class ActionTable extends HTMLElement {
 
 	constructor() {
 		super();
-		this.shadow = this.attachShadow({ mode: "open" });
+		// this.shadow = this.attachShadow({ mode: "open" });
 	}
 
 	// TODO: review if I really need all of these variables
@@ -34,23 +34,7 @@ export class ActionTable extends HTMLElement {
 	}
 
 	public connectedCallback(): void {
-		this.render();
-
-		/* ------------------------ Grab elements from slots ------------------------ */
-		const slot = this.shadowRoot?.querySelector("slot");
-		if (!slot) return;
-		// Detect slot changes
-		// slot.addEventListener("slotchange", () => {
-		// 	let nodes = slot.assignedNodes();
-		// 	console.log(`Element in Slot "${slot}" changed`, nodes);
-		// });
-		const elements = slot.assignedElements();
-
-		const table = elements.filter((el) => {
-			if (el.matches("table")) return el as HTMLTableElement;
-			if (el.querySelector("table")) return el.querySelector("table") as HTMLTableElement;
-			return false;
-		})[0] as HTMLTableElement;
+		const table = this.querySelector("table") as HTMLTableElement;
 
 		this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
 
@@ -92,7 +76,7 @@ export class ActionTable extends HTMLElement {
 	}
 
 	private addEventListeners(): void {
-		this.shadow.addEventListener(
+		this.addEventListener(
 			"click",
 			(event) => {
 				const el = event.target as HTMLTableCellElement;
@@ -118,27 +102,24 @@ export class ActionTable extends HTMLElement {
 		// TODO: add function to filter for an array of strings so can have multiple select dropdown
 
 		// Add listener for custom event "action-table-filter" which logs the event detail
-		this.shadow.addEventListener("action-table-filter", (event) => {
+		this.addEventListener("action-table-filter", (event) => {
 			const { col, value } = (<CustomEvent>event).detail;
 			console.log(`Filter ${col} to ${value}`);
 			this.filterTable(col, value);
 		});
-		this.shadow.addEventListener("action-table-filter-reset", () => {
+		this.addEventListener("action-table-filter-reset", () => {
 			this.resetFilters();
 		});
 	}
 
 	public resetFilters(): void {
-		const slot = this.shadowRoot?.querySelector("slot");
-		const elements = slot?.assignedElements();
 		interface ActionTableFilter extends HTMLElement {
 			resetFilter(): void;
 		}
-		elements?.forEach((el) => {
-			el.querySelectorAll("action-table-filter").forEach((el) => {
-				const filter = el as ActionTableFilter;
-				filter.resetFilter();
-			});
+		const filterMenus = this.querySelectorAll("action-table-filter") as NodeListOf<ActionTableFilter>;
+
+		filterMenus?.forEach((el) => {
+			el.resetFilter();
 		});
 	}
 
@@ -208,22 +189,13 @@ export class ActionTable extends HTMLElement {
 			this.ths.forEach((th) => {
 				th.classList.remove("sort-ascending");
 				th.classList.remove("sort-descending");
-				if (th.textContent === sort) {
+				if (th.textContent?.trim().toLowerCase() === sort) {
 					th.classList.add(`sort-${direction}`);
 				}
 			});
 
 			this.rowsArray.forEach((row) => this.tbody.appendChild(row));
 		}
-	}
-
-	private render(): void {
-		console.log("render action-table");
-
-		const html = `<slot></slot>`;
-		const css = `<style></style>`;
-
-		this.shadow.innerHTML = `${css}${html}`;
 	}
 }
 
