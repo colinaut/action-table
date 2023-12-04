@@ -107,19 +107,26 @@ export class ActionTable extends HTMLElement {
 			console.log(`Filter ${col} to ${value}`);
 			this.filterTable(col, value);
 		});
+
 		this.addEventListener("action-table-filter-reset", () => {
 			this.resetFilters();
 		});
 	}
 
 	public resetFilters(): void {
+		// remove all filters from this.col then call filterTable
+		this.cols.forEach((col) => {
+			col.filter = "";
+		});
+		this.filterTable();
+		// find all action-table-filter elements and call resetFilter
 		interface ActionTableFilter extends HTMLElement {
-			resetFilter(): void;
+			resetFilter(options?: { dispatch: boolean }): void;
 		}
-		const filterMenus = this.querySelectorAll("action-table-filter") as NodeListOf<ActionTableFilter>;
+		const filterMenus = this.querySelectorAll("action-table-filter-menu, action-table-filter-switch") as NodeListOf<ActionTableFilter>;
 
 		filterMenus?.forEach((el) => {
-			el.resetFilter();
+			el.resetFilter({ dispatch: false });
 		});
 	}
 

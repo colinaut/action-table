@@ -30,20 +30,21 @@ export class ActionTableFilterMenu extends HTMLElement {
 					const value = el.value;
 					const detail = { col, value };
 					this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
-					// console.log("🚀 ~ file: main.ts:200 ~ ActionTableFilter ~ this.shadow.addEventListener ~ detail:", detail);
 				}
 			}
 		});
 	}
 
-	public resetFilter() {
-		console.log(`reset filter ${this.col}`);
+	public resetFilter(options = { dispatch: true }) {
+		// console.log(`reset filter ${this.col}`);
 		const select = this.shadowRoot?.querySelector("select");
 		if (select) {
 			select.value = "";
 		}
-		const detail = { col: this.col, value: "" };
-		this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
+		if (options.dispatch) {
+			const detail = { col: this.col, value: "" };
+			this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
+		}
 	}
 
 	public connectedCallback(): void {
@@ -53,10 +54,15 @@ export class ActionTableFilterMenu extends HTMLElement {
 	}
 
 	private render(): void {
+		const css = `<style>
+        label {
+            display: inline-block;
+            margin-inline-end: 0.5em;
+        }
+        </style>`;
 		const html = `<label part="label"><slot>Sort by</slot></label><select part="select" name="filter-${this.col}" data-col="${
 			this.col
 		}"><option value="">All</option>${this.options.split(",").map((option) => `<option value="${option}">${option}</option>`)}</select>`;
-		const css = `<style></style>`;
 
 		this.shadow.innerHTML = `${css}${html}`;
 	}
@@ -116,11 +122,17 @@ export class ActionTableFilterSwitch extends HTMLElement {
 
 	private render(): void {
 		const css = `<style>
+        :host {
+            --action-table-filter-switch-focus dodgerblue;
+            --action-table-filter-switch-unchecked: lightgray;
+            --action-table-filter-switch-checked: green;
+        }
         input {
             appearance: none;
             position: relative;
             display: inline-block;
-            background: lightgrey;
+            background: var(--action-table-filter-switch-unchecked);
+            cursor: pointer;
             height: 1.4em;
             width: 2.75em;
             vertical-align: middle;
@@ -143,7 +155,7 @@ export class ActionTableFilterSwitch extends HTMLElement {
             transform: translateX(0rem);
           }
           :checked {
-            background: green;
+            background: var(--action-table-filter-switch-checked);
           }
           :checked::before {
             transform: translateX(1rem);
@@ -152,7 +164,7 @@ export class ActionTableFilterSwitch extends HTMLElement {
             outline: transparent;
           }
           input:focus-visible {
-            outline: 2px solid dodgerblue;
+            outline: 2px solid var(--action-table-filter-switch-focus);
             outline-offset: 2px;
           }
           </style>`;
@@ -166,9 +178,28 @@ export class ActionTableFilterSwitch extends HTMLElement {
 
 	private addEventListeners(): void {
 		// Add event listener that detects changes in the select element
-		this.shadow.addEventListener("click", () => {
-			this.dispatchEvent(new CustomEvent("action-table-filter-reset", { bubbles: true }));
+		this.shadow.addEventListener("click", (event) => {
+			const target = event.target as HTMLInputElement;
+			const checked = target.checked;
+			let detail = { col: this.col, value: "" };
+			if (checked) {
+				detail = { col: this.col, value: this.filter };
+			}
+			this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
 		});
+	}
+
+	public resetFilter(options = { dispatch: true }) {
+		// set the checkbox to false
+
+		const input = this.shadow.querySelector("input");
+		if (input) {
+			input.checked = false;
+		}
+		if (options.dispatch) {
+			const detail = { col: this.col, value: "" };
+			this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
+		}
 	}
 }
 
