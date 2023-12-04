@@ -1,4 +1,4 @@
-export class ActionTableFilter extends HTMLElement {
+export class ActionTableFilterMenu extends HTMLElement {
 	private shadow: ShadowRoot;
 
 	constructor() {
@@ -97,5 +97,5 @@ export class ActionTableFilterReset extends HTMLElement {
 	}
 }
 
-customElements.define("action-table-filter", ActionTableFilter);
+customElements.define("action-table-filter-menu", ActionTableFilterMenu);
 customElements.define("action-table-filter-reset", ActionTableFilterReset);
