@@ -61,7 +61,7 @@ export class ActionTableFilter extends HTMLElement {
 	}
 
 	private render(): void {
-		const html = `${this.label ? `<label>${this.label}</label> ` : ""}<select data-col="${this.col}"><option value="">All</option>${this.options
+		const html = `${this.label ? `<label part="label">${this.label}</label> ` : ""}<select part="select" data-col="${this.col}"><option value="">All</option>${this.options
 			.split(",")
 			.map((option) => `<option value="${option}">${option}</option>`)}</select>`;
 		const css = `<style></style>`;
