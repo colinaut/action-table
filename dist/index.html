@@ -4,14 +4,35 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Web Component Starter</title>
-		<script type="module" crossorigin src="/action-table.js"></script>
-		<script type="module" crossorigin src="/action-table-filter.js"></script>
+		<script type="module" crossorigin src="/main.js"></script>
+		<link rel="modulepreload" crossorigin href="/action-table.js">
+		<link rel="modulepreload" crossorigin href="/action-table-filter.js">
 		<link rel="stylesheet" crossorigin href="/assets/main.css">
 	</head>
 	<body>
 		<action-table>
-			<action-table-filter label="Show Only" options="rabbit,dog,raccoon,cat" col="animal"></action-table-filter>
-			<action-table-filter label="Show Only" options="black,white,brown,gray" col="color"></action-table-filter>
+			<div>
+				<action-table-filters>
+					<label for="animal">Filter by animal</label>
+					<select name="animal" id="animal">
+						<option value="">All</option>
+						<option value="rabbit">Rabbit</option>
+						<option value="dog">Dog</option>
+						<option value="raccoon">Raccoon</option>
+						<option value="cat">Cat</option>
+					</select>
+					<label for="color">Filter by color</label>
+					<select name="color" id="color">
+						<option value="">All</option>
+						<option value="black">Black</option>
+						<option value="white">White</option>
+						<option value="brown">Brown</option>
+						<option value="gray">Gray</option>
+					</select>
+					<label><input type="checkbox" name="animal" id="small-dog" value="small dog" />Show Only Small Dogs</label>
+					<button type="reset">Reset</button>
+				</action-table-filters>
+			</div>
 			<table>
 				<thead>
 					<tr>

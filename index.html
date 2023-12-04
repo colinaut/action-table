@@ -9,11 +9,27 @@
 	</head>
 	<body>
 		<action-table>
-			<div class="filters">
-				<action-table-filter-menu options="rabbit,dog,raccoon,cat" col="animal"></action-table-filter-menu>
-				<action-table-filter-menu options="black,white,brown,gray" col="color"></action-table-filter-menu>
-				<action-table-filter-switch col="animal" filter="small dog">Show only small dogs</action-table-filter-switch>
-				<action-table-filter-reset></action-table-filter-reset>
+			<div>
+				<action-table-filters>
+					<label for="animal">Filter by animal</label>
+					<select name="animal" id="animal">
+						<option value="">All</option>
+						<option value="rabbit">Rabbit</option>
+						<option value="dog">Dog</option>
+						<option value="raccoon">Raccoon</option>
+						<option value="cat">Cat</option>
+					</select>
+					<label for="color">Filter by color</label>
+					<select name="color" id="color">
+						<option value="">All</option>
+						<option value="black">Black</option>
+						<option value="white">White</option>
+						<option value="brown">Brown</option>
+						<option value="gray">Gray</option>
+					</select>
+					<label><input type="checkbox" name="animal" id="small-dog" value="small dog" />Show Only Small Dogs</label>
+					<button type="reset">Reset</button>
+				</action-table-filters>
 			</div>
 			<table>
 				<thead>
