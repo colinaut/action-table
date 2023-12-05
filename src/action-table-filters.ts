@@ -85,3 +85,5 @@ export class ActionTableFilters extends HTMLElement {
 }
 
 customElements.define("action-table-filters", ActionTableFilters);
+import "./action-table-filter-menu";
+import "./action-table-filter-switch";
