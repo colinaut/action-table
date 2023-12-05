@@ -52,15 +52,12 @@ export class ActionTable extends HTMLElement {
 		this.ths = table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
-				if (th.dataset.sortable === "false") {
-					return;
-				}
 				// Column name is based on data-col attribute or innerText
 				let name = th.dataset.col || th.innerText || "";
 				name = name.trim().toLowerCase();
 				if (name) {
 					this.cols.push({ name: name, index: th.cellIndex });
-					th.dataset.sortable = "true";
+					if (th.dataset.sortable !== "false") th.dataset.sortable = "true";
 				}
 			});
 		}
@@ -78,6 +75,7 @@ export class ActionTable extends HTMLElement {
 			(event) => {
 				const el = event.target as HTMLTableCellElement;
 				if (el.tagName === "TH") {
+					if (el.dataset.sortable === "false") return;
 					let name = el.dataset.col || el.innerText || "";
 					name = name.trim().toLowerCase();
 					if (name) {
