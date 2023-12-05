@@ -2,6 +2,8 @@
 
 Native HTML web component for adding sort functionality and filtering to html tables. This component does not use the Shadow DOM. Instead it includes a custom css stylesheet you can use, which you can override or customize.
 
+Check out the [Demo Page](https://colinaut.github.io/action-table/)
+
 ## Action Table
 
 To use the `<action-table>` component you must wrap it around a table. The table must include both a thead and a tbody for the main sortable rows. The component will automatically make the table sortable based on these header cells, using the innerText of the "thead th" as the column name. If for some reason you do not want a column to be sortable then add `data-sortable="false"` to the th.
