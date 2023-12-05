@@ -41,7 +41,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	private render(): void {
-		this.innerHTML = `<label><input type="checkbox" ${this.checked ? "checked" : ""}><span class="sr-only">${this.label}</span></label>`;
+		this.innerHTML = `<input type="checkbox" ${this.checked ? "checked" : ""} aria-label="${this.label}">`;
 	}
 }
 
