@@ -17,10 +17,8 @@ export class ActionTableFilters extends HTMLElement {
 			}
 			if (filter.type === "radio") {
 				const input = filter as HTMLInputElement;
-				if ((input.value = "")) {
+				if (input.value === "") {
 					input.checked = true;
-				} else {
-					input.checked = false;
 				}
 			}
 			if (filter.tagName.toLowerCase() === "select") {
@@ -63,6 +61,7 @@ export class ActionTableFilters extends HTMLElement {
 				el.addEventListener("change", () => {
 					const detail = { col: el.name, value: el.value };
 					this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
+					console.log("🚀 ~ file: action-table-filters.ts:68 ~ ActionTableFilters ~ el.addEventListener ~ detail:", detail);
 				});
 			}
 			if (el.tagName.toLowerCase() === "select") {
