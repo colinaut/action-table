@@ -17,7 +17,7 @@
 		"not dead"
 	],
 	"scripts": {
-		"build": "tsc && vite build && cp -r dist docs",
+		"build": "tsc && vite build && rm -rf docs && cp -r dist docs",
 		"dev": "vite",
 		"preview": "vite preview",
 		"start": "vite",
