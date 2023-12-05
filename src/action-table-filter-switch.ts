@@ -25,7 +25,7 @@ export class ActionTableFilterSwitch extends HTMLElement {
 	}
 
 	private render(): void {
-		const html = `<label class="switch">
+		const html = `<label>
         <input type="checkbox" />
         <span>${this.label}</span>
       </label>`;
