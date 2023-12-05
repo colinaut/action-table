@@ -1,17 +1,18 @@
-table {
+action-table table {
     border-collapse: collapse;
     margin: 1em 0;
 }
 
-th {
+action-table th {
     border: 1px solid #ccc;
     padding: .2em 2em .2em .4em;
-    background-color: #eee;
+    background-color: var(--action-table-th, whitesmoke);
     cursor: pointer;
     position: relative;
     text-align: left;
 }
-.sort-ascending .sort-arrow, .sort-descending .sort-arrow {
+action-table th[class*="sort"]:after {
+    content: "";
     background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M9 16.172l-6.071-6.071-1.414 1.414 8.485 8.485 8.485-8.485-1.414-1.414-6.071 6.071v-16.172h-2z'%3E%3C/path%3E%3C/svg%3E%0A");
     background-repeat: no-repeat;
     background-position: center right;
@@ -24,12 +25,12 @@ th {
     top: .4em;
     float: right;
 }
-.sort-descending .sort-arrow {
+action-table th.sort-descending:after {
     transform: rotate(180deg);
 }
 
-th:hover {
-    background-color: rgb(149, 250, 250);
+action-table th:hover {
+    background-color: var(--action-table-th-hover, paleturquoise);
 }
 
 td {
@@ -51,6 +52,10 @@ td span {
     padding: 0 .4em;
     border-radius: .2em;
     margin: 0 .2em;
+}
+
+:not(:defined) {
+   visibility: hidden;
 }
 
 /* -------------------------------------------------------------------------- */

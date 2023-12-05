@@ -57,10 +57,6 @@ export class ActionTable extends HTMLElement {
 				name = name.trim().toLowerCase();
 				if (name) {
 					this.cols.push({ name: name, index: th.cellIndex });
-					const span = document.createElement("span");
-					span.classList.add("sort-arrow");
-					// span.innerHTML = arrow_svg;
-					th.append(span);
 				}
 			});
 		}
