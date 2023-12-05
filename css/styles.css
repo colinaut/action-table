@@ -52,3 +52,55 @@ td span {
     border-radius: .2em;
     margin: 0 .2em;
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                   Switch                                   */
+/* -------------------------------------------------------------------------- */
+
+
+action-table .switch {
+    display: flex;
+    align-items: center;
+    margin: auto;
+}
+action-table .switch input {
+    appearance: none;
+    position: relative;
+    display: inline-block;
+    background: var(--action-table-switch-unchecked, lightgray);
+    cursor: pointer;
+    height: 1.4em;
+    width: 2.75em;
+    vertical-align: middle;
+    border-radius: 2em;
+    box-shadow: 0px 1px 3px #0003 inset;
+    transition: 0.25s linear background;
+    margin-inline-end: 0.5em;
+  }
+  action-table .switch input::before {
+    content: "";
+    display: block;
+    width: 1em;
+    height: 1em;
+    background: #fff;
+    border-radius: 1em;
+    position: absolute;
+    top: 0.2em;
+    left: 0.2em;
+    box-shadow: 0px 1px 3px #0003;
+    transition: 0.25s linear transform;
+    transform: translateX(0rem);
+  }
+  action-table .switch :checked {
+    background: var(--action-table-switch-checked, green);
+  }
+  action-table .switch :checked::before {
+    transform: translateX(1rem);
+  }
+  action-table .switch input:focus {
+    outline: transparent;
+  }
+  action-table .switch input:focus-visible {
+    outline: 2px solid var(--action-table-switch-focus, dodgerblue);
+    outline-offset: 2px;
+  }
