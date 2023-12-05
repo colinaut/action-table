@@ -210,9 +210,9 @@ export class ActionTable extends HTMLElement {
 
 			// Remove "sorted" and direction classes from all th and add for sorted column
 			this.ths.forEach((th) => {
-				th.dataset.sort_direction = "";
+				th.setAttribute("aria-sort", "none");
 				if (th.dataset.sort === sort || th.innerText?.trim().toLowerCase() === sort) {
-					th.dataset.sort_direction = direction;
+					th.setAttribute("aria-sort", direction);
 				}
 			});
 

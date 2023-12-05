@@ -40,15 +40,15 @@ action-table th[data-sortable="true"]:after {
     transition: transform .3s ease-in-out, opacity .3s ease-in-out;
 }
 
-action-table th[data-sort_direction$="ing"] {
+action-table th[aria-sort$="ing"] {
     background-color: var(--action-table-th-on, thistle);
 }
 
-action-table th[data-sort_direction$="ing"]:after {
+action-table th[aria-sort$="ing"]:after {
     opacity: 1;
 }
 
-action-table th[data-sort_direction="descending"]:after {
+action-table th[aria-sort="descending"]:after {
     opacity: 1;
     transform: rotate(180deg);
 }
