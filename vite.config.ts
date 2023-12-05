@@ -23,11 +23,12 @@ export default defineConfig(({ mode }) => {
 					main: resolve(__dirname, "index.html"),
 					"action-table": resolve(__dirname, "src/action-table.ts"),
 					"action-table-filters": resolve(__dirname, "src/action-table-filters.ts"),
+					"action-table-switch": resolve(__dirname, "src/action-table-switch.ts"),
 				},
 				output: [
 					{
 						entryFileNames: `[name].js`,
-						assetFileNames: `assets/[name].[ext]`,
+						assetFileNames: `assets/action-table.[ext]`,
 						dir: "dist",
 					},
 				],

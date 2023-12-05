@@ -6,7 +6,8 @@
 		<title>Web Component Starter</title>
 		<script type="module" crossorigin src="/action-table.js"></script>
 		<script type="module" crossorigin src="/action-table-filters.js"></script>
-		<link rel="stylesheet" crossorigin href="/assets/main.css">
+		<script type="module" crossorigin src="/action-table-switch.js"></script>
+		<link rel="stylesheet" crossorigin href="/assets/action-table.css">
 	</head>
 	<body>
 		<action-table>
@@ -39,7 +40,10 @@
 						<label><input type="radio" name="number" value="7" />7</label>
 					</div>
 					<div>
-						<action-table-filter-switch col="favs" filter="favorite">Favorites</action-table-filter-switch>
+						<action-table-filter-switch class="star" col="Favs"></action-table-filter-switch>
+					</div>
+					<div>
+						<action-table-filter-switch class="switch" col="Switch"></action-table-filter-switch>
 					</div>
 					<div><button type="reset">Reset</button></div>
 				</action-table-filters>
@@ -53,6 +57,7 @@
 						<th>Number</th>
 						<th>Actions</th>
 						<th>Favs</th>
+                        <th>Switch</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -63,32 +68,9 @@
 						<td>8</td>
 						<td><span>jump</span><span>eat</span></td>
 						<td>
-							<svg
-								title="not fav"
-								version="1.0"
-								id="Layer_1"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>unfav</title>
-								<path
-									fill="#231F20"
-									d="M32.001,2.484c0.279,0,0.463,0.509,0.463,0.509l8.806,18.759l20.729,3.167L47,40.299L50.541,62
-                           l-18.54-10.254L13.461,62l3.541-21.701L2.003,24.919l20.729-3.167L31.53,3.009C31.53,3.009,31.722,2.484,32.001,2.484 M32.001,0.007
-                           c-0.775,0-1.48,0.448-1.811,1.15l-8.815,18.778L1.701,22.941c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657l-3.378,20.704c-0.124,0.756,0.195,1.517,0.822,1.957
-                           C12.653,63.877,13.057,64,13.461,64c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           c0.523-0.537,0.703-1.321,0.465-2.031c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.812,1.157
-                           C33.481,0.455,32.776,0.007,32.001,0.007L32.001,0.007z"
-								/>
-							</svg>
+							<action-table-switch class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox" aria-label="switch"></input></td>
 					</tr>
 					<tr>
 						<td>small dog</td>
@@ -97,30 +79,9 @@
 						<td>54</td>
 						<td><span>run</span><span>eat</span><span>snuggle</span></td>
 						<td>
-							<svg
-								version="1.0"
-								id="Layer_1"
-								title="fav"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>favorite</title>
-								<path
-									fill="#231F20"
-									d="M63.893,24.277c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.809,1.15
-                           C33.479,0.448,32.773,0,31.998,0s-1.48,0.448-1.811,1.15l-8.815,18.778L1.698,22.935c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657L11.484,61.67c-0.124,0.756,0.195,1.517,0.822,1.957
-                           c0.344,0.243,0.747,0.366,1.151,0.366c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           C63.951,25.771,64.131,24.987,63.893,24.277z"
-								/>
-							</svg>
+							<action-table-switch checked class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox" aria-label="switch"></input></td>
 					</tr>
 					<tr>
 						<td>rabbit</td>
@@ -130,30 +91,9 @@
 						<td><span>jump</span><span>run</span></td>
 
 						<td>
-							<svg
-								version="1.0"
-								id="Layer_1"
-								title="fav"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>favorite</title>
-								<path
-									fill="#231F20"
-									d="M63.893,24.277c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.809,1.15
-                           C33.479,0.448,32.773,0,31.998,0s-1.48,0.448-1.811,1.15l-8.815,18.778L1.698,22.935c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657L11.484,61.67c-0.124,0.756,0.195,1.517,0.822,1.957
-                           c0.344,0.243,0.747,0.366,1.151,0.366c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           C63.951,25.771,64.131,24.987,63.893,24.277z"
-								/>
-							</svg>
+							<action-table-switch checked class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox"></input></td>
 					</tr>
 					<tr>
 						<td>raccoon</td>
@@ -162,32 +102,9 @@
 						<td>12</td>
 						<td><span>run</span><span>eat</span><span>hide</span></td>
 						<td>
-							<svg
-								title="not fav"
-								version="1.0"
-								id="Layer_1"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>unfav</title>
-								<path
-									fill="#231F20"
-									d="M32.001,2.484c0.279,0,0.463,0.509,0.463,0.509l8.806,18.759l20.729,3.167L47,40.299L50.541,62
-                           l-18.54-10.254L13.461,62l3.541-21.701L2.003,24.919l20.729-3.167L31.53,3.009C31.53,3.009,31.722,2.484,32.001,2.484 M32.001,0.007
-                           c-0.775,0-1.48,0.448-1.811,1.15l-8.815,18.778L1.701,22.941c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657l-3.378,20.704c-0.124,0.756,0.195,1.517,0.822,1.957
-                           C12.653,63.877,13.057,64,13.461,64c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           c0.523-0.537,0.703-1.321,0.465-2.031c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.812,1.157
-                           C33.481,0.455,32.776,0.007,32.001,0.007L32.001,0.007z"
-								/>
-							</svg>
+							<action-table-switch class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox" aria-label="switch"></input></td>
 					</tr>
 					<tr>
 						<td>dog</td>
@@ -196,30 +113,9 @@
 						<td>99</td>
 						<td><span>run</span><span>snuggle</span></td>
 						<td>
-							<svg
-								version="1.0"
-								id="Layer_1"
-								title="fav"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>favorite</title>
-								<path
-									fill="#231F20"
-									d="M63.893,24.277c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.809,1.15
-                           C33.479,0.448,32.773,0,31.998,0s-1.48,0.448-1.811,1.15l-8.815,18.778L1.698,22.935c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657L11.484,61.67c-0.124,0.756,0.195,1.517,0.822,1.957
-                           c0.344,0.243,0.747,0.366,1.151,0.366c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           C63.951,25.771,64.131,24.987,63.893,24.277z"
-								/>
-							</svg>
+							<action-table-switch class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox" aria-label="switch"></input></td>
 					</tr>
 					<tr>
 						<td>raccoon</td>
@@ -228,32 +124,9 @@
 						<td>2</td>
 						<td><span>eat</span></td>
 						<td>
-							<svg
-								title="not fav"
-								version="1.0"
-								id="Layer_1"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>unfav</title>
-								<path
-									fill="#231F20"
-									d="M32.001,2.484c0.279,0,0.463,0.509,0.463,0.509l8.806,18.759l20.729,3.167L47,40.299L50.541,62
-                           l-18.54-10.254L13.461,62l3.541-21.701L2.003,24.919l20.729-3.167L31.53,3.009C31.53,3.009,31.722,2.484,32.001,2.484 M32.001,0.007
-                           c-0.775,0-1.48,0.448-1.811,1.15l-8.815,18.778L1.701,22.941c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657l-3.378,20.704c-0.124,0.756,0.195,1.517,0.822,1.957
-                           C12.653,63.877,13.057,64,13.461,64c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           c0.523-0.537,0.703-1.321,0.465-2.031c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.812,1.157
-                           C33.481,0.455,32.776,0.007,32.001,0.007L32.001,0.007z"
-								/>
-							</svg>
+							<action-table-switch class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox" checked  aria-label="switch"></input></td>
 					</tr>
 					<tr>
 						<td>cat</td>
@@ -262,30 +135,9 @@
 						<td>42</td>
 						<td><span>run</span><span>explore</span></td>
 						<td>
-							<svg
-								version="1.0"
-								id="Layer_1"
-								title="fav"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>favorite</title>
-								<path
-									fill="#231F20"
-									d="M63.893,24.277c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.809,1.15
-                           C33.479,0.448,32.773,0,31.998,0s-1.48,0.448-1.811,1.15l-8.815,18.778L1.698,22.935c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657L11.484,61.67c-0.124,0.756,0.195,1.517,0.822,1.957
-                           c0.344,0.243,0.747,0.366,1.151,0.366c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           C63.951,25.771,64.131,24.987,63.893,24.277z"
-								/>
-							</svg>
+							<action-table-switch checked class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox" aria-label="switch"></input></td>
 					</tr>
 					<tr>
 						<td>cat</td>
@@ -294,32 +146,9 @@
 						<td>76</td>
 						<td><span>run</span><span>snuggle</span></td>
 						<td>
-							<svg
-								title="not fav"
-								version="1.0"
-								id="Layer_1"
-								xmlns="http://www.w3.org/2000/svg"
-								xmlns:xlink="http://www.w3.org/1999/xlink"
-								width="20px"
-								height="20px"
-								viewBox="0 0 64 64"
-								enable-background="new 0 0 64 64"
-								xml:space="preserve"
-							>
-								<title>unfav</title>
-								<path
-									fill="#231F20"
-									d="M32.001,2.484c0.279,0,0.463,0.509,0.463,0.509l8.806,18.759l20.729,3.167L47,40.299L50.541,62
-                           l-18.54-10.254L13.461,62l3.541-21.701L2.003,24.919l20.729-3.167L31.53,3.009C31.53,3.009,31.722,2.484,32.001,2.484 M32.001,0.007
-                           c-0.775,0-1.48,0.448-1.811,1.15l-8.815,18.778L1.701,22.941c-0.741,0.113-1.356,0.632-1.595,1.343
-                           c-0.238,0.71-0.059,1.494,0.465,2.031l14.294,14.657l-3.378,20.704c-0.124,0.756,0.195,1.517,0.822,1.957
-                           C12.653,63.877,13.057,64,13.461,64c0.332,0,0.666-0.084,0.968-0.25l17.572-9.719l17.572,9.719c0.302,0.166,0.636,0.25,0.968,0.25
-                           c0.404,0,0.808-0.123,1.151-0.366c0.627-0.44,0.946-1.201,0.822-1.957l-3.378-20.704l14.294-14.657
-                           c0.523-0.537,0.703-1.321,0.465-2.031c-0.238-0.711-0.854-1.229-1.595-1.343l-19.674-3.006L33.812,1.157
-                           C33.481,0.455,32.776,0.007,32.001,0.007L32.001,0.007z"
-								/>
-							</svg>
+							<action-table-switch class="star"></action-table-switch>
 						</td>
+                        <td class="switch"><input type="checkbox" checked aria-label="switch"></input></td>
 					</tr>
 				</tbody>
 			</table>
