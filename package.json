@@ -6,9 +6,9 @@
 		"web component",
 		"typescript"
 	],
-	"repository": "",
+	"repository": "https://colinaut.github.io/action-table/",
 	"license": "MIT",
-	"author": "",
+	"author": "Colin Fahrion",
 	"type": "module",
 	"main": "dist/action-table.js",
 	"browserslist": [
