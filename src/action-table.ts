@@ -118,7 +118,7 @@ export class ActionTable extends HTMLElement {
 		this.filterTable();
 	}
 
-	public filterTable(col = "", value = "") {
+	public filterTable(col = "", value = "", regexOpt = "i"): void {
 		col = col?.trim().toLowerCase();
 		if (typeof value === "string") {
 			value = value.trim();
@@ -140,7 +140,7 @@ export class ActionTable extends HTMLElement {
 				const cell = cells[col.index] as HTMLTableCellElement;
 				const content = this.getCellContent(cell).toString();
 				if (col.filter && typeof col.filter === "string") {
-					const regex = new RegExp(col.filter, "i");
+					const regex = new RegExp(col.filter, regexOpt);
 					if (regex.test(content)) {
 						// row.style.display = "table-row";
 					} else {
@@ -154,7 +154,7 @@ export class ActionTable extends HTMLElement {
 						regexString += i < filterArray.length - 1 ? "|" : "";
 					});
 					regexString += ")";
-					const regex = new RegExp(regexString, "i");
+					const regex = new RegExp(regexString, regexOpt);
 					if (regex.test(content)) {
 						// row.style.display = "table-row";
 					} else {
