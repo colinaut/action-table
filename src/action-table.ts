@@ -155,7 +155,6 @@ export class ActionTable extends HTMLElement {
 					});
 					regexString += ")";
 					const regex = new RegExp(regexString, "i");
-					console.log("🚀 ~ file: action-table.ts:170 regex:", content, regex, regex.test(content));
 					if (regex.test(content)) {
 						// row.style.display = "table-row";
 					} else {
