@@ -17,7 +17,8 @@
 		"not dead"
 	],
 	"scripts": {
-		"build": "tsc && vite build",
+		"build": "tsc && vite build && cp -r dist docs",
+		"dev": "vite",
 		"preview": "vite preview",
 		"start": "vite",
 		"test": "echo \"Error: no test specified\" && exit 1"

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Web Component Starter</title>
+		<script type="module" crossorigin src="/action-table.js"></script>
+		<script type="module" crossorigin src="/action-table-filters.js"></script>
+		<script type="module" crossorigin src="/action-table-switch.js"></script>
+		<link rel="stylesheet" crossorigin href="/assets/action-table.css">
+	</head>
+	<body>
+		<action-table>
+			<div>
+				<action-table-filters>
+					<div>
+						<action-table-filter-menu col="Animal"></action-table-filter-menu>
+					</div>
+					<div>
+						<label for="color">Colors</label>
+						<select name="color" id="color">
+							<option value="">All</option>
+							<option value="black">Black</option>
+							<option value="white">White</option>
+							<option value="brown">Brown</option>
+							<option value="gray">Gray</option>
+						</select>
+					</div>
+					<div>
+						<action-table-filter-menu col="Actions"></action-table-filter-menu>
+					</div>
+					<div>
+						<label><input type="checkbox" name="name" value="Sophia" />Sophia</label>
+						<label><input type="checkbox" name="name" value="Tommy" />Tommy</label>
+					</div>
+					<div>
+						<label><input type="radio" name="number" value="" checked />All</label>
+						<label><input type="radio" name="number" value="54" />54</label>
+						<label><input type="radio" name="number" value="35" />35</label>
+						<label><input type="radio" name="number" value="7" />7</label>
+					</div>
+					<div>
+						<action-table-filter-switch class="star" col="Favs"></action-table-filter-switch>
+					</div>
+					<div>
+						<action-table-filter-switch class="switch" col="Switch"></action-table-filter-switch>
+					</div>
+					<div><button type="reset">Reset</button></div>
+				</action-table-filters>
+			</div>
+			<table>
+				<thead>
+					<tr>
+						<th>Animal</th>
+						<th>Name</th>
+						<th>Color</th>
+						<th>Number</th>
+						<th>Actions</th>
+						<th>Favs</th>
+						<th data-sortable="false">Switch</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>rabbit</td>
+						<td>Attila</td>
+						<td>white</td>
+						<td>8</td>
+						<td><span>jump</span><span>eat</span></td>
+						<td>
+							<action-table-switch class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+					</tr>
+					<tr>
+						<td>small dog</td>
+						<td>Sophia</td>
+						<td>black</td>
+						<td>54</td>
+						<td><span>run</span><span>eat</span><span>snuggle</span></td>
+						<td>
+							<action-table-switch checked class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+					</tr>
+					<tr>
+						<td>rabbit</td>
+						<td>Cindy Lop Ear</td>
+						<td>brown</td>
+						<td>35</td>
+						<td><span>jump</span><span>run</span></td>
+
+						<td>
+							<action-table-switch checked class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+					</tr>
+					<tr>
+						<td>raccoon</td>
+						<td>Sewer</td>
+						<td>gray</td>
+						<td>12</td>
+						<td><span>run</span><span>eat</span><span>hide</span></td>
+						<td>
+							<action-table-switch class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+					</tr>
+					<tr>
+						<td>dog</td>
+						<td>Ziggy</td>
+						<td>gray</td>
+						<td>99</td>
+						<td><span>run</span><span>snuggle</span></td>
+						<td>
+							<action-table-switch class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+					</tr>
+					<tr>
+						<td>raccoon</td>
+						<td>Wrapper</td>
+						<td>brown</td>
+						<td>2</td>
+						<td><span>eat</span></td>
+						<td>
+							<action-table-switch class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
+					</tr>
+					<tr>
+						<td>cat</td>
+						<td>Tommy</td>
+						<td>brown</td>
+						<td>42</td>
+						<td><span>run</span><span>explore</span></td>
+						<td>
+							<action-table-switch checked class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+					</tr>
+					<tr>
+						<td>cat</td>
+						<td>Steve</td>
+						<td>black</td>
+						<td>76</td>
+						<td><span>run</span><span>snuggle</span></td>
+						<td>
+							<action-table-switch class="star"></action-table-switch>
+						</td>
+						<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
+					</tr>
+				</tbody>
+			</table>
+		</action-table>
+		<button id="test-button">change Steve to Gus</button>
+		<script type="text/javascript">
+			// document ready
+			document.addEventListener("DOMContentLoaded", function () {
+				document.getElementById("test-button").addEventListener("click", function () {
+					console.log("test button clicked");
+					//change all cells with Steve to Gus
+					document.querySelectorAll("td").forEach(function (td) {
+						if (td.textContent === "Steve") {
+							td.textContent = "Gus";
+							// change previous cell to dog
+							td.previousElementSibling.textContent = "dog";
+						}
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
