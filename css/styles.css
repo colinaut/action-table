@@ -104,6 +104,12 @@ action-table .switch input {
     outline-offset: 2px;
   }
 
+  action-table-filter-switch label {
+    display: inline-flex;
+    align-items: center;
+    gap: .2em;
+  }
+
   action-table .star input {
     appearance: none;
     background: var(--action-table-star-unchecked, gray);
@@ -113,18 +119,6 @@ action-table .switch input {
     vertical-align: middle;
     transition: 0.25s linear background;
     clip-path: polygon(50% 0%, 62% 29%, 98% 35%, 74% 58%, 79% 91%, 50% 76%, 21% 91%, 26% 58%, 2% 35%, 34% 29%);  
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 
   action-table .star input:checked {
