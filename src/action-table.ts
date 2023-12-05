@@ -57,6 +57,7 @@ export class ActionTable extends HTMLElement {
 				name = name.trim().toLowerCase();
 				if (name) {
 					this.cols.push({ name: name, index: th.cellIndex });
+					th.classList.add("sortable");
 				}
 			});
 		}

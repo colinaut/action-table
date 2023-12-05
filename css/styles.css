@@ -1,4 +1,8 @@
-action-table table {
+/* -------------------------------------------------------------------------- */
+/*                              Action Table CSS                              */
+/* -------------------------------------------------------------------------- */
+
+action-table table  {
     border-collapse: collapse;
     margin: 1em 0;
 }
@@ -11,7 +15,12 @@ action-table th {
     position: relative;
     text-align: left;
 }
-action-table th[class*="sort"]:after {
+
+action-table th[class*="sort-"] {
+    background-color: var(--action-table-th-on, thistle);
+}
+
+action-table th.sortable:after {
     content: "";
     background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M9 16.172l-6.071-6.071-1.414 1.414 8.485 8.485 8.485-8.485-1.414-1.414-6.071 6.071v-16.172h-2z'%3E%3C/path%3E%3C/svg%3E%0A");
     background-repeat: no-repeat;
@@ -20,12 +29,18 @@ action-table th[class*="sort"]:after {
     height: .7em;
     width: .7em;
     display: block;
+    opacity: 0;
     position: absolute;
     right: .4em;
     top: .4em;
     float: right;
+    transition: transform .3s ease-in-out, opacity .3s ease-in-out;
+}
+action-table th.sort-ascending:after {
+    opacity: 1;
 }
 action-table th.sort-descending:after {
+    opacity: 1;
     transform: rotate(180deg);
 }
 
@@ -33,35 +48,33 @@ action-table th:hover {
     background-color: var(--action-table-th-hover, paleturquoise);
 }
 
-td {
-    border: 1px solid #ccc;
+action-table td {
+    border: 1px solid lightgray;
     padding: .2em .4em;
 }
-.filters {
-    display: flex;
-    gap: 1em;
+
+/* Use spans for multiple values in cell */
+action-table td span {
+    background-color: #eee;
+    padding: 0 .4em .1em .4em;
+    border-radius: .4em;
+    margin: 0 .2em;
 }
+
+/* -------------------------- Action Table Filters -------------------------- */
+
 action-table-filters {
     display: flex;
     flex-direction: column;
     gap: .3em;
 }
 
-td span {
-    background-color: #eee;
-    padding: 0 .4em;
-    border-radius: .2em;
-    margin: 0 .2em;
+/* Hide action-table-filters by default as they only work with js loaded */
+action-table-filters:not(:defined) {
+    visibility: hidden;
 }
 
-:not(:defined) {
-   visibility: hidden;
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                   Switch                                   */
-/* -------------------------------------------------------------------------- */
-
+/* ------------------------------ Switch Toggle ----------------------------- */
 
 action-table .switch label {
     display: inline-flex;
@@ -101,10 +114,12 @@ action-table .switch input {
   action-table .switch :checked::before {
     transform: translateX(1rem);
   }
-  action-table .switch input:focus {
+  action-table .switch input:focus,
+  action-table .star input:focus {
     outline: transparent;
   }
-  action-table .switch input:focus-visible {
+  action-table .switch input:focus-visible,
+  action-table .star input:focus-visible {
     outline: 2px solid var(--action-table-switch-focus, dodgerblue);
     outline-offset: 2px;
   }
@@ -114,6 +129,8 @@ action-table .switch input {
     align-items: center;
     gap: .2em;
   }
+
+  /* --------------------------- Star Switch Toggle --------------------------- */
 
   action-table .star input {
     appearance: none;
