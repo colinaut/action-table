@@ -1,9 +1,9 @@
 export class ActionTableFilterMenu extends HTMLElement {
-	private shadow: ShadowRoot;
+	// private shadow: ShadowRoot;
 
 	constructor() {
 		super();
-		this.shadow = this.attachShadow({ mode: "open" });
+		// this.shadow = this.attachShadow({ mode: "open" });
 	}
 
 	// TODO: Add exact attribute that switches the filter to be exact match rather than includes
@@ -26,7 +26,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 
 	private addEventListeners(): void {
 		// Add event listener that detects changes in the select element
-		this.shadow.addEventListener("change", (event) => {
+		this.addEventListener("change", (event) => {
 			const el = event.target as HTMLSelectElement;
 			if (el.tagName === "SELECT") {
 				const col = this.col;
@@ -61,7 +61,6 @@ export class ActionTableFilterMenu extends HTMLElement {
 		} else {
 			options = Array.from(cells).map((cell) => cell.innerText);
 		}
-		console.log("🚀 ~ file: action-table-filter.ts:64 ~ ActionTableFilterMenu ~ findOptions ~ columnContent:", options);
 		this.options = Array.from(new Set(options)).join(",");
 	}
 
@@ -82,7 +81,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 			this.col
 		}"><option value="">All</option>${this.options.split(",").map((option) => `<option value="${option}">${option}</option>`)}</select>`;
 
-		this.shadow.innerHTML = `${css}${html}`;
+		this.innerHTML = `${css}${html}`;
 	}
 }
 
