@@ -52,12 +52,15 @@ export class ActionTable extends HTMLElement {
 		this.ths = table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
+				if (th.dataset.sortable === "false") {
+					return;
+				}
 				// Column name is based on data-col attribute or innerText
 				let name = th.dataset.col || th.innerText || "";
 				name = name.trim().toLowerCase();
 				if (name) {
 					this.cols.push({ name: name, index: th.cellIndex });
-					th.classList.add("sortable");
+					th.dataset.sortable = "true";
 				}
 			});
 		}
@@ -213,10 +216,9 @@ export class ActionTable extends HTMLElement {
 
 			// Remove "sorted" and direction classes from all th and add for sorted column
 			this.ths.forEach((th) => {
-				th.classList.remove("sort-ascending");
-				th.classList.remove("sort-descending");
+				th.dataset.sort_direction = "";
 				if (th.dataset.sort === sort || th.innerText?.trim().toLowerCase() === sort) {
-					th.classList.add(`sort-${direction}`);
+					th.dataset.sort_direction = direction;
 				}
 			});
 
