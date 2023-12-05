@@ -75,7 +75,6 @@ action-table .switch input {
     border-radius: 2em;
     box-shadow: 0px 1px 3px #0003 inset;
     transition: 0.25s linear background;
-    margin-inline-end: 0.5em;
   }
   action-table .switch input::before {
     content: "";
@@ -105,6 +104,29 @@ action-table .switch input {
     outline-offset: 2px;
   }
 
-  action-table .star {
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  action-table .star input {
+    appearance: none;
+    background: var(--action-table-star-unchecked, gray);
+    cursor: pointer;
+    height: 1.6em;
+    width: 1.6em;
+    vertical-align: middle;
+    transition: 0.25s linear background;
+    clip-path: polygon(50% 0%, 62% 29%, 98% 35%, 74% 58%, 79% 91%, 50% 76%, 21% 91%, 26% 58%, 2% 35%, 34% 29%);  
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  action-table .star input:checked {
+    background: var(--action-table-star-checked, orange);
   }

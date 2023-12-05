@@ -4,7 +4,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	static get observedAttributes(): string[] {
-		return ["checked"];
+		return ["checked", "label"];
 	}
 
 	get checked(): boolean {
@@ -16,6 +16,9 @@ export class ActionTableSwitch extends HTMLElement {
 		} else {
 			this.removeAttribute("checked");
 		}
+	}
+	get label(): string {
+		return this.getAttribute("label") || this.getAttribute("class") || "";
 	}
 
 	private sendEvent() {
@@ -33,13 +36,12 @@ export class ActionTableSwitch extends HTMLElement {
 
 	public connectedCallback(): void {
 		console.log("switch connected");
-
 		this.render();
 		this.addEventListeners();
 	}
 
 	private render(): void {
-		this.innerHTML = `<label><input type="checkbox" ${this.checked ? "checked" : ""}></label>`;
+		this.innerHTML = `<label><input type="checkbox" ${this.checked ? "checked" : ""}><span class="sr-only">${this.label}</span></label>`;
 	}
 }
 
