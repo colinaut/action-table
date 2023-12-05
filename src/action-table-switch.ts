@@ -22,7 +22,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	private sendEvent() {
-		const detail = { checked: this.checked };
+		const detail = { checked: this.checked, id: this.dataset.id };
 		this.dispatchEvent(new CustomEvent("action-table-switch", { detail, bubbles: true }));
 	}
 
