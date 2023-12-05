@@ -1,19 +1,16 @@
 export class ActionTableFilterMenu extends HTMLElement {
-	// private shadow: ShadowRoot;
-
 	constructor() {
 		super();
-		// this.shadow = this.attachShadow({ mode: "open" });
 	}
 
 	// TODO: Add exact attribute that switches the filter to be exact match rather than includes
 
 	static get observedAttributes(): string[] {
-		return ["col", "options"];
+		return ["col", "options", "label"];
 	}
 
 	get col(): string {
-		return this.getAttribute("col")?.trim().toLowerCase() || "";
+		return this.getAttribute("col") || "";
 	}
 
 	get options(): string {
@@ -22,6 +19,10 @@ export class ActionTableFilterMenu extends HTMLElement {
 
 	set options(value: string) {
 		this.setAttribute("options", value);
+	}
+
+	get label(): string {
+		return this.getAttribute("label") || this.col;
 	}
 
 	private addEventListeners(): void {
@@ -71,9 +72,9 @@ export class ActionTableFilterMenu extends HTMLElement {
 	}
 
 	private render(): void {
-		const html = `<label part="label"><slot>Filter by ${this.col}</slot></label><select part="select" name="filter-${this.col}" data-col="${
-			this.col
-		}"><option value="">All</option>${this.options.split(",").map((option) => `<option value="${option}">${option}</option>`)}</select>`;
+		const html = `<label>${this.label}</label> <select name="filter-${this.col}" data-col="${this.col}"><option value="">All</option>${this.options
+			.split(",")
+			.map((option) => `<option value="${option}">${option}</option>`)}</select>`;
 
 		this.innerHTML = `${html}`;
 	}
