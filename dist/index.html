@@ -14,14 +14,7 @@
 			<div>
 				<action-table-filters>
 					<div>
-						<label for="animal">Filter by animal</label>
-						<select name="animal" id="animal">
-							<option value="">All</option>
-							<option value="rabbit">Rabbit</option>
-							<option value="dog">Dog</option>
-							<option value="raccoon">Raccoon</option>
-							<option value="cat">Cat</option>
-						</select>
+						<action-table-filter-menu col="animal"></action-table-filter-menu>
 					</div>
 					<div>
 						<label for="color">Filter by color</label>
@@ -33,7 +26,9 @@
 							<option value="gray">Gray</option>
 						</select>
 					</div>
-
+					<div>
+						<action-table-filter-menu col="actions"></action-table-filter-menu>
+					</div>
 					<div>
 						<label><input type="checkbox" name="name" value="Sophia" />Sophia</label>
 						<label><input type="checkbox" name="name" value="Tommy" />Tommy</label>
@@ -45,7 +40,7 @@
 						<label><input type="radio" name="number" value="7" />7</label>
 					</div>
 					<div>
-						<label for="favs"><input type="checkbox" name="favs" id="favs" value="favorite" />Favorite</label>
+						<action-table-filter-switch col="favs" filter="favorite">Favorites</action-table-filter-switch>
 					</div>
 					<div><button type="reset">Reset</button></div>
 				</action-table-filters>
@@ -57,6 +52,7 @@
 						<th>Name</th>
 						<th>Color</th>
 						<th>Number</th>
+						<th>Actions</th>
 						<th>Favs</th>
 					</tr>
 				</thead>
@@ -66,6 +62,7 @@
 						<td>Attila</td>
 						<td>white</td>
 						<td>8</td>
+						<td><span>jump</span><span>eat</span></td>
 						<td>
 							<svg
 								title="not fav"
@@ -99,6 +96,7 @@
 						<td>Sophia</td>
 						<td>black</td>
 						<td>54</td>
+						<td><span>run</span><span>eat</span><span>snuggle</span></td>
 						<td>
 							<svg
 								version="1.0"
@@ -130,6 +128,8 @@
 						<td>Cindy Lop Ear</td>
 						<td>brown</td>
 						<td>35</td>
+						<td><span>jump</span><span>run</span></td>
+
 						<td>
 							<svg
 								version="1.0"
@@ -161,6 +161,7 @@
 						<td>Sewer</td>
 						<td>gray</td>
 						<td>12</td>
+						<td><span>run</span><span>eat</span><span>hide</span></td>
 						<td>
 							<svg
 								title="not fav"
@@ -194,6 +195,7 @@
 						<td>Ziggy</td>
 						<td>gray</td>
 						<td>99</td>
+						<td><span>run</span><span>snuggle</span></td>
 						<td>
 							<svg
 								version="1.0"
@@ -225,6 +227,7 @@
 						<td>Wrapper</td>
 						<td>brown</td>
 						<td>2</td>
+						<td><span>eat</span></td>
 						<td>
 							<svg
 								title="not fav"
@@ -258,6 +261,7 @@
 						<td>Tommy</td>
 						<td>brown</td>
 						<td>42</td>
+						<td><span>run</span><span>explore</span></td>
 						<td>
 							<svg
 								version="1.0"
@@ -289,6 +293,7 @@
 						<td>Steve</td>
 						<td>black</td>
 						<td>76</td>
+						<td><span>run</span><span>snuggle</span></td>
 						<td>
 							<svg
 								title="not fav"

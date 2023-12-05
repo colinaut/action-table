@@ -27,6 +27,15 @@ export class ActionTableFilters extends HTMLElement {
 				filter.value = "";
 			}
 		});
+		// find all action-table-filter elements and call resetFilter
+		interface ActionTableFilter extends HTMLElement {
+			resetFilter(options?: { dispatch: boolean }): void;
+		}
+		const filterMenus = this.querySelectorAll("action-table-filter-menu, action-table-filter-switch") as NodeListOf<ActionTableFilter>;
+
+		filterMenus?.forEach((el) => {
+			el.resetFilter();
+		});
 	}
 
 	private addEventListeners(): void {

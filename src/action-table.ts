@@ -20,14 +20,14 @@ export class ActionTable extends HTMLElement {
 	get sort(): string {
 		return this.getAttribute("sort")?.trim().toLowerCase() || "";
 	}
-	set sort(value) {
-		if (typeof value === "string") this.setAttribute("sort", value);
+	set sort(value: string) {
+		this.setAttribute("sort", value);
 	}
 	get direction(): string {
 		return this.getAttribute("direction")?.trim().toLowerCase() || "ascending";
 	}
-	set direction(value) {
-		if (typeof value === "string") this.setAttribute("direction", value);
+	set direction(value: string) {
+		this.setAttribute("direction", value);
 	}
 
 	public connectedCallback(): void {
@@ -116,15 +116,6 @@ export class ActionTable extends HTMLElement {
 			col.filter = "";
 		});
 		this.filterTable();
-		// find all action-table-filter elements and call resetFilter
-		interface ActionTableFilter extends HTMLElement {
-			resetFilter(options?: { dispatch: boolean }): void;
-		}
-		const filterMenus = this.querySelectorAll("action-table-filter-menu, action-table-filter-switch") as NodeListOf<ActionTableFilter>;
-
-		filterMenus?.forEach((el) => {
-			el.resetFilter({ dispatch: false });
-		});
 	}
 
 	public filterTable(col = "", value = "") {
@@ -148,9 +139,6 @@ export class ActionTable extends HTMLElement {
 			this.cols.forEach((col) => {
 				const cell = cells[col.index] as HTMLTableCellElement;
 				const content = this.getCellContent(cell).toString();
-				if (content === "favorite") {
-					console.log("favorite", content, col.filter);
-				}
 				if (col.filter && typeof col.filter === "string") {
 					const regex = new RegExp(col.filter, "i");
 					if (regex.test(content)) {

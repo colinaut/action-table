@@ -45,3 +45,10 @@ action-table-filters {
     flex-direction: column;
     gap: .3em;
 }
+
+td span {
+    background-color: #eee;
+    padding: 0 .4em;
+    border-radius: .2em;
+    margin: 0 .2em;
+}

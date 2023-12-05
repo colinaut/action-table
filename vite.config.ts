@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
 					main: resolve(__dirname, "index.html"),
 					"action-table": resolve(__dirname, "src/action-table.ts"),
 					"action-table-filters": resolve(__dirname, "src/action-table-filters.ts"),
+					"action-table-filter": resolve(__dirname, "src/action-table-filters.ts"),
 				},
 				output: [
 					{
