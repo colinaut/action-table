@@ -94,10 +94,6 @@ export class ActionTable extends HTMLElement {
 			false
 		);
 
-		// TODO: add function to filter for numbers against a value range
-		// TODO: add function to filter for dates against a date range
-		// TODO: add function to filter for an array of strings so can have multiple select dropdown
-
 		// Add listener for custom event "action-table-filter" which logs the event detail
 		this.addEventListener("action-table-filter", (event) => {
 			const { col, value } = (<CustomEvent>event).detail;
