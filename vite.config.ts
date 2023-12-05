@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
-import { resolve, parse } from "path";
+import { resolve } from "path";
 import minifyHTML from "rollup-plugin-minify-html-literals";
-import packageJson from "./package.json";
 
 // TODO: auto remove console.log from build
 // TODO: improve how docs are generated
