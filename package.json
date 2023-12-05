@@ -11,6 +11,11 @@
 	"author": "",
 	"type": "module",
 	"main": "dist/action-table.js",
+	"browserslist": [
+		"> 1%",
+		"last 2 versions",
+		"not dead"
+	],
 	"scripts": {
 		"build": "tsc && vite build",
 		"preview": "vite preview",
