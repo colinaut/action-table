@@ -12,7 +12,7 @@ export class ActionTableFilterSwitch extends HTMLElement {
 	}
 
 	get filter(): string {
-		return this.getAttribute("filter")?.trim().toLowerCase() || "";
+		return this.getAttribute("filter") || "checked";
 	}
 
 	get label(): string {

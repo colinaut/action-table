@@ -39,7 +39,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	private render(): void {
-		this.innerHTML = `<label class="switch"><input type="checkbox" ${this.checked ? "checked" : ""}><slot></slot></label>`;
+		this.innerHTML = `<label class="switch"><input type="checkbox" ${this.checked ? "checked" : ""}></label>`;
 	}
 }
 

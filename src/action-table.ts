@@ -178,6 +178,13 @@ export class ActionTable extends HTMLElement {
 			if (el.tagName.toLowerCase() === "svg") {
 				cellContent = el.querySelector("title")?.textContent || "";
 			}
+			interface Switch extends HTMLElement {
+				checked: boolean;
+			}
+			if (el.tagName.toLowerCase() === "action-table-switch") {
+				const actionSwitch = el as Switch;
+				cellContent = actionSwitch.checked ? "checked" : "";
+			}
 		}
 		cellContent = Number(cellContent) ? Number(cellContent) : cellContent.trim();
 		return cellContent;
