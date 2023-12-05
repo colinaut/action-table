@@ -13,7 +13,17 @@ Sorting is done alphanumerically based on either a `data-sort` attribute on the 
 
 ## Filters
 
-The action-table-filters is a wrapper element that activates any interal select or checkboxs os radio buttont. There are two special element action-table-filters-menu and action-table-filter-switch.
+The action-table-filters is a wrapper element that activates any interal select or checkboxs os radio buttons. There are two special elements: action-table-filters-menu and action-table-filter-switch.
+
+action-table-filters-menu automatically grabs all values from the column specified to create an options list of unique values. Column cells can have multiple options by wrapping them in spans.
+
+action-table-filter-switch is designed to pair with a column containing the action-table-switch. It filters to show only checked items.
+
+Filtering is handled with regex.test(cellContent) where regex is the filter value. Thus if you want to get fancy with your filtering you can use regex.
+
+## Switch
+
+The action-table-switch element is a simple checkbox element for the body of the table. There are two styles that are part of the stylesheet switch and star
 
 ## Roadmap
 
@@ -23,4 +33,9 @@ Add saving to local storage for sorting and filtering settings.
 
 ### Optional Base CSS stylesheet
 
-Create a custom stylesheet that can be optionally used.
+Finish Base CSS stylesheet
+
+- [x] Create swtich style for switch element
+- [x] Create star style for switch element
+- [ ] Improve filters wrapper element styles
+- [ ] Improve action-table style
