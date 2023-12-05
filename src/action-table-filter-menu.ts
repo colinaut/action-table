@@ -71,17 +71,11 @@ export class ActionTableFilterMenu extends HTMLElement {
 	}
 
 	private render(): void {
-		const css = `<style>
-        label {
-            display: inline-block;
-            margin-inline-end: 0.5em;
-        }
-        </style>`;
 		const html = `<label part="label"><slot>Filter by ${this.col}</slot></label><select part="select" name="filter-${this.col}" data-col="${
 			this.col
 		}"><option value="">All</option>${this.options.split(",").map((option) => `<option value="${option}">${option}</option>`)}</select>`;
 
-		this.innerHTML = `${css}${html}`;
+		this.innerHTML = `${html}`;
 	}
 }
 
