@@ -181,7 +181,7 @@ export class ActionTable extends HTMLElement {
 			interface Switch extends HTMLElement {
 				checked: boolean;
 			}
-			if (el.tagName.toLowerCase() === "action-table-switch") {
+			if (el.tagName.toLowerCase() === "action-table-switch" || el.tagName.toLowerCase() === "input") {
 				const actionSwitch = el as Switch;
 				cellContent = actionSwitch.checked ? "checked" : "";
 			}
