@@ -18,7 +18,7 @@ export class ActionTableSwitch extends HTMLElement {
 		}
 	}
 	get label(): string {
-		return this.getAttribute("label") || this.getAttribute("class") || "";
+		return this.getAttribute("label") || "switch";
 	}
 
 	private sendEvent() {
