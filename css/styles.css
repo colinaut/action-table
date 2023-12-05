@@ -59,9 +59,9 @@ td span {
 
 
 action-table .switch {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    margin: auto;
+    margin: 0;
 }
 action-table .switch input {
     appearance: none;
