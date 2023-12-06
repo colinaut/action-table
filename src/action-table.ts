@@ -60,7 +60,7 @@ export class ActionTable extends HTMLElement {
 					// if the column is sortable then set it as sortable, wrap it in a button, and add aria
 					if (th.dataset.sortable !== "false") {
 						th.dataset.sortable = "true";
-						th.innerHTML = `<button aria-roledescription="sort button" data-col="${name}">${th.innerHTML}</button>`;
+						th.innerHTML = `<button data-col="${name}">${th.innerHTML}</button>`;
 					}
 				}
 			});
