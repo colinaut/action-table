@@ -77,7 +77,12 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 
 ## Roadmap
 
-- **Improve A11y** - The accessibility of this needs work. Some more proper aria attributes and ideally keyboard navigation.
+- **Improve A11y** - The accessibility of this needs work. Some more proper aria attributes and ideally keyboard navigation. Set [Adrian Roselli: Sorting Table Columns](https://adrianroselli.com/2021/04/sortable-table-columns.html)
+  - [x] Fix focus outline for stars
+  - [x] Add aria-sort
+  - [x] Make table header sort actual buttons with aria-roledescription="sort button"
+  - [ ] Add colgroup support or use js for coloring sorted column?
 - **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
+  - [ ] Add shadow on side that is off screen see [Adrian Roselli: Under Engineered Responsive Tables](https://adrianroselli.com/2020/11/under-engineered-responsive-tables.html)
 - **LocalStorage save state** — add saving to local storage for sorting and filtering settings.
 - **Date Handling** - automatic handing for sorting dates and times and filtering date ranges.

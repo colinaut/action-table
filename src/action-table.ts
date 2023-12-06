@@ -57,7 +57,11 @@ export class ActionTable extends HTMLElement {
 				name = name.trim().toLowerCase();
 				if (name) {
 					this.cols.push({ name: name, index: th.cellIndex });
-					if (th.dataset.sortable !== "false") th.dataset.sortable = "true";
+					// if the column is sortable then set it as sortable, wrap it in a button, and add aria
+					if (th.dataset.sortable !== "false") {
+						th.dataset.sortable = "true";
+						th.innerHTML = `<button aria-roledescription="sort button" data-col="${name}">${th.innerHTML}</button>`;
+					}
 				}
 			});
 		}
@@ -74,10 +78,9 @@ export class ActionTable extends HTMLElement {
 			"click",
 			(event) => {
 				const el = event.target as HTMLTableCellElement;
-				if (el.tagName === "TH") {
+				if (el.tagName === "BUTTON") {
 					if (el.dataset.sortable === "false") return;
-					let name = el.dataset.col || el.innerText || "";
-					name = name.trim().toLowerCase();
+					let name = el.dataset.col;
 					if (name) {
 						if (this.sort === name && this.direction === "ascending") {
 							this.direction = "descending";
