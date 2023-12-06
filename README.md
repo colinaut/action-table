@@ -22,7 +22,7 @@ The data-sort attribute is useful for time-based sorting as you can add the a un
 
 ### Accessibility Optimizations
 
-When initialized, for accessibility action-table wraps the innerHTML in a button with aria-roledescription="sort button". When sorting it adds aria-sort the th with the sort direction. It also adds "sorted" class to the td when a column is sorted.
+When initialized, for accessibility action-table wraps the innerHTML in a button. When sorting it adds aria-sort the th with the sort direction. It also adds "sorted" class to the td when a column is sorted.
 
 ## Action Table Switch
 
@@ -84,7 +84,7 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 - [x] **Improve A11y** - The accessibility of this needs work. Some more proper aria attributes and ideally keyboard navigation. Review [Adrian Roselli: Sorting Table Columns](https://adrianroselli.com/2021/04/sortable-table-columns.html)
   - [x] Fix focus outline for stars
   - [x] Add aria-sort
-  - [x] Make table header sort actual buttons with aria-roledescription="sort button"
+  - [x] Make table header sort actual buttons
   - [x] Add class to td for sorted column for highlighting
   - [ ] Review all the filter menus and switches to see that they work properly
 - [ ] **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
