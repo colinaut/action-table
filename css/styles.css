@@ -5,11 +5,14 @@
 action-table table  {
     border-collapse: collapse;
     margin: 1em 0;
+    max-width: 100%;
+    overflow: auto;
+    display: block;
 }
 
 action-table th {
     border: 1px solid #ccc;
-    padding: .2em 2em .2em .4em;
+    padding: .2em 2em .2em .2em;
     background-color: var(--action-table-th, whitesmoke);
     position: relative;
     text-align: left;
@@ -139,6 +142,7 @@ action-table .switch input {
 
   action-table .star input {
     appearance: none;
+    position: relative;
     cursor: pointer;
     height: 1.6em;
     width: 1.6em;
