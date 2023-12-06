@@ -11,7 +11,7 @@ action-table table  {
 }
 
 action-table th {
-    border: 1px solid #ccc;
+    border: 1px solid var(--action-table-border,lightgray);
     padding: 0;
     text-align: left;
     background-color: var(--action-table-th, whitesmoke);
@@ -57,7 +57,7 @@ action-table th[data-sortable="true"] button::after {
 }
 
 action-table th[aria-sort$="ing"] button{
-    background-color: var(--action-table-th-on, thistle);
+    background-color: var(--action-table-th-on, rgb(244, 220, 188));
 }
 
 action-table th[aria-sort$="ing"] button::after {
@@ -70,13 +70,18 @@ action-table th[aria-sort="descending"] button::after {
 }
 
 action-table td {
-    border: 1px solid lightgray;
+    border: 1px solid var(--action-table-border,lightgray);
     padding: .2em .4em;
+}
+
+action-table td.sorted {
+    background-color: var(--action-table-td-sorted,rgb(255, 253, 240));
 }
 
 /* Use spans for multiple values in cell */
 action-table td span {
-    background-color: #eee;
+    background-color: var(--action-table-td-span,#eee);
+    border: 1px solid var(--action-table-td-span-border,white);
     padding: 0 .4em .1em .4em;
     border-radius: .4em;
     margin: 0 .2em;

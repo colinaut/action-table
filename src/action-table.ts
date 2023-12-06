@@ -211,6 +211,16 @@ export class ActionTable extends HTMLElement {
 				return 0;
 			});
 
+			this.rowsArray.forEach((row) => {
+				Array.from(row.children).forEach((cell, i) => {
+					if (i === column_index) {
+						cell.classList.add("sorted");
+					} else {
+						cell.classList.remove("sorted");
+					}
+				});
+			});
+
 			// Remove "sorted" and direction classes from all th and add for sorted column
 			this.ths.forEach((th) => {
 				th.setAttribute("aria-sort", "none");
