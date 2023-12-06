@@ -20,6 +20,10 @@ Sorting is done alphanumerically based on either:
 
 The data-sort attribute is useful for time-based sorting as you can add the a unix timestamp. Another use would be having a cell list list the full name but have it sort by last name.
 
+### Accessibility Optimizations
+
+When initialized, for accessibility action-table wraps the innerHTML in a button with aria-roledescription="sort button". When sorting it adds aria-sort the th with the sort direction. It also adds "sorted" class to the td when a column is sorted.
+
 ## Action Table Switch
 
 The `<action-table-switch>` element is an optional element used to add toggle checkbox switches to the table. The action-table.css file includes "star" and "switch" classes for easy styling. On it's own it's not much different then just manually adding a checkbox to the table using the same styles. I've included it as a basic element for strapping functionality onto as I assume you'll want to do something when people click it. It fires off a `action-table-switch` custom event containing the checked status and contents of any `data-id` attribute. You can also of extend the ActionTableSwitch class and replace the sendEvent() function with your own.
@@ -77,12 +81,13 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 
 ## Roadmap
 
-- **Improve A11y** - The accessibility of this needs work. Some more proper aria attributes and ideally keyboard navigation. Set [Adrian Roselli: Sorting Table Columns](https://adrianroselli.com/2021/04/sortable-table-columns.html)
+- [x] **Improve A11y** - The accessibility of this needs work. Some more proper aria attributes and ideally keyboard navigation. Review [Adrian Roselli: Sorting Table Columns](https://adrianroselli.com/2021/04/sortable-table-columns.html)
   - [x] Fix focus outline for stars
   - [x] Add aria-sort
   - [x] Make table header sort actual buttons with aria-roledescription="sort button"
-  - [ ] Add colgroup support or use js for coloring sorted column?
-- **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
+  - [x] Add class to td for sorted column for highlighting
+  - [ ] Review all the filter menus and switches to see that they work properly
+- [ ] **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
   - [ ] Add shadow on side that is off screen see [Adrian Roselli: Under Engineered Responsive Tables](https://adrianroselli.com/2020/11/under-engineered-responsive-tables.html)
-- **LocalStorage save state** — add saving to local storage for sorting and filtering settings.
-- **Date Handling** - automatic handing for sorting dates and times and filtering date ranges.
+- [ ] **LocalStorage save state** — add saving to local storage for sorting and filtering settings.
+- [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges.
