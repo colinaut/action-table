@@ -78,5 +78,6 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 ## Roadmap
 
 - **Improve A11y** - The accessibility of this needs work. Some more proper aria attributes and ideally keyboard navigation.
+- **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
 - **LocalStorage save state** — add saving to local storage for sorting and filtering settings.
 - **Date Handling** - automatic handing for sorting dates and times and filtering date ranges.
