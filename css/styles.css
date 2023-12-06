@@ -139,8 +139,17 @@ action-table .switch input {
 
   action-table .star input {
     appearance: none;
+    cursor: pointer;
+    height: 1.6em;
+    width: 1.6em;
+    vertical-align: middle;
+    border-radius: .3em;
+  }
+  action-table .star input::before {
+    content: "";
     background: var(--action-table-star-unchecked, gray);
     cursor: pointer;
+    position: absolute;
     height: 1.6em;
     width: 1.6em;
     vertical-align: middle;
@@ -148,6 +157,6 @@ action-table .switch input {
     clip-path: polygon(50% 0%, 62% 29%, 98% 35%, 74% 58%, 79% 91%, 50% 76%, 21% 91%, 26% 58%, 2% 35%, 34% 29%);  
   }
 
-  action-table .star input:checked {
+  action-table .star input:checked::before {
     background: var(--action-table-star-checked, orange);
   }
