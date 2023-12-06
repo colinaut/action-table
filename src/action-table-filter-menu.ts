@@ -74,7 +74,8 @@ export class ActionTableFilterMenu extends HTMLElement {
 	private render(): void {
 		const html = `<label>${this.label}</label> <select name="filter-${this.col}" data-col="${this.col}"><option value="">All</option>${this.options
 			.split(",")
-			.map((option) => `<option value="${option}">${option}</option>`)}</select>`;
+			.map((option) => `<option value="${option}">${option}</option>`)
+			.join("")}</select>`;
 
 		this.innerHTML = `${html}`;
 	}
