@@ -9,9 +9,10 @@
 		<style>
 			body {
 				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+				line-height: 1.5;
 			}
 			.container {
-				max-width: 70ch;
+				max-width: 74ch;
 				margin: 0 auto;
 			}
 			.flex {
@@ -22,6 +23,9 @@
 			.flex-col {
 				flex-direction: column;
 				align-items: flex-start;
+			}
+			table {
+				width: 100%;
 			}
 		</style>
 	</head>
@@ -36,7 +40,7 @@
 				</p>
 			</section>
 			<h2>Example</h2>
-			<action-table>
+			<action-table store urlparams>
 				<div>
 					<action-table-filters>
 						<h3>Filters</h3>
@@ -54,8 +58,7 @@
 										<option value="gray">Gray</option>
 									</select>
 								</div>
-
-								<action-table-filter-menu col="Actions"></action-table-filter-menu>
+								<action-table-filter-menu col="Day"></action-table-filter-menu>
 							</div>
 							<div>
 								<span>Checkbox Group Example:</span>
@@ -69,6 +72,10 @@
 								<label><input type="radio" name="number" value="35" />35</label>
 								<label><input type="radio" name="number" value="7" />7</label>
 							</div>
+							<div><action-table-filter-menu col="Color" type="checkbox" label="Colors (inclusive)"></action-table-filter-menu></div>
+							<div><action-table-filter-menu col="Actions" multiple label="Actions (multiple select, inclusive)"></action-table-filter-menu></div>
+							<div><action-table-filter-menu col="Actions" type="checkbox" exclusive label="Actions (exclusive)"></action-table-filter-menu></div>
+							<div><action-table-filter-menu col="Actions" type="radio"></action-table-filter-menu></div>
 							<div class="flex">
 								<action-table-filter-switch class="star" col="Favs"></action-table-filter-switch>
 
@@ -85,10 +92,11 @@
 							<th>Animal</th>
 							<th>Name</th>
 							<th>Color</th>
-							<th>Number</th>
+							<th data-col="Number">#</th>
 							<th>Actions</th>
 							<th>Favs</th>
-							<th data-sortable="false">Switch</th>
+							<th no-sort>Switch</th>
+							<th>Day</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -102,6 +110,7 @@
 								<action-table-switch class="star"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+							<td data-filter="Mon">Mon, 10am</td>
 						</tr>
 						<tr>
 							<td>small dog</td>
@@ -113,6 +122,7 @@
 								<action-table-switch checked class="star"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+							<td data-filter="Tue">Tue, 11am</td>
 						</tr>
 						<tr>
 							<td>rabbit</td>
@@ -124,7 +134,8 @@
 							<td>
 								<action-table-switch checked class="star"></action-table-switch>
 							</td>
-							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
+							<td data-filter="Sat">Sat, 1pm</td>
 						</tr>
 						<tr>
 							<td>raccoon</td>
@@ -136,6 +147,7 @@
 								<action-table-switch class="star"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+							<td data-filter="Sun">Sun, 2pm</td>
 						</tr>
 						<tr>
 							<td>dog</td>
@@ -147,17 +159,19 @@
 								<action-table-switch class="star"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+							<td data-filter="Mon">Mon, 3pm</td>
 						</tr>
 						<tr>
 							<td>raccoon</td>
 							<td>Wrapper</td>
 							<td>brown</td>
-							<td>2</td>
+							<td>N/A</td>
 							<td><span>eat</span></td>
 							<td>
 								<action-table-switch class="star"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
+							<td data-filter="Mon">Sun, 10am</td>
 						</tr>
 						<tr>
 							<td>cat</td>
@@ -169,21 +183,30 @@
 								<action-table-switch checked class="star"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
+							<td data-filter="Tue">Tue, 11am</td>
 						</tr>
 						<tr>
 							<td>cat</td>
 							<td>Steve</td>
 							<td>black</td>
-							<td>76</td>
+							<td>N/A</td>
 							<td><span>run</span><span>snuggle</span></td>
 							<td>
-								<action-table-switch class="star"></action-table-switch>
+								<action-table-switch class="star" checked></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
+							<td data-filter="Wed">Wed, 12pm</td>
 						</tr>
 					</tbody>
 				</table>
 			</action-table>
+			<script type="text/javascript">
+				// document.getElementById("test").addEventListener("click", function () {
+				// 	const actionTable = document.querySelector("action-table");
+				// 	console.log(actionTable);
+				// 	actionTable.filterTable("name", "Tommy");
+				// });
+			</script>
 		</div>
 		<a href="https://github.com/colinaut/action-table" class="github-corner" aria-label="View source on GitHub"
 			><svg width="80" height="80" viewBox="0 0 250 250" style="fill: #151513; color: #fff; position: absolute; top: 0; border: 0; right: 0" aria-hidden="true">

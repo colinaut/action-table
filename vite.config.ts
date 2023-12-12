@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
 			rollupOptions: {
 				input: {
 					main: resolve(__dirname, "index.html"),
+					index: resolve(__dirname, "src/main.ts"),
 					"action-table": resolve(__dirname, "src/action-table.ts"),
 					"action-table-filters": resolve(__dirname, "src/action-table-filters.ts"),
 					"action-table-switch": resolve(__dirname, "src/action-table-switch.ts"),
@@ -27,7 +28,7 @@ export default defineConfig(({ mode }) => {
 				output: [
 					{
 						entryFileNames: `[name].js`,
-						assetFileNames: `assets/action-table.[ext]`,
+						assetFileNames: `action-table.[ext]`,
 						dir: "dist",
 					},
 				],

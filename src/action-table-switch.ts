@@ -4,7 +4,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	static get observedAttributes(): string[] {
-		return ["checked", "label"];
+		return ["checked", "label", "name"];
 	}
 
 	get checked(): boolean {
@@ -21,8 +21,12 @@ export class ActionTableSwitch extends HTMLElement {
 		return this.getAttribute("label") || "switch";
 	}
 
+	get name(): string {
+		return this.getAttribute("name") || "";
+	}
+
 	private sendEvent() {
-		const detail = { checked: this.checked, id: this.dataset.id };
+		const detail = { checked: this.checked, id: this.dataset.id, name: this.name };
 		this.dispatchEvent(new CustomEvent("action-table-switch", { detail, bubbles: true }));
 	}
 
@@ -41,7 +45,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	private render(): void {
-		this.innerHTML = `<input type="checkbox" ${this.checked ? "checked" : ""} aria-label="${this.label}">`;
+		this.innerHTML = `<input type="checkbox" name="${this.name}" ${this.checked ? "checked" : ""} aria-label="${this.label}">`;
 	}
 }
 

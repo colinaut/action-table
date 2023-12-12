@@ -6,7 +6,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 	// TODO: Add exact attribute that switches the filter to be exact match rather than includes
 
 	static get observedAttributes(): string[] {
-		return ["col", "options", "label"];
+		return ["col", "options", "label", "type", "exclusive", "multiple"];
 	}
 
 	get col(): string {
@@ -25,26 +25,12 @@ export class ActionTableFilterMenu extends HTMLElement {
 		return this.getAttribute("label") || this.col;
 	}
 
-	private addEventListeners(): void {
-		// Add event listener that detects changes in the select element
-		this.addEventListener("change", (event) => {
-			const el = event.target as HTMLSelectElement;
-			if (el.tagName === "SELECT") {
-				const col = this.col;
-				if (col) {
-					const value = el.value;
-					const detail = { col, value };
-					this.dispatchEvent(new CustomEvent("action-table-filter", { detail, bubbles: true }));
-				}
-			}
-		});
+	get type(): "select" | "checkbox" | "radio" {
+		return (this.getAttribute("type") as "select" | "checkbox" | "radio") || "select";
 	}
 
-	public resetFilter() {
-		const select = this.shadowRoot?.querySelector("select");
-		if (select) {
-			select.value = "";
-		}
+	get multiple(): "multiple" | "" {
+		return this.hasAttribute("multiple") ? "multiple" : "";
 	}
 
 	public findOptions(col: string): void {
@@ -58,9 +44,16 @@ export class ActionTableFilterMenu extends HTMLElement {
 		const subItems = this.closest("action-table")?.querySelectorAll(`table tbody td:nth-child(${col_index + 1}) > *`) as NodeListOf<HTMLElement>;
 		let options: string[] = [];
 		if (subItems && subItems.length > 0) {
-			options = Array.from(subItems).map((item) => item.innerText);
+			options = Array.from(subItems).map((item) => {
+				if (item.matches("[type='checkbox']")) {
+					const checkbox = item as HTMLInputElement;
+					return checkbox.value;
+				} else {
+					return item.innerText;
+				}
+			});
 		} else {
-			options = Array.from(cells).map((cell) => cell.innerText);
+			options = Array.from(cells).map((cell) => cell.dataset.filter || cell.innerText);
 		}
 		this.options = Array.from(new Set(options)).join(",");
 	}
@@ -68,14 +61,28 @@ export class ActionTableFilterMenu extends HTMLElement {
 	public connectedCallback(): void {
 		if (!this.options) this.findOptions(this.col);
 		this.render();
-		this.addEventListeners();
 	}
 
 	private render(): void {
-		const html = `<label>${this.label}</label> <select name="filter-${this.col}" data-col="${this.col}"><option value="">All</option>${this.options
+		const colName = this.col.toLowerCase();
+		const mainLabel = this.type === "select" ? `<label for="filter-${colName}">${this.label}</label>` : `<span class="filter-label">${this.label}</span>`;
+		let start = "";
+		let end = "";
+		if (this.type === "select") {
+			start = `<select id="filter-${colName}" name="${colName}" ${this.multiple}><option value="">All</option>`;
+			end = `</select>`;
+		}
+		if (this.type === "radio") {
+			start = `<label><input name="${colName}" type="radio" value="">All</label>`;
+		}
+		let html = `${mainLabel}${start}${this.options
 			.split(",")
-			.map((option) => `<option value="${option}">${option}</option>`)
-			.join("")}</select>`;
+			.map((option) => {
+				if (this.type === "select") return `<option value="${option}">${option}</option>`;
+				if (this.type === "radio" || this.type === "checkbox") return `<label><input type="${this.type}" name="${colName}" value="${option}" />${option}</label>`;
+				return "";
+			})
+			.join("")}${end}`;
 
 		this.innerHTML = `${html}`;
 	}

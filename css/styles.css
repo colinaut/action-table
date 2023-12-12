@@ -2,12 +2,14 @@
 /*                              Action Table CSS                              */
 /* -------------------------------------------------------------------------- */
 
+action-table {
+    display: block;
+}
 action-table table  {
     border-collapse: collapse;
     margin: 1em 0;
     max-width: 100%;
     overflow: auto;
-    display: block;
 }
 
 action-table th {
@@ -17,11 +19,11 @@ action-table th {
     background-color: var(--action-table-th, whitesmoke);
 }
 
-action-table th[data-sortable="false"] {
+action-table th[no-sort] {
     padding: .2em .5em .2em .5em;
 }
 
-action-table th[data-sortable="true"] button {
+action-table th button {
     cursor: pointer;
     font-weight: bold;
     border: 0;
@@ -33,13 +35,14 @@ action-table th[data-sortable="true"] button {
     position: relative;
     text-align: left;
     font-size: inherit;
+    line-height: inherit;
 }
 
-action-table th[data-sortable="true"] button:hover {
+action-table th button:hover {
     background-color: var(--action-table-th-hover, paleturquoise);
 }
 
-action-table th[data-sortable="true"] button::after {
+action-table th button::after {
     content: "";
     background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M9 16.172l-6.071-6.071-1.414 1.414 8.485 8.485 8.485-8.485-1.414-1.414-6.071 6.071v-16.172h-2z'%3E%3C/path%3E%3C/svg%3E%0A");
     background-repeat: no-repeat;
@@ -48,10 +51,11 @@ action-table th[data-sortable="true"] button::after {
     height: .7em;
     width: .7em;
     display: block;
-    opacity: 0;
+    opacity: .2;
     position: absolute;
     right: .4em;
-    top: .4em;
+    top: 50%;
+    transform: translateY(-50%);
     float: right;
     transition: transform .3s ease-in-out, opacity .3s ease-in-out;
 }
@@ -66,7 +70,7 @@ action-table th[aria-sort$="ing"] button::after {
 
 action-table th[aria-sort="descending"] button::after {
     opacity: 1;
-    transform: rotate(180deg);
+    transform: translateY(-50%) rotate(180deg);
 }
 
 action-table td {
@@ -87,7 +91,30 @@ action-table td span {
     margin: 0 .2em;
 }
 
-/* -------------------------- Action Table Filters -------------------------- */
+/* Hide custom elements by default as they only work with js loaded */
+action-table:not(:defined),
+action-table-filters:not(:defined) {
+    visibility: hidden;
+}
+
+action-table select {
+    border-radius: .3em;
+}
+action-table .selected {
+    background-color: var(--action-table-filter-highlight, paleturquoise);
+}
+
+action-table .no-results td {
+    padding: 1em;
+    text-align: center;
+}
+action-table button {
+    cursor: pointer;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            Action Table Filters                            */
+/* -------------------------------------------------------------------------- */
 
 action-table-filters {
     display: flex;
@@ -95,12 +122,23 @@ action-table-filters {
     gap: .3em;
 }
 
-/* Hide action-table-filters by default as they only work with js loaded */
-action-table-filters:not(:defined) {
-    visibility: hidden;
+/* -------------------------------------------------------------------------- */
+/*                        Action Table Filter Elements                        */
+/* -------------------------------------------------------------------------- */
+
+action-table-filter-switch label {
+    display: inline-flex;
+    align-items: center;
+    gap: .2em;
 }
 
-/* ------------------------------ Switch Toggle ----------------------------- */
+action-table-filter-menu label{
+    margin-inline-end: .3em;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Switch Toggle                               */
+/* -------------------------------------------------------------------------- */
 
 action-table .switch label {
     display: inline-flex;
@@ -150,13 +188,9 @@ action-table .switch input {
     outline-offset: 2px;
   }
 
-  action-table-filter-switch label {
-    display: inline-flex;
-    align-items: center;
-    gap: .2em;
-  }
-
-  /* --------------------------- Star Switch Toggle --------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                             Star Switch Toggle                             */
+/* -------------------------------------------------------------------------- */
 
   action-table .star input {
     appearance: none;
