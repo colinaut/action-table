@@ -147,13 +147,15 @@ action-table-filters {
 /*                        Action Table Filter Elements                        */
 /* -------------------------------------------------------------------------- */
 
-action-table-filter-switch label {
+action-table-filter-menu,
+action-table-filter-switch label,
+action-table-filter-menu .filter-label {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: .2em;
 }
-
-action-table-filter-menu label{
+action-table-filter-menu label,
+action-table-filter-menu .filter-label {
     margin-inline-end: .3em;
 }
 
