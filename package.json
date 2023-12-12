@@ -3,18 +3,36 @@
 	"version": "1.0.4",
 	"description": "",
 	"keywords": [
-		"web component",
+		"web components",
+		"custom elements",
+		"components",
+		"table elements",
 		"typescript"
 	],
-	"repository": "https://colinaut.github.io/action-table/",
+	"repository": "https://github.com/colinaut/action-table",
+	"homepage": "https://colinaut.github.io/action-table/",
 	"license": "MIT",
 	"author": "Colin Fahrion",
 	"type": "module",
-	"main": "dist/action-table.js",
+	"main": "dist/index.js",
 	"browserslist": [
 		"> 1%",
 		"last 2 versions",
 		"not dead"
+	],
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./src/types.ts"
+		},
+		"./dist/index.js": "./dist/index.js",
+		"./dist/action-table.css": "./dist/action-table.css",
+		"./dist/action-table.js": "./dist/action-table.js",
+		"./dist/action-table-filters.js": "./dist/action-table-filters.js",
+		"./dist/action-table-switch.js": "./dist/action-table-switch.js"
+	},
+	"files": [
+		"dist"
 	],
 	"scripts": {
 		"build": "tsc && vite build && rm -rf docs && cp -r dist docs",
