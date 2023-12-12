@@ -22,7 +22,7 @@ export class ActionTableFilters extends HTMLElement {
 		// 1. Check if the action-table-filter-menu and action-table-filter-switch exist
 		await this.checkForActionTableFilterElements();
 		// 2. Grab the Node List of filter elements
-		this.filterElements = this.querySelectorAll("select, input[type=checkbox], input[type=radio]") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
+		this.filterElements = this.querySelectorAll("select, input[type=checkbox], input[type=radio], input[type=search]") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
 		// console.log("filterElements", this.filterElements);
 
 		// 3. Add event listeners
@@ -134,7 +134,7 @@ export class ActionTableFilters extends HTMLElement {
 					input.checked = false;
 				}
 			}
-			if (el.tagName.toLowerCase() === "select") {
+			if (el.tagName.toLowerCase() === "select" || el.type === "search") {
 				el.value = "";
 				this.toggleHighlight(el);
 			}
@@ -164,17 +164,19 @@ export class ActionTableFilters extends HTMLElement {
 					input.checked = true;
 				}
 			}
-			if (el.type === "radio" && typeof value === "string") {
-				const input = el as HTMLInputElement;
-				if (input.value === value) {
-					input.checked = true;
+			if (typeof value === "string") {
+				if (el.type === "radio") {
+					const input = el as HTMLInputElement;
+					if (input.value === value) {
+						input.checked = true;
+					}
 				}
-			}
-			if (el.tagName.toLowerCase() === "select" && typeof value === "string") {
-				if (el.name === col) {
-					el.value = value;
+				if (el.tagName.toLowerCase() === "select" || el.type === "search") {
+					if (el.name === col) {
+						el.value = value;
+					}
+					this.toggleHighlight(el);
 				}
-				this.toggleHighlight(el);
 			}
 		});
 	}
