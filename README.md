@@ -104,8 +104,8 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
   - [x] Make table header sort actual buttons
   - [x] Add class to td for sorted column for highlighting
   - [x] Review all the filter menus and switches to see that they work properly
-- [ ] **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
-  - [ ] Add shadow on side that is off screen see [Adrian Roselli: Under Engineered Responsive Tables](https://adrianroselli.com/2020/11/under-engineered-responsive-tables.html)
+- [x] **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
+  - [x] Add shadow on side that is off screen see [Adrian Roselli: Under Engineered Responsive Tables](https://adrianroselli.com/2020/11/under-engineered-responsive-tables.html)
 - [x] **LocalStorage save state** — add saving to local storage for sorting and filtering settings.
 - [x] **Url Params** – grab URL parameters for default sorting and filtering
 - [x] **No Rows Auto Reset** – some sort of automatic dialog to reset the filters if there are no rows
@@ -113,8 +113,8 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 - [x] Redesign action-filter-menu filter element for checkboxes or radio buttons
 - [x] Add attribute for inclusive/exclusive selection for checkboxes
 - [x] Get select multiple working
-- [ ] **Get ready for npm and unpkg**
-  - [ ] merge with main
+- [x] **Get ready for npm and unpkg**
+  - [x] merge with main
   - [ ] add various package.json attributes see [Shoelace's package.json](https://github.com/shoelace-style/shoelace/blob/next/package.json) for example.
   - [ ] git commit
   - [ ] use release-it to push to npm
