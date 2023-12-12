@@ -15,14 +15,32 @@
 				max-width: 74ch;
 				margin: 0 auto;
 			}
+			.grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 2em;
+			}
 			.flex {
 				display: flex;
-				gap: 0.8em 0.6em;
+				gap: 0.4em 0.6em;
 				align-items: center;
 			}
 			.flex-col {
 				flex-direction: column;
 				align-items: flex-start;
+			}
+			.flex-wrap {
+				flex-wrap: wrap;
+			}
+			h2,
+			h3,
+			h4,
+			h5,
+			h6 {
+				margin: 1em 0 0.2em;
+			}
+			action-table-filter-menu {
+				display: flex;
 			}
 		</style>
 	</head>
@@ -41,48 +59,32 @@
 				<div>
 					<action-table-filters>
 						<h3>Filters</h3>
-						<div class="flex flex-col">
-							<div class="flex">
+						<div class="grid">
+							<div class="flex flex-col">
+								<h4>Action Table Filter Elements: Select Menu</h4>
 								<action-table-filter-menu name="Animal"></action-table-filter-menu>
-
-								<div>
-									<label for="color">Colors</label>
-									<select name="color" id="color">
-										<option value="">All</option>
-										<option value="black">Black</option>
-										<option value="white">White</option>
-										<option value="brown">Brown</option>
-										<option value="gray">Gray</option>
-									</select>
-								</div>
-								<action-table-filter-menu name="Day"></action-table-filter-menu>
+								<action-table-filter-menu name="Day" label="Day"></action-table-filter-menu>
+								<div><em>Day is a checkbox menu with options based on td data-filter values</em></div>
+							</div>
+							<div class="flex flex-col">
+								<h4>Action Table Filter Elements: Checkbox/Radio</h4>
+								<action-table-filter-menu name="Color" type="checkbox" label="Color (default inclusive)"></action-table-filter-menu>
+								<action-table-filter-menu name="Actions" type="checkbox" exclusive label="Actions (exclusive)"></action-table-filter-menu>
+								<action-table-filter-menu name="Age" type="radio"></action-table-filter-menu>
 							</div>
 							<div>
-								<span>Checkbox Group Example:</span>
-								<label><input type="checkbox" name="action-table" value="Sophia" />Sophia</label>
-								<label><input type="checkbox" name="action-table" value="Tommy" />Tommy</label>
-								<label><input type="checkbox" name="action-table" value="cat" />cat</label>
-								<label><input type="checkbox" name="action-table" value="raccoon" />raccoon</label>
-								<label><input type="checkbox" name="action-table" value="eat" />eat</label>
-								<label><input type="checkbox" name="action-table" value="run" />run</label>
-							</div>
-							<div>
-								<span>Radio Button Group Example:</span>
-								<label><input type="radio" name="number" value="" checked />All</label>
-								<label><input type="radio" name="number" value="54" />54</label>
-								<label><input type="radio" name="number" value="35" />35</label>
-								<label><input type="radio" name="number" value="7" />7</label>
-							</div>
-							<div><action-table-filter-menu name="Color" type="checkbox" label="Colors (inclusive)"></action-table-filter-menu></div>
-							<div><action-table-filter-menu name="Actions" multiple label="Actions (multiple select, inclusive)"></action-table-filter-menu></div>
-							<div><action-table-filter-menu name="Actions" type="checkbox" exclusive label="Actions (exclusive)"></action-table-filter-menu></div>
-							<div><action-table-filter-menu name="Actions" type="radio"></action-table-filter-menu></div>
-							<div class="flex">
+								<h4>Action Table Filter Elements: Switch</h4>
 								<action-table-filter-switch class="star" name="Favs"></action-table-filter-switch>
-
 								<action-table-filter-switch class="switch" name="Switch"></action-table-filter-switch>
 							</div>
-							<div><input name="action-table" type="search" placeholder="Search" /></div>
+							<div class="flex flex-col">
+								<h4>Action Table Filter Search</h4>
+								<div><label for="name-search">Search Name</label> <input id="name-search" name="name" type="search" placeholder="Search" /></div>
+								<div>
+									<label for="action-table-search">Search Whole Table</label>
+									<input id="action-table-search" name="action-table" type="search" placeholder="Search" />
+								</div>
+							</div>
 							<div><button type="reset">Reset</button></div>
 						</div>
 					</action-table-filters>
@@ -94,7 +96,7 @@
 							<th>Animal</th>
 							<th>Name</th>
 							<th>Color</th>
-							<th data-col="Number">#</th>
+							<th>Age</th>
 							<th>Actions</th>
 							<th>Favs</th>
 							<th no-sort>Switch</th>
@@ -106,7 +108,7 @@
 							<td>rabbit</td>
 							<td>Attila</td>
 							<td>white</td>
-							<td>8</td>
+							<td>N/A</td>
 							<td><span>jump</span><span>eat</span></td>
 							<td>
 								<action-table-switch class="star"></action-table-switch>
@@ -118,7 +120,7 @@
 							<td>small dog</td>
 							<td>Sophia</td>
 							<td>black</td>
-							<td>54</td>
+							<td>4</td>
 							<td><span>run</span><span>eat</span><span>snuggle</span></td>
 							<td>
 								<action-table-switch checked class="star"></action-table-switch>
@@ -128,9 +130,9 @@
 						</tr>
 						<tr>
 							<td>rabbit</td>
-							<td>Cindy Lop Ear</td>
+							<td>Cindy</td>
 							<td>brown</td>
-							<td>35</td>
+							<td>N/A</td>
 							<td><span>jump</span><span>run</span></td>
 
 							<td>
@@ -143,7 +145,7 @@
 							<td>raccoon</td>
 							<td>Sewer</td>
 							<td>gray</td>
-							<td>12</td>
+							<td>2</td>
 							<td><span>run</span><span>eat</span><span>hide</span></td>
 							<td>
 								<action-table-switch class="star"></action-table-switch>
@@ -155,7 +157,7 @@
 							<td>dog</td>
 							<td>Ziggy</td>
 							<td>gray</td>
-							<td>99</td>
+							<td>8</td>
 							<td><span>run</span><span>snuggle</span></td>
 							<td>
 								<action-table-switch class="star"></action-table-switch>
@@ -167,7 +169,7 @@
 							<td>raccoon</td>
 							<td>Wrapper</td>
 							<td>brown</td>
-							<td>N/A</td>
+							<td>6</td>
 							<td><span>eat</span></td>
 							<td>
 								<action-table-switch class="star"></action-table-switch>
@@ -179,7 +181,7 @@
 							<td>cat</td>
 							<td>Tommy</td>
 							<td>brown</td>
-							<td>42</td>
+							<td>2</td>
 							<td><span>run</span><span>explore</span></td>
 							<td>
 								<action-table-switch checked class="star"></action-table-switch>
@@ -191,7 +193,7 @@
 							<td>cat</td>
 							<td>Steve</td>
 							<td>black</td>
-							<td>N/A</td>
+							<td>6</td>
 							<td><span>run</span><span>snuggle</span></td>
 							<td>
 								<action-table-switch class="star" checked></action-table-switch>
