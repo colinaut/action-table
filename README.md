@@ -13,6 +13,11 @@ Check out the [Demo Page](https://colinaut.github.io/action-table/)
 
 ```
 
+index.js installs every component. You can also install the components separately:
+*  `dist/action-table.js` automatic sort headers and public accessible filtering functions
+*  `dist/action-table-filters.js` includes action-table-filters wrapper which adds event listeners for form elements;  also includes the action-table-filter-menu and action-table-filter-switch components.
+*  `dist/action-table-switch.js` action-table-switch element
+
 ### NPM
 
 ```
