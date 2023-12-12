@@ -65,7 +65,7 @@ If you want to filter based on values different from then content then add `data
 
 **Attributes:**
 
-* name - the name of the column to filter. Alternately 
+* name - the name of the column to filter. Or search entire table with name "action-table".
 * label - the label to display. Defaults to the column name
 * options - (optional) to override the generated menu add a list of options as a comma delimited string.
 * type - the menu type. Defaults to 'select', can also be 'checkbox' or 'radio'.
@@ -96,7 +96,7 @@ Just add `<input type="search name="column name" />` and action-table-filters wi
 
 ### Searching entire row
 
-If you want to search all columns then use "action-table" as name for the filter field instead of a column name. This works for input, select, radio, or checkboxes. Note you will need to supply your own options if you want to use full row search with action-table-filter-menu.
+If you want to search all columns then use name="action-table" instead of a column name. This works for input, select, radio, or checkboxes. Note you will need to supply your own options if you want to use full row search with action-table-filter-menu.
 
 ### Manually making your own filters
 
