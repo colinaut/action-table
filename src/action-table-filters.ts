@@ -47,7 +47,7 @@ export class ActionTableFilters extends HTMLElement {
 
 	private addEventListeners(): void {
 		const actionTable = this.closest("action-table") as ActionTable;
-		/* ------------ Event Listeners for manually added form elements ------------ */
+		/* ------------ Event Listeners for select/checkbox/radio ------------ */
 		this.addEventListener("change", (e) => {
 			const el = e.target as HTMLInputElement | HTMLSelectElement;
 			// 1. setup filter value
@@ -86,9 +86,26 @@ export class ActionTableFilters extends HTMLElement {
 			this.toggleHighlight(el);
 		});
 
+		/* ------------------------------- Text Input ------------------------------- */
+		const textInput = this.querySelector("input[type=search]") as HTMLInputElement;
+		function debounce(func: Function, timeout = 300) {
+			let timer: number;
+			return (...args: any[]) => {
+				clearTimeout(timer);
+				timer = setTimeout(() => {
+					func(args);
+				}, timeout);
+			};
+		}
+		textInput?.addEventListener("input", (e) => {
+			const el = e.target as HTMLInputElement;
+			const debouncedFilter = debounce(() => actionTable.filterTable(el.name, el.value, false));
+			debouncedFilter();
+		});
+
 		/* ------------------------------ Reset Button ------------------------------ */
 		const resetButton = this.querySelector("button[type=reset]") as HTMLButtonElement;
-		resetButton.addEventListener("click", () => {
+		resetButton?.addEventListener("click", () => {
 			this.resetAllFilterElements();
 			actionTable.resetFilters();
 		});
