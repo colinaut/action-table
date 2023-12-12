@@ -60,12 +60,12 @@ This custom element automatically finds all unique values in the cells of the sp
 If you want to filter based on values different from then content then add `dataset-filter` attribute with the filter values to the td. This is useful for when you have a cell that displays date and time but you only want to filter by the date.
 
 ```
-<action-table-filter-menu col="Column Name"></action-table-filter-menu>
+<action-table-filter-menu name="Column Name"></action-table-filter-menu>
 ```
 
 **Attributes:**
 
-* col - the name of the column to filter
+* name - the name of the column to filter. Alternately 
 * label - the label to display. Defaults to the column name
 * options - (optional) to override the generated menu add a list of options as a comma delimited string.
 * type - the menu type. Defaults to 'select', can also be 'checkbox' or 'radio'.
@@ -77,23 +77,32 @@ If you want to filter based on values different from then content then add `data
 This custom element is used primarily for filtering columns that contain checkbox switches. When selected it will show just rows where the checkbox is checked. It can be easily styled using the styles provided by action-table.css using the "switch" or "star" class.
 
 ```
-<action-table-filter-switch col="Column Name"></action-table-filter-switch>
+<action-table-filter-switch name="Column Name"></action-table-filter-switch>
 ```
 
 **Attributes:**
 
-* col - the name of the column to filter
+* name - the name of the column to filter
 * label - the label to display. Defaults to the column name
 * filter - (optional) defaults to "checked"; if you want to use it for a normal text based cell then change to to whatever text you want it to filter.
 
 ### Action Table Filter Reset
 
-Just add a `<button type="reset">Reset</button>` and it will trigger a reset for all filters.
+Just add a `<button type="reset">Reset</button>` and action-table-filters will trigger a reset for all filters on button press.
+
+### Action Table Filter Manual Search Field
+
+Just add `<input type="search name="column name" />` and action-table-filters will listen for input changes and filter the results.
+
+### Searching entire row
+
+If you want to search all columns then use "action-table" as name for the filter field instead of a column name. This works for input, select, radio, or checkboxes. Note you will need to supply your own options if you want to use full row search with action-table-filter-menu.
 
 ### Manually making your own filters
 
 Any select menu, checkbox group or radio button group can be created and the `<action-table-filters>` will make it active. The select or input element must be named the same as the column name it is filtering. The values are what it is filtering. Any select option, checkbox, or radio button where value="" will reset the filter. Checkboxes can be styled with "switch" or "star" by adding the class to a wrapping element. Multiple selected checkboxes are inclusive by default unless you add the attribute exclusive on a parent wrapper for the group.
 
+### Advanced Regex Filtering
 Filtering is handled with regex.test(cellContent) where regex is based on RegExp(value, "i"). Thus if you want to get fancy with your filtering you can use regex for your filter value. This is useful for say filtering [number ranges with regex](https://www.regex-range.com/).
 
 ## Roadmap
@@ -113,8 +122,13 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 - [x] Redesign action-filter-menu filter element for checkboxes or radio buttons
 - [x] Add attribute for inclusive/exclusive selection for checkboxes
 - [x] Get select multiple working
+- [ ] Add input text search with debounce
+- [x] Add whole table search
+- [x] Refactor to use name instead of col attribute
 - [x] **Get ready for npm and unpkg**
   - [x] merge with main
+  - [ ] Cleanup example page
+  - [ ] Add advanced information to README
   - [ ] add various package.json attributes see [Shoelace's package.json](https://github.com/shoelace-style/shoelace/blob/next/package.json) for example.
   - [ ] git commit
   - [ ] use release-it to push to npm
