@@ -4,6 +4,41 @@ Native HTML web component for adding sort functionality and filtering to html ta
 
 Check out the [Demo Page](https://colinaut.github.io/action-table/)
 
+## Installation
+
+### CDN
+```
+<script src="https://unpkg.com/@colinaut/action-table/dist/index.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@colinaut/action-table/dist/action-table.css" />
+
+```
+
+### NPM
+
+```
+npm i @colinaut/action-table
+
+pnpm i @colinaut/action-table
+
+```
+
+Then `import "@colinaut/action-table";` into your main script. You will also need the css styles or write your own.
+
+### Eleventy static site
+
+If you are using [Eleventy](https://www.11ty.dev), and want to install locally rather than rely on the CDN, you can install via NPM/PNPM and then pass through the js and css files so that it is included in the output. Then you would just need to add it to the head.
+
+```
+eleventyConfig.addPassthroughCopy({
+    "node_modules/@colinaut/action-table/dist/*.js": "js/action-table",
+    "node_modules/@colinaut/action-table/dist/action-table.css": "css",
+})
+```
+```
+<script src="/js/action-table/index.js"></script>
+<link rel="stylesheet" href="/css/action-table.css" />
+```
+
 ## Action Table
 
 To use the `<action-table>` component you must wrap it around a table. The table must include both a thead and a tbody for the main sortable rows. Action Table does not work where columns span more than one column.
