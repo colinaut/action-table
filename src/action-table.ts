@@ -298,47 +298,70 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 	/*            Public Method: filter table on column name and value            */
 	/* -------------------------------------------------------------------------- */
-	public filterTable(col: string = "", value: string | string[] = "", exclusive = false, regexOpt = "i"): void {
-		col = col.trim().toLowerCase();
+	public filterTable(columnName: string = "", value: string | string[] = "", exclusive = false, regexOpt = "i"): void {
+		columnName = columnName.trim().toLowerCase();
 
-		// If col then store filter value locally and in localStorage
-		if (col !== "") {
-			this.filters[col] = value;
+		// 1. If col then store filter value locally and in localStorage; otherwise filter table based on existed filter
+		if (columnName !== "") {
+			this.filters[columnName] = value;
 			this.setFiltersLocalStorage();
 		}
+		// console.log("filters", this.filters);
 
-		// Filter based on filter value
+		// function to see test content vs filterValue
+		function shouldHide(filterValue: string | string[], content: string): boolean {
+			if (typeof filterValue === "string") {
+				const regex = new RegExp(filterValue, regexOpt);
+				if (!regex.test(content)) {
+					// console.log("hide", col.name, content);
+					return true;
+				}
+			} else if (Array.isArray(filterValue) && filterValue.length > 0) {
+				// 1. build regex from filterValues array (checkboxes and select menus send arrays)
+				let regexPattern = filterValue.join("|");
+				if (exclusive) {
+					const regexParts = filterValue.map((str) => `(?=.*${str})`);
+					regexPattern = `${regexParts.join("")}.*`;
+				}
+				const regex = new RegExp(regexPattern);
+				// 2. check if content matches
+				if (!regex.test(content)) {
+					// console.log("hide", col.name, content);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// 2. get filter value for whole row based on special reserved name "action-table"
+		const filterValueForWholeRow = this.filters["action-table"];
+
+		// 3. Filter based on filter value
 		this.rowsArray.forEach((row) => {
-			row.style.display = "";
-			const cells = row.children as HTMLCollectionOf<HTMLTableCellElement>;
-			Array.from(cells).forEach((cell, i) => {
+			// 3.1 set base display value as ""
+			let display = "";
+			// console.log("🚀 ~ file: action-table.ts:339 ~ ActionTable ~ this.rowsArray.forEach ~ display:", display);
+			// 3.2 get td cells
+			const cells = row.querySelectorAll("td") as NodeListOf<HTMLTableCellElement>;
+			// 3.3 if filter value for whole row exists then run filter against innerText of entire row content
+			if (filterValueForWholeRow) {
+				if (shouldHide(filterValueForWholeRow, row.innerText)) {
+					display = "none";
+				}
+			}
+			// 3.4 if columnName is not action-table then run filter against td cell content
+			cells.forEach((cell, i) => {
 				const content = this.dataset.filter || this.getCellContent(cell);
-				const col = this.cols[i];
-				const filterValue = this.filters[col.name];
+				let filterValue = this.filters[this.cols[i].name];
 				if (!filterValue) return;
-				// console.log("🚀 ~ filterValue:", col.name, filterValue);
-
-				if (typeof filterValue === "string") {
-					const regex = new RegExp(filterValue, regexOpt);
-					if (!regex.test(content)) {
-						// console.log("hide", col.name, content);
-						row.style.display = "none";
-					}
-				} else if (Array.isArray(filterValue) && filterValue.length > 0) {
-					// 1. build regex from filterValues array (checkboxes and select menus send arrays)
-					let regexPattern = filterValue.join("|");
-					if (exclusive) {
-						const regexParts = filterValue.map((str) => `(?=.*${str})`);
-						regexPattern = `${regexParts.join("")}.*`;
-					}
-					const regex = new RegExp(regexPattern);
-					// 2. check if content matches
-					if (!regex.test(content)) {
-						// console.log("hide", col.name, content);
-						row.style.display = "none";
-					}
+				// console.log("🚀 ~ filterValue:", columnName, col.name, filterValue);
+				if (shouldHide(filterValue, content)) {
+					display = "none";
 				}
 			});
+
+			// 3.5 set display
+			row.style.display = display;
 		});
 
 		if (this.rowsShown.length === 0) {
@@ -382,13 +405,13 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 	/*        Public Method: sort table based on column name and direction        */
 	/* -------------------------------------------------------------------------- */
-	public sortTable(col = this.sort, direction = this.direction) {
-		col = col.toLowerCase();
+	public sortTable(columnName = this.sort, direction = this.direction) {
+		columnName = columnName.toLowerCase();
 		// 1. Get column index from column name
-		const columnIndex = this.cols.findIndex((c) => c.name === col);
+		const columnIndex = this.cols.findIndex((c) => c.name === columnName);
 		// 2. If column exists and there are rows then sort
 		if (columnIndex >= 0 && this.rowsArray.length > 0) {
-			console.log(`sort by ${col} ${direction}`);
+			console.log(`sort by ${columnName} ${direction}`);
 
 			// 1. Sort rows
 			this.customSort(this.rowsArray, columnIndex);
@@ -401,11 +424,8 @@ export class ActionTable extends HTMLElement {
 				// 2.1 On first row, update aria-sort on ths
 				if (i < 1) {
 					this.ths.forEach((th, i) => {
-						if (i === columnIndex) {
-							th.setAttribute("aria-sort", direction);
-						} else {
-							th.setAttribute("aria-sort", "none");
-						}
+						const ariaSort = i === columnIndex ? direction : "none";
+						th.setAttribute("aria-sort", ariaSort);
 					});
 				}
 
@@ -424,13 +444,18 @@ export class ActionTable extends HTMLElement {
 
 	private customSort(rows: HTMLTableRowElement[], columnIndex: number): HTMLTableRowElement[] {
 		return rows.sort((r1, r2) => {
+			// 1. If descending sort, swap rows
+			if (this.direction === "descending") {
+				const temp = r1;
+				r1 = r2;
+				r2 = temp;
+			}
+
+			// 2. Get content
 			const c1 = r1.children[columnIndex] as HTMLTableCellElement;
 			const c2 = r2.children[columnIndex] as HTMLTableCellElement;
 			let v1 = this.getCellContent(c1);
 			let v2 = this.getCellContent(c2);
-
-			// Set sort direction to ascending by default
-			let sort = this.direction === "ascending" ? 1 : -1;
 
 			function isNumber(s: string) {
 				return !isNaN(parseFloat(s));
@@ -439,27 +464,22 @@ export class ActionTable extends HTMLElement {
 			// 1. If both values are numbers, sort by number
 			if (isNumber(v1) && isNumber(v2)) {
 				// console.log("Both numbers", v1, v2);
-				if (sort > 0) {
-					return parseFloat(v1) - parseFloat(v2);
-				}
-				return parseFloat(v2) - parseFloat(v1);
+				return parseFloat(v1) - parseFloat(v2);
 			}
 			// 2. If only one of the values is a number, prioritize it
 			if (isNumber(v1)) {
 				// console.log("Is Number", v1);
-				return -sort;
+				return -1;
 			}
 			if (isNumber(v2)) {
 				// console.log("Is Number", v2);
-				return sort;
+				return 1;
 			}
 
 			// 3. If both values are strings, sort by string
 			// console.log("both string", v1, v2);
-			if (sort > 0) {
-				return v1.localeCompare(v2);
-			}
-			return v2.localeCompare(v1);
+
+			return v1.localeCompare(v2);
 		});
 	}
 }
