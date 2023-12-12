@@ -122,14 +122,7 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 - [x] Redesign action-filter-menu filter element for checkboxes or radio buttons
 - [x] Add attribute for inclusive/exclusive selection for checkboxes
 - [x] Get select multiple working
-- [ ] Add input text search with debounce
+- [x] Add input text search with debounce
 - [x] Add whole table search
 - [x] Refactor to use name instead of col attribute
-- [x] **Get ready for npm and unpkg**
-  - [x] merge with main
-  - [ ] Cleanup example page
-  - [ ] Add advanced information to README
-  - [ ] add various package.json attributes see [Shoelace's package.json](https://github.com/shoelace-style/shoelace/blob/next/package.json) for example.
-  - [ ] git commit
-  - [ ] use release-it to push to npm
 - [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
