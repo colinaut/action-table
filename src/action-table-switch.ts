@@ -26,7 +26,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	private sendEvent() {
-		const detail = { checked: this.checked, id: this.dataset.id, name: this.name };
+		const detail = { checked: this.checked, id: this.id || this.dataset.id, name: this.name };
 		this.dispatchEvent(new CustomEvent("action-table-switch", { detail, bubbles: true }));
 	}
 
@@ -39,7 +39,6 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	public connectedCallback(): void {
-		console.log("switch connected");
 		this.render();
 		this.addEventListeners();
 	}
