@@ -87,7 +87,6 @@ export class ActionTableFilters extends HTMLElement {
 		});
 
 		/* ------------------------------- Text Input ------------------------------- */
-		const textInput = this.querySelector("input[type=search]") as HTMLInputElement;
 		function debounce(func: Function, timeout = 300) {
 			let timer: number;
 			return (...args: any[]) => {
@@ -97,8 +96,9 @@ export class ActionTableFilters extends HTMLElement {
 				}, timeout);
 			};
 		}
-		textInput?.addEventListener("input", (e) => {
+		this.addEventListener("input", (e) => {
 			const el = e.target as HTMLInputElement;
+			if (el.type !== "search") return;
 			const debouncedFilter = debounce(() => actionTable.filterTable(el.name, el.value, false));
 			debouncedFilter();
 		});
