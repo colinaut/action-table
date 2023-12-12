@@ -4,15 +4,15 @@ export class ActionTableFilterSwitch extends HTMLElement {
 	}
 
 	static get observedAttributes(): string[] {
-		return ["col", "label", "value"];
+		return ["name", "label", "value"];
 	}
 
-	get col(): string {
-		return this.getAttribute("col") || "";
+	get name(): string {
+		return this.getAttribute("name") || "";
 	}
 
 	get label(): string {
-		return this.getAttribute("label") || this.col;
+		return this.getAttribute("label") || this.name;
 	}
 
 	get value(): string {
@@ -25,7 +25,7 @@ export class ActionTableFilterSwitch extends HTMLElement {
 
 	private render(): void {
 		const html = `<label>
-        <input type="checkbox" name="${this.col.toLowerCase()}" value="${this.value}" />
+        <input type="checkbox" name="${this.name.toLowerCase()}" value="${this.value}" />
         <span>${this.label}</span>
       </label>`;
 

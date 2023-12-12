@@ -6,11 +6,11 @@ export class ActionTableFilterMenu extends HTMLElement {
 	// TODO: Add exact attribute that switches the filter to be exact match rather than includes
 
 	static get observedAttributes(): string[] {
-		return ["col", "options", "label", "type", "exclusive", "multiple"];
+		return ["name", "options", "label", "type", "exclusive", "multiple"];
 	}
 
-	get col(): string {
-		return this.getAttribute("col") || "";
+	get name(): string {
+		return this.getAttribute("name") || "";
 	}
 
 	get options(): string {
@@ -22,7 +22,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 	}
 
 	get label(): string {
-		return this.getAttribute("label") || this.col;
+		return this.getAttribute("label") || this.name;
 	}
 
 	get type(): "select" | "checkbox" | "radio" {
@@ -33,15 +33,15 @@ export class ActionTableFilterMenu extends HTMLElement {
 		return this.hasAttribute("multiple") ? "multiple" : "";
 	}
 
-	public findOptions(col: string): void {
-		col = col.toLowerCase();
+	public findOptions(columnName: string): void {
+		columnName = columnName.toLowerCase();
 		const ths = this.closest("action-table")?.querySelectorAll("table thead th") as NodeListOf<HTMLTableCellElement>;
-		const col_index = Array.from(ths).findIndex((th) => th.dataset.col?.toLowerCase() === col || th.innerText.toLowerCase() === col);
-		if (col_index === -1) {
+		const columnIndex = Array.from(ths).findIndex((th) => th.dataset.col?.toLowerCase() === columnName || th.innerText.toLowerCase() === columnName);
+		if (columnIndex === -1) {
 			return;
 		}
-		const cells = this.closest("action-table")?.querySelectorAll(`table tbody td:nth-child(${col_index + 1})`) as NodeListOf<HTMLTableCellElement>;
-		const subItems = this.closest("action-table")?.querySelectorAll(`table tbody td:nth-child(${col_index + 1}) > *`) as NodeListOf<HTMLElement>;
+		const cells = this.closest("action-table")?.querySelectorAll(`table tbody td:nth-child(${columnIndex + 1})`) as NodeListOf<HTMLTableCellElement>;
+		const subItems = this.closest("action-table")?.querySelectorAll(`table tbody td:nth-child(${columnIndex + 1}) > *`) as NodeListOf<HTMLElement>;
 		let options: string[] = [];
 		if (subItems && subItems.length > 0) {
 			options = Array.from(subItems).map((item) => {
@@ -59,27 +59,27 @@ export class ActionTableFilterMenu extends HTMLElement {
 	}
 
 	public connectedCallback(): void {
-		if (!this.options) this.findOptions(this.col);
+		if (!this.options) this.findOptions(this.name);
 		this.render();
 	}
 
 	private render(): void {
-		const colName = this.col.toLowerCase();
-		const mainLabel = this.type === "select" ? `<label for="filter-${colName}">${this.label}</label>` : `<span class="filter-label">${this.label}</span>`;
+		const columnName = this.name.toLowerCase();
+		const mainLabel = this.type === "select" ? `<label for="filter-${columnName}">${this.label}</label>` : `<span class="filter-label">${this.label}</span>`;
 		let start = "";
 		let end = "";
 		if (this.type === "select") {
-			start = `<select id="filter-${colName}" name="${colName}" ${this.multiple}><option value="">All</option>`;
+			start = `<select id="filter-${columnName}" name="${columnName}" ${this.multiple}><option value="">All</option>`;
 			end = `</select>`;
 		}
 		if (this.type === "radio") {
-			start = `<label><input name="${colName}" type="radio" value="">All</label>`;
+			start = `<label><input name="${columnName}" type="radio" value="">All</label>`;
 		}
 		let html = `${mainLabel}${start}${this.options
 			.split(",")
 			.map((option) => {
 				if (this.type === "select") return `<option value="${option}">${option}</option>`;
-				if (this.type === "radio" || this.type === "checkbox") return `<label><input type="${this.type}" name="${colName}" value="${option}" />${option}</label>`;
+				if (this.type === "radio" || this.type === "checkbox") return `<label><input type="${this.type}" name="${columnName}" value="${option}" />${option}</label>`;
 				return "";
 			})
 			.join("")}${end}`;
