@@ -4,7 +4,7 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	static get observedAttributes(): string[] {
-		return ["checked", "label", "name"];
+		return ["checked", "label", "name", "value"];
 	}
 
 	get checked(): boolean {
@@ -23,6 +23,10 @@ export class ActionTableSwitch extends HTMLElement {
 
 	get name(): string {
 		return this.getAttribute("name") || "";
+	}
+
+	get value(): string {
+		return this.getAttribute("value") || "on";
 	}
 
 	private sendEvent() {
@@ -44,7 +48,13 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	private render(): void {
-		this.innerHTML = `<input type="checkbox" name="${this.name}" ${this.checked ? "checked" : ""} aria-label="${this.label}">`;
+		const checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		checkbox.name = this.name;
+		checkbox.value = this.value;
+		checkbox.checked = this.checked;
+		checkbox.setAttribute("aria-label", this.label);
+		this.append(checkbox);
 	}
 }
 
