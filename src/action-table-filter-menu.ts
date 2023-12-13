@@ -36,7 +36,9 @@ export class ActionTableFilterMenu extends HTMLElement {
 	public findOptions(columnName: string): void {
 		columnName = columnName.toLowerCase();
 		const ths = this.closest("action-table")?.querySelectorAll("table thead th") as NodeListOf<HTMLTableCellElement>;
-		const columnIndex = Array.from(ths).findIndex((th) => th.dataset.col?.toLowerCase() === columnName || th.innerText.toLowerCase() === columnName);
+
+		const columnIndex = Array.from(ths).findIndex((th) => th.dataset.col?.toLowerCase() === columnName || th.innerText.toLowerCase().trim() === columnName);
+
 		if (columnIndex === -1) {
 			return;
 		}
@@ -55,6 +57,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 		} else {
 			options = Array.from(cells).map((cell) => cell.dataset.filter || cell.innerText);
 		}
+
 		this.options = Array.from(new Set(options)).join(",");
 	}
 
