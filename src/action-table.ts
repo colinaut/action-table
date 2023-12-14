@@ -362,7 +362,7 @@ export class ActionTable extends HTMLElement {
 		// function to see test content vs filterValue
 		function shouldHide(filter: SingleFilterObject, content: string): boolean {
 			// console.log("shouldHide", filterValue, content);
-			if (filter?.values?.length > 0) {
+			if (filter.values && filter.values.length > 0) {
 				// 1. build regex from filterValues array (checkboxes and select menus send arrays)
 				let regexPattern = filter.values.join("|");
 				if (filter.exclusive) {
