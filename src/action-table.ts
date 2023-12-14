@@ -1,5 +1,4 @@
-import { ColsArray, FiltersObject } from "./types";
-import { ActionTableSwitch } from "./action-table-switch";
+import { ColsArray, FiltersObject, SingleFilterObject } from "./types";
 import { ActionTableFilters } from "./action-table-filters";
 export class ActionTable extends HTMLElement {
 	constructor() {
@@ -68,7 +67,6 @@ export class ActionTable extends HTMLElement {
 
 		// 4. Add no results tfoot message
 		this.addNoResultsTfoot();
-		console.log("test");
 
 		// 5. Sort & Filter Table if they have values
 		if (this.sort) this.sortTable();
@@ -76,31 +74,47 @@ export class ActionTable extends HTMLElement {
 			this.initialFilter();
 		}
 
-		// 6. check to see if there are any rows; if so reset filters
-		if (this.rowsShown.length === 0) {
-			this.resetFilters();
-			this.resetAllFilterElements();
-		}
-
 		// 7. Add Event Listeners
 		this.addEventListeners();
 	}
 
-	private async checkForActionTableFilters(): Promise<ActionTableFilters | void> {
-		const selector = "action-table-filters";
-		const actionTableFilters = this.querySelector(selector) as ActionTableFilters;
-		if (actionTableFilters) {
-			await customElements.whenDefined(selector);
-			return actionTableFilters;
+	private async initialFilter() {
+		const customEls = await this.waitForCustomElements();
+		if (customEls.length > 0) {
+			const actionTableFilters = customEls.find((el) => el.tagName.toLowerCase() === "action-table-filters") as ActionTableFilters;
+			if (actionTableFilters) {
+				actionTableFilters.setFilterElements(this.filters);
+			}
 		}
-		return;
+		this.filterTable();
+
+		if (this.rowsShown.length === 0) {
+			this.resetFilters();
+			this.resetAllFilterElements();
+		}
 	}
 
-	private async initialFilter() {
-		this.filterTable();
-		const actionTableFilters = await this.checkForActionTableFilters();
-		if (actionTableFilters) {
-			actionTableFilters.setFilterElements(this.filters);
+	private async waitForCustomElements(): Promise<Element[]> {
+		// 1. Get any custom elements
+		const customElementsArray = Array.from(this.querySelectorAll("*")).filter((el) => el.tagName.indexOf("-") !== -1);
+
+		// 2. Return if empty or all custom elements are defined
+		const allDefined = customElementsArray.every((element) => element && customElements.get(element.tagName.toLowerCase()));
+		if (allDefined) {
+			return customElementsArray;
+		}
+		// 3. Create custom elements when defined Array
+		const customElementsDefinedArray = customElementsArray.map((element) => customElements.whenDefined(element.tagName.toLowerCase()));
+		// 4. Create Timeout Promise
+		const timeoutPromise = new Promise<Element[]>((_, reject) => setTimeout(() => reject("Timeout"), 300));
+		try {
+			// 5. Wait for custom elements or timeout
+			await Promise.race([Promise.all(customElementsDefinedArray), timeoutPromise]);
+			return customElementsArray;
+		} catch (error) {
+			// Handle timeout error here
+			console.error("Timeout occurred while waiting for custom elements");
+			return [];
 		}
 	}
 
@@ -161,7 +175,7 @@ export class ActionTable extends HTMLElement {
 		const filters: FiltersObject = {};
 		for (const [key, value] of params.entries()) {
 			if (key !== "sort" && key !== "direction") {
-				filters[key] = value;
+				filters[key].values = [value];
 			}
 		}
 
@@ -170,7 +184,7 @@ export class ActionTable extends HTMLElement {
 			this.filters = filters;
 		}
 
-		console.log(params, this.filters);
+		// console.log(params, this.filters);
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -190,15 +204,20 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private getColumns(table: HTMLTableElement): ColsArray {
+		// 1. Get column headers
 		this.ths = table.querySelectorAll("th");
 		if (this.ths) {
 			this.ths.forEach((th) => {
-				// Column name is based on data-col attribute or innerText
-				let name = th.dataset.col || th.innerText || "";
+				// 2. Column name is based on data-col attribute or results of getCellContent() function
+				let name = th.dataset.col || this.getCellContent(th);
+				// 3. Remove whitespace and convert to lowercase
 				name = name.trim().toLowerCase();
 				if (name) {
+					// 4. Add column name to cols array
 					this.cols.push({ name: name });
-					// if the column is sortable then set it as sortable, wrap it in a button, and add aria
+					// 5. Set data-col attribute just in case it is
+					th.dataset.col = name;
+					// 6. if the column is sortable then wrap it in a button, and add aria
 					if (!th.hasAttribute("no-sort")) {
 						th.innerHTML = `<button data-col="${name}">${th.innerHTML}</button>`;
 					}
@@ -206,6 +225,7 @@ export class ActionTable extends HTMLElement {
 			});
 		}
 		// console.log("action-table cols", this.cols);
+		// 7. Return cols array
 		return this.cols;
 	}
 
@@ -240,8 +260,8 @@ export class ActionTable extends HTMLElement {
 	/*        Private Method: reset all action-table-filters elements             */
 	/* -------------------------------------------------------------------------- */
 
-	private async resetAllFilterElements() {
-		const actionTableFilters = await this.checkForActionTableFilters();
+	private resetAllFilterElements() {
+		const actionTableFilters = this.querySelector("action-table-filters") as ActionTableFilters;
 		if (actionTableFilters) {
 			actionTableFilters.resetAllFilterElements();
 		}
@@ -296,37 +316,63 @@ export class ActionTable extends HTMLElement {
 	}
 
 	/* -------------------------------------------------------------------------- */
+	/*                     Public Method: get cell content                        */
+	/* -------------------------------------------------------------------------- */
+	public getCellContent(cell: HTMLTableCellElement): string {
+		// 1. get cell content with dataset or innerText
+		let cellContent: string = cell.dataset.sort || cell.innerText || "";
+		// 2. trim to make sure it's not just spaces
+		cellContent = cellContent?.trim();
+
+		// 3. if there is no cell content then check...
+		if (!cellContent) {
+			// 3.1 if there is an svg then get title; otherwise return empty string
+			const svg = cell.querySelector("svg") as SVGElement;
+			if (svg) {
+				cellContent = svg.querySelector("title")?.textContent || "";
+			}
+			// 3.2 if checkbox element then get value if checked
+			const checkbox = cell.querySelector("[type=checkbox]") as HTMLInputElement;
+			if (checkbox?.checked) {
+				cellContent = checkbox.value;
+			}
+		}
+		return cellContent.trim();
+	}
+
+	/* -------------------------------------------------------------------------- */
 	/*            Public Method: filter table on column name and value            */
 	/* -------------------------------------------------------------------------- */
-	public filterTable(columnName: string = "", value: string | string[] = "", exclusive = false, regexOpt = "i"): void {
+	public filterTable(columnName: string = "", values: string[] = [], exclusive = false, regexOpt = "i"): void {
 		columnName = columnName.trim().toLowerCase();
 
 		// 1. If col then store filter value locally and in localStorage; otherwise filter table based on existed filter
 		if (columnName !== "") {
-			this.filters[columnName] = value;
+			if (!this.filters[columnName]) {
+				this.filters[columnName] = { values: [] };
+			}
+
+			this.filters[columnName].values = values;
+
+			if (exclusive) this.filters[columnName].exclusive = exclusive;
 			this.setFiltersLocalStorage();
 		}
 		// console.log("filters", this.filters);
 
 		// function to see test content vs filterValue
-		function shouldHide(filterValue: string | string[], content: string): boolean {
-			if (typeof filterValue === "string") {
-				const regex = new RegExp(filterValue, regexOpt);
-				if (!regex.test(content)) {
-					// console.log("hide", col.name, content);
-					return true;
-				}
-			} else if (Array.isArray(filterValue) && filterValue.length > 0) {
+		function shouldHide(filter: SingleFilterObject, content: string): boolean {
+			// console.log("shouldHide", filterValue, content);
+			if (filter.values.length > 0) {
 				// 1. build regex from filterValues array (checkboxes and select menus send arrays)
-				let regexPattern = filterValue.join("|");
-				if (exclusive) {
-					const regexParts = filterValue.map((str) => `(?=.*${str})`);
+				let regexPattern = filter.values.join("|");
+				if (filter.exclusive) {
+					const regexParts = filter.values.map((str) => `(?=.*${str})`);
 					regexPattern = `${regexParts.join("")}.*`;
 				}
-				const regex = new RegExp(regexPattern);
+				const regex = new RegExp(regexPattern, regexOpt);
 				// 2. check if content matches
 				if (!regex.test(content)) {
-					// console.log("hide", col.name, content);
+					// console.log("hide", columnName, content);
 					return true;
 				}
 			}
@@ -334,28 +380,26 @@ export class ActionTable extends HTMLElement {
 		}
 
 		// 2. get filter value for whole row based on special reserved name "action-table"
-		const filterValueForWholeRow = this.filters["action-table"];
+		const filterForWholeRow = this.filters["action-table"];
 
 		// 3. Filter based on filter value
 		this.rowsArray.forEach((row) => {
 			// 3.1 set base display value as ""
 			let display = "";
-			// console.log("🚀 ~ file: action-table.ts:339 ~ ActionTable ~ this.rowsArray.forEach ~ display:", display);
 			// 3.2 get td cells
 			const cells = row.querySelectorAll("td") as NodeListOf<HTMLTableCellElement>;
 			// 3.3 if filter value for whole row exists then run filter against innerText of entire row content
-			if (filterValueForWholeRow) {
-				if (shouldHide(filterValueForWholeRow, row.innerText)) {
+			if (filterForWholeRow) {
+				if (shouldHide(filterForWholeRow, row.innerText)) {
 					display = "none";
 				}
 			}
 			// 3.4 if columnName is not action-table then run filter against td cell content
 			cells.forEach((cell, i) => {
 				const content = this.dataset.filter || this.getCellContent(cell);
-				let filterValue = this.filters[this.cols[i].name];
-				if (!filterValue) return;
-				// console.log("🚀 ~ filterValue:", columnName, col.name, filterValue);
-				if (shouldHide(filterValue, content)) {
+				let filter = this.filters[this.cols[i].name];
+				if (!filter) return;
+				if (shouldHide(filter, content)) {
 					display = "none";
 				}
 			});
@@ -372,34 +416,9 @@ export class ActionTable extends HTMLElement {
 		}
 	}
 
+	// Simple rowsShown getter; not an attribute
 	get rowsShown() {
 		return this.rowsArray.filter((row) => row.style.display !== "none");
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*              Public Method: get column names from headers                  */
-	/* -------------------------------------------------------------------------- */
-	// TODO: review if I need this to be number or string. Just string might be fine.
-	public getCellContent(cell: HTMLTableCellElement): string {
-		let cellContent: string = cell.dataset.sort || cell.innerText || "";
-		// trim to make sure it's not just spaces
-		cellContent = cellContent?.trim();
-
-		if (!cellContent) {
-			const el = cell.firstElementChild as HTMLElement;
-			if (el.tagName.toLowerCase() === "svg") {
-				cellContent = el.querySelector("title")?.textContent || "";
-			}
-			if (el.tagName.toLowerCase() === "action-table-switch") {
-				const actionSwitch = el as ActionTableSwitch;
-				cellContent = actionSwitch.checked || actionSwitch.hasAttribute("checked") ? "on" : "";
-			}
-			if (el.tagName.toLowerCase() === "input") {
-				const input = el as HTMLInputElement;
-				cellContent = input.checked ? input.value : "";
-			}
-		}
-		return cellContent.trim();
 	}
 
 	/* -------------------------------------------------------------------------- */

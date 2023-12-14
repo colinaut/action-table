@@ -1,9 +1,9 @@
+import { ActionTable } from "./action-table";
+
 export class ActionTableFilterMenu extends HTMLElement {
 	constructor() {
 		super();
 	}
-
-	// TODO: Add exact attribute that switches the filter to be exact match rather than includes
 
 	static get observedAttributes(): string[] {
 		return ["name", "options", "label", "type", "exclusive", "multiple"];
@@ -13,12 +13,12 @@ export class ActionTableFilterMenu extends HTMLElement {
 		return this.getAttribute("name") || "";
 	}
 
-	get options(): string {
-		return this.getAttribute("options") || "";
+	get options(): string[] {
+		return this.getAttribute("options")?.split(",") || [];
 	}
 
-	set options(value: string) {
-		this.setAttribute("options", value);
+	set options(value: string[]) {
+		this.setAttribute("options", value.join(","));
 	}
 
 	get label(): string {
@@ -34,39 +34,50 @@ export class ActionTableFilterMenu extends HTMLElement {
 	}
 
 	public findOptions(columnName: string): void {
+		// 1. Set column name to lowercase
 		columnName = columnName.toLowerCase();
-		const ths = this.closest("action-table")?.querySelectorAll("table thead th") as NodeListOf<HTMLTableCellElement>;
-
-		const columnIndex = Array.from(ths).findIndex((th) => th.dataset.col?.toLowerCase() === columnName || th.innerText.toLowerCase().trim() === columnName);
-
+		// 2. Get action table; of not found, return
+		const actionTable = this.closest("action-table") as ActionTable;
+		if (!actionTable) {
+			return;
+		}
+		// 3. Find all column headers
+		const ths = actionTable.querySelectorAll("table thead th") as NodeListOf<HTMLTableCellElement>;
+		// 4. Find column index based on column name in header data-col attribute; if not found, return
+		const columnIndex = Array.from(ths).findIndex((th) => th.dataset.col?.toLowerCase() === columnName);
 		if (columnIndex === -1) {
 			return;
 		}
-		const cells = this.closest("action-table")?.querySelectorAll(`table tbody td:nth-child(${columnIndex + 1})`) as NodeListOf<HTMLTableCellElement>;
-		const subItems = this.closest("action-table")?.querySelectorAll(`table tbody td:nth-child(${columnIndex + 1}) > *`) as NodeListOf<HTMLElement>;
+		// 5. Get tbody
+		const tbody = actionTable.querySelector("table tbody") as HTMLTableSectionElement;
+		// 6. Get all cells in column
+		const columnTDs = `td:nth-child(${columnIndex + 1})`;
+		const cells = tbody.querySelectorAll(columnTDs) as NodeListOf<HTMLTableCellElement>;
+
+		// 6. Get all spans or li in column
+		const subItems = tbody.querySelectorAll(`${columnTDs} > span, ${columnTDs} > ul > li`) as NodeListOf<HTMLElement>;
+
+		// 7. Get all options
 		let options: string[] = [];
 		if (subItems && subItems.length > 0) {
-			options = Array.from(subItems).map((item) => {
-				if (item.matches("[type='checkbox']")) {
-					const checkbox = item as HTMLInputElement;
-					return checkbox.value;
-				} else {
-					return item.innerText;
-				}
-			});
+			// 7.1 If subitems exist, get all options in subitems
+			options = Array.from(subItems).map((item) => item.innerText);
 		} else {
+			// 7.2 else get data-filter or innerText
 			options = Array.from(cells).map((cell) => cell.dataset.filter || cell.innerText);
 		}
 
-		this.options = Array.from(new Set(options)).join(",");
+		// 8. Set options
+		this.options = Array.from(new Set(options));
 	}
 
 	public connectedCallback(): void {
-		if (!this.options) this.findOptions(this.name);
+		if (this.options.length < 1) this.findOptions(this.name);
 		this.render();
 	}
 
 	private render(): void {
+		if (this.options.length < 1) return;
 		const columnName = this.name.toLowerCase();
 		const mainLabel = this.type === "select" ? `<label for="filter-${columnName}">${this.label}</label>` : `<span class="filter-label">${this.label}</span>`;
 		let start = "";
@@ -76,10 +87,9 @@ export class ActionTableFilterMenu extends HTMLElement {
 			end = `</select>`;
 		}
 		if (this.type === "radio") {
-			start = `<label><input name="${columnName}" type="radio" value="">All</label>`;
+			start = `<label><input name="${columnName}" type="radio" value="" checked>All</label>`;
 		}
 		let html = `${mainLabel}${start}${this.options
-			.split(",")
 			.map((option) => {
 				if (this.type === "select") return `<option value="${option}">${option}</option>`;
 				if (this.type === "radio" || this.type === "checkbox") return `<label><input type="${this.type}" name="${columnName}" value="${option}" />${option}</label>`;

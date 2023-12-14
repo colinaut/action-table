@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Action Table: HTML Web Component</title>
 		<script type="module" src="/src/main.ts"></script>
+		<script type="module" src="/src/action-table-switch.ts"></script>
 		<link rel="stylesheet" href="/css/styles.css" />
 		<style>
 			body {
@@ -74,15 +75,15 @@
 							</div>
 							<div>
 								<h4>Action Table Filter Elements: Switch</h4>
-								<action-table-filter-switch class="star" name="Favs"></action-table-filter-switch>
-								<action-table-filter-switch class="switch" name="Switch"></action-table-filter-switch>
+								<div><action-table-filter-switch class="star" name="Favs"></action-table-filter-switch></div>
+								<div><action-table-filter-switch class="switch" name="Switch"></action-table-filter-switch></div>
 							</div>
 							<div class="flex flex-col">
 								<h4>Action Table Filter Search</h4>
-								<div><label for="name-search">Search Name</label> <input id="name-search" name="name" type="search" placeholder="Search" /></div>
+								<div><label for="name-search">Search Name</label> <input id="name-search" name="name" type="search" placeholder="Search" size="14" /></div>
 								<div>
 									<label for="action-table-search">Search Whole Table</label>
-									<input id="action-table-search" name="action-table" type="search" placeholder="Search" />
+									<input id="action-table-search" name="action-table" type="search" placeholder="Search" size="14" />
 								</div>
 							</div>
 							<div><button type="reset">Reset</button></div>
@@ -99,7 +100,7 @@
 							<th>Age</th>
 							<th>Actions</th>
 							<th>Favs</th>
-							<th no-sort>Switch</th>
+							<th>Switch</th>
 							<th>Day</th>
 						</tr>
 					</thead>
@@ -111,7 +112,7 @@
 							<td>N/A</td>
 							<td><span>jump</span><span>eat</span></td>
 							<td>
-								<action-table-switch class="star"></action-table-switch>
+								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Mon">Mon, 10am</td>
@@ -123,7 +124,7 @@
 							<td>4</td>
 							<td><span>run</span><span>eat</span><span>snuggle</span></td>
 							<td>
-								<action-table-switch checked class="star"></action-table-switch>
+								<action-table-switch checked class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Tue">Tue, 11am</td>
@@ -136,7 +137,7 @@
 							<td><span>jump</span><span>run</span></td>
 
 							<td>
-								<action-table-switch checked class="star"></action-table-switch>
+								<action-table-switch checked class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
 							<td data-filter="Sat">Sat, 1pm</td>
@@ -148,7 +149,7 @@
 							<td>2</td>
 							<td><span>run</span><span>eat</span><span>hide</span></td>
 							<td>
-								<action-table-switch class="star"></action-table-switch>
+								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Sun">Sun, 2pm</td>
@@ -160,7 +161,7 @@
 							<td>8</td>
 							<td><span>run</span><span>snuggle</span></td>
 							<td>
-								<action-table-switch class="star"></action-table-switch>
+								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Mon">Mon, 3pm</td>
@@ -172,7 +173,7 @@
 							<td>6</td>
 							<td><span>eat</span></td>
 							<td>
-								<action-table-switch class="star"></action-table-switch>
+								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
 							<td data-filter="Mon">Sun, 10am</td>
@@ -184,7 +185,7 @@
 							<td>2</td>
 							<td><span>run</span><span>explore</span></td>
 							<td>
-								<action-table-switch checked class="star"></action-table-switch>
+								<action-table-switch checked class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Tue">Tue, 11am</td>
@@ -196,7 +197,7 @@
 							<td>6</td>
 							<td><span>run</span><span>snuggle</span></td>
 							<td>
-								<action-table-switch class="star" checked></action-table-switch>
+								<action-table-switch class="star" checked label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
 							<td data-filter="Wed">Wed, 12pm</td>

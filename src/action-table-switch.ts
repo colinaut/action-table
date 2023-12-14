@@ -1,7 +1,12 @@
+import { ActionTable } from "./action-table";
 export class ActionTableSwitch extends HTMLElement {
 	constructor() {
 		super();
 	}
+
+	/* -------------------------------------------------------------------------- */
+	/*                                 Attributes                                 */
+	/* -------------------------------------------------------------------------- */
 
 	static get observedAttributes(): string[] {
 		return ["checked", "label", "name", "value"];
@@ -29,22 +34,44 @@ export class ActionTableSwitch extends HTMLElement {
 		return this.getAttribute("value") || "on";
 	}
 
-	private sendEvent() {
-		const detail = { checked: this.checked, id: this.id || this.dataset.id, name: this.name };
-		this.dispatchEvent(new CustomEvent("action-table-switch", { detail, bubbles: true }));
-	}
-
-	private addEventListeners() {
-		const input = this.querySelector("input") as HTMLInputElement;
-		input.addEventListener("change", () => {
-			this.checked = input.checked;
-		});
-		this.sendEvent();
-	}
+	/* -------------------------------------------------------------------------- */
+	/*                             Connected Callback                             */
+	/* -------------------------------------------------------------------------- */
 
 	public connectedCallback(): void {
 		this.render();
 		this.addEventListeners();
+	}
+
+	/* -------------------------------------------------------------------------- */
+	/*                               Event Listeners                              */
+	/* -------------------------------------------------------------------------- */
+
+	private addEventListeners() {
+		const input = this.querySelector("input") as HTMLInputElement;
+		input?.addEventListener("change", () => {
+			this.checked = input.checked;
+			this.triggerFilter();
+			this.sendEvent();
+		});
+	}
+
+	/* -------------------------------------------------------------------------- */
+	/*                              Private Methods                              */
+	/* -------------------------------------------------------------------------- */
+
+	/* ----------------- Send Event Triggered by checkbox change ---------------- */
+
+	private async sendEvent() {
+		const detail = { checked: this.checked, id: this.id || this.dataset.id, name: this.name, value: this.value };
+		this.dispatchEvent(new CustomEvent("action-table-switch", { detail, bubbles: true }));
+	}
+
+	private triggerFilter() {
+		const actionTable = this.closest("action-table") as ActionTable;
+		if (actionTable) {
+			actionTable.filterTable();
+		}
 	}
 
 	private render(): void {
@@ -54,7 +81,7 @@ export class ActionTableSwitch extends HTMLElement {
 		checkbox.value = this.value;
 		checkbox.checked = this.checked;
 		checkbox.setAttribute("aria-label", this.label);
-		this.append(checkbox);
+		this.replaceChildren(checkbox);
 	}
 }
 

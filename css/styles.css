@@ -120,6 +120,7 @@ action-table-filters:not(:defined) {
 
 action-table select {
     border-radius: .3em;
+    font-size: inherit;
 }
 action-table .selected {
     background-color: var(--action-table-filter-highlight, paleturquoise);
@@ -131,6 +132,11 @@ action-table .no-results td {
 }
 action-table button {
     cursor: pointer;
+    font-size: inherit;
+}
+
+action-table input {
+    font-size: inherit;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -141,6 +147,14 @@ action-table-filters {
     display: flex;
     flex-direction: column;
     gap: .3em;
+}
+
+action-table-filters input[type=search] {
+    -webkit-appearance: none;
+    font-size: inherit;
+    border-radius: .3em;
+    padding: .1em .3em;
+    border: 1px solid var(--action-table-input-border,lightgray);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -193,13 +207,13 @@ action-table .switch input {
     left: 0.2em;
     box-shadow: 0px 1px 3px #0003;
     transition: 0.25s linear transform;
-    transform: translateX(0rem);
+    transform: translateX(0em);
   }
   action-table .switch :checked {
     background: var(--action-table-switch-checked, green);
   }
   action-table .switch :checked::before {
-    transform: translateX(1rem);
+    transform: translateX(1.3em);
   }
   action-table .switch input:focus,
   action-table .star input:focus {

@@ -48,60 +48,58 @@ export class ActionTableFilters extends HTMLElement {
 	private addEventListeners(): void {
 		const actionTable = this.closest("action-table") as ActionTable;
 		/* ------------ Event Listeners for select/checkbox/radio ------------ */
-		this.addEventListener("change", (e) => {
-			const el = e.target as HTMLInputElement | HTMLSelectElement;
-			// 1. setup filter value
-			let filterValue: string | string[] = "";
-
-			// 2. get filter value based on type
+		// TODO: review to see if there are bugs and if I can make more DRY
+		this.filterElements.forEach((el) => {
+			const exclusive = !!el.closest("[exclusive]");
+			if (el.tagName.toLowerCase() === "select") {
+				el.addEventListener("change", () => {
+					this.toggleHighlight(el);
+					const select = el as HTMLSelectElement;
+					const selectedOptions = Array.from(select.selectedOptions).map((option) => option.value);
+					actionTable.filterTable(el.name, selectedOptions, exclusive);
+				});
+			}
 			if (el.type === "checkbox") {
-				const input = el as HTMLInputElement;
+				el.addEventListener("change", () => {
+					const checkboxValues = Array.from(this.filterElements)
+						.filter((e) => {
+							e = e as HTMLInputElement;
+							if (e.type === "checkbox" && e.name === el.name) {
+								return e.checked;
+							}
+							return false;
+						})
+						.map((checkbox) => checkbox.value);
 
-				const checkboxValues = Array.from(this.filterElements)
-					.filter((el) => {
-						el = el as HTMLInputElement;
-						if (el.type === "checkbox" && el.name === input.name) {
-							return el.checked;
-						}
-						return false;
-					})
-					.map((checkbox) => checkbox.value);
-
-				if (checkboxValues.length > 0) {
-					filterValue = checkboxValues;
-				}
+					actionTable.filterTable(el.name, checkboxValues, exclusive);
+				});
 			}
 			if (el.type === "radio") {
-				filterValue = el.value;
+				el.addEventListener("change", () => {
+					actionTable.filterTable(el.name, [el.value]);
+				});
 			}
-			if (el.tagName.toLowerCase() === "select") {
-				const select = el as HTMLSelectElement;
-				const selectedOptions = Array.from(select.selectedOptions).map((option) => option.value);
-				filterValue = selectedOptions;
-			}
-			// 3. if filter value exists, filter table and highlight
 
-			const exclusive = !!el.closest("[exclusive]");
-			actionTable.filterTable(el.name, filterValue, exclusive);
-			this.toggleHighlight(el);
+			function debounce(func: Function, timeout = 300) {
+				let timer: number;
+				return (...args: any[]) => {
+					clearTimeout(timer);
+					timer = setTimeout(() => {
+						func(args);
+					}, timeout);
+				};
+			}
+
+			if (el.type === "search") {
+				el.addEventListener("input", () => {
+					const debouncedFilter = debounce(() => actionTable.filterTable(el.name, [el.value]));
+					debouncedFilter();
+					actionTable.filterTable(el.name, [el.value]);
+				});
+			}
 		});
 
 		/* ------------------------------- Text Input ------------------------------- */
-		function debounce(func: Function, timeout = 300) {
-			let timer: number;
-			return (...args: any[]) => {
-				clearTimeout(timer);
-				timer = setTimeout(() => {
-					func(args);
-				}, timeout);
-			};
-		}
-		this.addEventListener("input", (e) => {
-			const el = e.target as HTMLInputElement;
-			if (el.type !== "search") return;
-			const debouncedFilter = debounce(() => actionTable.filterTable(el.name, el.value, false));
-			debouncedFilter();
-		});
 
 		/* ------------------------------ Reset Button ------------------------------ */
 		const resetButton = this.querySelector("button[type=reset]") as HTMLButtonElement;
@@ -113,6 +111,8 @@ export class ActionTableFilters extends HTMLElement {
 
 	private async checkForActionTableFilterElements(): Promise<boolean> {
 		const actionTableFilterElements = this.querySelectorAll("action-table-filter-menu, action-table-filter-switch");
+		const allDefined = Array.from(actionTableFilterElements).every((element) => customElements.get(element.tagName.toLowerCase()));
+		if (allDefined) return true;
 		if (actionTableFilterElements && actionTableFilterElements.length > 0) {
 			await Promise.all([customElements.whenDefined("action-table-filter-menu"), customElements.whenDefined("action-table-filter-switch")]);
 			return true;
@@ -124,7 +124,8 @@ export class ActionTableFilters extends HTMLElement {
 	/*                  Public Method: reset all filter elements                  */
 	/* -------------------------------------------------------------------------- */
 
-	public resetAllFilterElements(): void {
+	public async resetAllFilterElements() {
+		await this.checkForActionTableFilterElements();
 		this.filterElements.forEach((el) => {
 			if (el.type === "checkbox" || el.type === "radio") {
 				const input = el as HTMLInputElement;
@@ -148,35 +149,37 @@ export class ActionTableFilters extends HTMLElement {
 		await this.checkForActionTableFilterElements();
 		// console.log("setFilterElements", filters);
 		Object.keys(filters).forEach((key) => {
-			this.setFilterElement(key, filters[key]);
+			if (!filters[key].values) return;
+			this.setFilterElement(key, filters[key].values);
 		});
 	}
 
 	/* --------------------------- Set Filter element --------------------------- */
 
-	public setFilterElement(col: string, value: string | string[]) {
-		this.filterElements.forEach((el) => {
+	public setFilterElement(col: string, values: string[]) {
+		this.filterElements?.forEach((el) => {
 			if (el.name !== col) return;
-			if (el.type === "checkbox" && Array.isArray(value)) {
+
+			if (el.type === "checkbox") {
 				const input = el as HTMLInputElement;
-				if (value.includes(input.value)) {
-					console.log(input.name, input.value, value);
+				if (values.includes(input.value)) {
 					input.checked = true;
 				}
 			}
-			if (typeof value === "string") {
-				if (el.type === "radio") {
-					const input = el as HTMLInputElement;
-					if (input.value === value) {
-						input.checked = true;
-					}
+			if (el.tagName.toLowerCase() === "select") {
+				el.value = values[0] || "";
+				this.toggleHighlight(el);
+			}
+
+			if (el.type === "radio") {
+				const input = el as HTMLInputElement;
+				if (input.value === values[0] || "") {
+					input.checked = true;
 				}
-				if (el.tagName.toLowerCase() === "select" || el.type === "search") {
-					if (el.name === col) {
-						el.value = value;
-					}
-					this.toggleHighlight(el);
-				}
+			}
+			if (el.type === "search") {
+				el.value = values[0] || "";
+				this.toggleHighlight(el);
 			}
 		});
 	}

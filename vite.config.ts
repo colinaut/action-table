@@ -2,9 +2,6 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 import minifyHTML from "rollup-plugin-minify-html-literals";
 
-// TODO: auto remove console.log from build
-// TODO: improve how docs are generated
-
 // https://vitejs.dev/config/
 
 export default defineConfig(({ mode }) => {

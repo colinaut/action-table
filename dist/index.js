@@ -1,2 +1,2 @@
-import"./action-table.js";import"./action-table-filters.js";import"./action-table-switch.js";
+import"./action-table.js";import"./action-table-filters.js";
 //# sourceMappingURL=index.js.map

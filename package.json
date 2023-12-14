@@ -34,6 +34,7 @@
 		"dev": "vite",
 		"preview": "vite preview",
 		"start": "vite",
+		"docs": "npx serve docs",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"browserslist": [

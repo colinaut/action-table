@@ -6,17 +6,20 @@ Check out the [Demo Page](https://colinaut.github.io/action-table/)
 
 ## Installation
 
+### Main files
+*  `dist/index.js` the main file installs action-table.js and action-table-filters.js. You can also install the components separately:
+   *  `dist/action-table.js` automatic sort headers and public accessible filtering functions
+   *  `dist/action-table-filters.js` includes action-table-filters wrapper which adds event listeners for form elements;  also includes the action-table-filter-menu and action-table-filter-switch components.
+*  `dist/action-table-switch.js` optional action-table-switch element. Not installed by default index.js.
+*  `dist/action-table.css` optional but recommended stylesheet. You can override the styles or ignore build your own.
+
 ### CDN
 ```
 <script src="https://unpkg.com/@colinaut/action-table/dist/index.js"></script>
+<!-- optional: <script src="https://unpkg.com/@colinaut/action-table/dist/action-table-switch.js"></script> -->
 <link rel="stylesheet" href="https://unpkg.com/@colinaut/action-table/dist/action-table.css" />
 
 ```
-
-index.js installs every component. You can also install the components separately:
-*  `dist/action-table.js` automatic sort headers and public accessible filtering functions
-*  `dist/action-table-filters.js` includes action-table-filters wrapper which adds event listeners for form elements;  also includes the action-table-filter-menu and action-table-filter-switch components.
-*  `dist/action-table-switch.js` action-table-switch element
 
 ### NPM
 
@@ -41,6 +44,7 @@ eleventyConfig.addPassthroughCopy({
 ```
 ```
 <script src="/js/action-table/index.js"></script>
+<!-- optional: <script src="/js/action-table/action-table-switch.js"></script> -->
 <link rel="stylesheet" href="/css/action-table.css" />
 ```
 
@@ -76,9 +80,67 @@ The data-sort attribute is useful for time-based sorting as you can add the a un
 ### Filtering
 Filtering is done via the public filterTable() method. You can trigger this with javascript or better just use the action-table-filters element to set up controls. If the filter hides all results, the table automatically show a message indicating "No Results" along with a button to reset the filters. If on load all results are filtered out then it will automatically reset the filters. This protects against odd filter conditions in localStorage or URLparams.
 
+## Action Table Filters
+
+The `<action-table-filters>` is a wrapper element for filter menus and switches. In order for it to work it must live inside the `<action-table>` element. You can add your own filters manually using select menus, checkboxes, or radio buttons. There are two special elements which does some the work for you: `<action-table-filters-menu>` and `<action-table-filter-switch>`.
+
+### Action Table Filter Menu
+
+The menu defaults to a select menu but can be changed to a checkboxes or radio buttons. On load this custom element automatically finds all unique values in the cells of the specified column and creates a menu with those options. You can also have columns where cells can contain multiple values, by including those options in span tags.
+
+If you want to filter based on values different from then content then add `dataset-filter` attribute with the filter values to the td. This is useful for when you want to simplify the menu; for instance, when a cell that displays date and time but you only want to filter by the date.
+
+```
+<action-table-filter-menu name="Column Name"></action-table-filter-menu>
+```
+
+**Attributes:**
+
+* name - the name of the column to filter; or search entire table with name "action-table".
+* label - the label to display. Defaults to the column name
+* options - (optional) to override the generated menu add a list of options as a comma delimited string. NOTE: If you set the name to "action-table" you must set options manually.
+* type - the menu type. Defaults to 'select', can also be 'checkbox' or 'radio'.
+* multiple – adds multiple attribute to select menu. This has poor accessibility so it is recommended to use checkboxes instead
+* exclusive - only applies to checkboxes and multiple select menus. Add exclusive if you want the multiple selections to be exclusive rather than the default inclusive.
+
+### Action Table Filter Switch
+
+This custom element is used primarily for filtering columns that contain checkbox switches or the optional action-table-switch element. Though can also work with normal text based cells if you want a filter switch for a single value. It can be easily styled using the styles provided by action-table.css using the "switch" or "star" class.
+
+```
+<action-table-filter-switch name="Column Name"></action-table-filter-switch>
+```
+
+**Attributes:**
+
+* name - the name of the column to filter; or search entire table with name "action-table".
+* label - the label to display. Defaults to the column name
+* value - (optional) defaults to the default checkbox.checked value of "on".
+
+### Action Table Filter Manual Search Field
+
+Just add `<input type="search name="column name" />` and action-table-filters will listen for input changes and filter the results.
+
+### Action Table Filter Reset
+
+Just add a `<button type="reset">Reset</button>` and action-table-filters will trigger a reset for all filters on button press.
+
+### Manually making your own filters
+
+Any select menu, checkbox group, or radio button group can be created and the `<action-table-filters>` will make it active.
+
+* The select or input element must be named the same as the column name it is filtering, or named "action-table" if you want it to search entire row.
+* The values are the filter values. Any select option, checkbox, or radio button where value="" will reset the filter.
+* Checkboxes can be styled with "switch" or "star" by adding the class to a wrapping element.
+* Multiple selected checkboxes are inclusive by default unless you add the attribute exclusive on a parent wrapper for the group.
+
+### Advanced Regex Filtering
+
+Filtering is handled with regex.test(cellContent) where regex is based on RegExp(value, "i"). Thus if you want to get fancy with your filtering you can use regex for your filter value. This is useful for say filtering [number ranges with regex](https://www.regex-range.com/).
+
 ## Action Table Switch
 
-The `<action-table-switch>` element is an optional element used to add toggle checkbox switches to the table. The action-table.css file includes "star" and "switch" classes for easy styling. On it's own it's not much different then just manually adding a checkbox to the table using the same styles. I've included it as a basic element for strapping functionality onto as I assume you'll want to do something when people click it. It fires off a `action-table-switch` custom event containing the checked status and contents of any `data-id` attribute. You can also of extend the ActionTableSwitch class and replace the sendEvent() function with your own.
+The `<action-table-switch>` element is an optional element used to add toggle checkbox switches to the table. It is not added in the default index.js import. The action-table.css file includes "star" and "switch" classes for easy styling. On it's own it's not much different then just manually adding a checkbox to the table using the same styles. One thing it does differently is trigger tableFilter on action-table when changed. I've included it as a basic element for strapping functionality onto as I assume you'll want to do something when people click it. It fires off a `action-table-switch` custom event containing details about the element. You can also of extend the ActionTableSwitch class and replace the sendEvent() function with your own.
 
 ```
 <action-table-switch class="star"></action-table-switch>
@@ -88,62 +150,8 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
 
 * checked - Indicates checked status
 * label - Sets the aria-label for the input. Defaults to "switch". It's recommended that you make it more explicit for accessibility purposes.
-
-## Action Table Filters
-
-The `<action-table-filters>` is a wrapper element for filter menus and switches. In order for it to work it must live inside the `<action-table>` element. You can add your own filters manually using select menus, checkboxes, or radio buttons. There are two special elements which does some the work for you: `<action-table-filters-menu>` and `<action-table-filter-switch>`.
-
-### Action Table Filter Menu
-
-This custom element automatically finds all unique values in the cells of the specified column and creates a menu with those options. You can also have columns where cells can contain multiple values, by including those options in span tags. The menu defaults to a select menu but can be changed to a checkboxes or radio buttons. 
-
-If you want to filter based on values different from then content then add `dataset-filter` attribute with the filter values to the td. This is useful for when you have a cell that displays date and time but you only want to filter by the date.
-
-```
-<action-table-filter-menu name="Column Name"></action-table-filter-menu>
-```
-
-**Attributes:**
-
-* name - the name of the column to filter. Or search entire table with name "action-table".
-* label - the label to display. Defaults to the column name
-* options - (optional) to override the generated menu add a list of options as a comma delimited string.
-* type - the menu type. Defaults to 'select', can also be 'checkbox' or 'radio'.
-* multiple – adds multiple attribute to select menu. This has poor accessibility so it is recommended to use checkboxes instead
-* exclusive - only applies to checkboxes and multiple select menus. Add exclusive if you want the multiple selections to be exclusive rather than the default inclusive.
-
-### Action Table Filter Switch
-
-This custom element is used primarily for filtering columns that contain checkbox switches. When selected it will show just rows where the checkbox is checked. It can be easily styled using the styles provided by action-table.css using the "switch" or "star" class.
-
-```
-<action-table-filter-switch name="Column Name"></action-table-filter-switch>
-```
-
-**Attributes:**
-
-* name - the name of the column to filter
-* label - the label to display. Defaults to the column name
-* filter - (optional) defaults to "checked"; if you want to use it for a normal text based cell then change to to whatever text you want it to filter.
-
-### Action Table Filter Reset
-
-Just add a `<button type="reset">Reset</button>` and action-table-filters will trigger a reset for all filters on button press.
-
-### Action Table Filter Manual Search Field
-
-Just add `<input type="search name="column name" />` and action-table-filters will listen for input changes and filter the results.
-
-### Searching entire row
-
-If you want to search all columns then use name="action-table" instead of a column name. This works for input, select, radio, or checkboxes. Note you will need to supply your own options if you want to use full row search with action-table-filter-menu.
-
-### Manually making your own filters
-
-Any select menu, checkbox group or radio button group can be created and the `<action-table-filters>` will make it active. The select or input element must be named the same as the column name it is filtering. The values are what it is filtering. Any select option, checkbox, or radio button where value="" will reset the filter. Checkboxes can be styled with "switch" or "star" by adding the class to a wrapping element. Multiple selected checkboxes are inclusive by default unless you add the attribute exclusive on a parent wrapper for the group.
-
-### Advanced Regex Filtering
-Filtering is handled with regex.test(cellContent) where regex is based on RegExp(value, "i"). Thus if you want to get fancy with your filtering you can use regex for your filter value. This is useful for say filtering [number ranges with regex](https://www.regex-range.com/).
+* value - Sets the value
+* name - Sets the name
 
 ## Roadmap
 
@@ -165,4 +173,5 @@ Filtering is handled with regex.test(cellContent) where regex is based on RegExp
 - [x] Add input text search with debounce
 - [x] Add whole table search
 - [x] Refactor to use name instead of col attribute
+- [x] Make action-table-switch optional
 - [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
