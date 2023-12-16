@@ -23,6 +23,7 @@ export class ActionTable extends HTMLElement {
 	public cols: ColsArray = [];
 	public filters: FiltersObject = {};
 	private rowsArray!: Array<HTMLTableRowElement>;
+	private ready = false;
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 Attributes                                 */
@@ -86,8 +87,13 @@ export class ActionTable extends HTMLElement {
 		this.getURLParams();
 		// console.log("4. init: getURLParams ~ this.filters", this.filters);
 
-		// 5. Sort & Filter Table if they have values
-		// if (this.sort) this.sortTable();
+		// 5. sort the table
+		if (this.sort) this.sortTable();
+
+		// 5. set ready so that attributeChangedCallback can run automatically when sort or direction is changed
+		this.ready = true;
+
+		// 6. Sort & Filter Table if they have values
 		if (Object.keys(this.filters).length > 0) {
 			this.initialFilter();
 		}
@@ -97,11 +103,11 @@ export class ActionTable extends HTMLElement {
 	/*                         Attribute Changed Callback                        */
 	/* -------------------------------------------------------------------------- */
 
-	// TODO: refactor so this doesn't fire 2-3 times on load?
 	public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 		if (oldValue !== newValue) {
 			if (name === "sort" || name === "direction") {
-				this.sortTable();
+				// this ready is set to true after localstorage and URL Params are loaded. This stops it from sorting multiple times on load.
+				if (this.ready) this.sortTable();
 			}
 		}
 	}
@@ -121,9 +127,8 @@ export class ActionTable extends HTMLElement {
         */
 		const customEls = await this.waitForCustomElements();
 
-		// 2. Filter & Sort the table now that the custom elements have loaded
+		// 2. Filter the table now that the custom elements have loaded
 		this.filterTable();
-		this.sortTable();
 
 		// 2. If no rows are shown then reset the filters
 		if (this.rowsShown.length === 0) {
