@@ -3,6 +3,15 @@ import { ActionTableFilters } from "./action-table-filters";
 export class ActionTable extends HTMLElement {
 	constructor() {
 		super();
+
+		/* -------------------------------------------------------------------------- */
+		/*                                    Init                                    */
+		/* -------------------------------------------------------------------------- */
+		/* ------------------- Only fires once on js initial load ------------------- */
+		/* --------------- Does not require the inner DOM to be ready --------------- */
+
+		// 1. Add Event Listeners (loading them here means I don't need disconnectedCallback)
+		this.addEventListeners();
 	}
 
 	private tbody!: HTMLTableSectionElement;
@@ -54,45 +63,70 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 	/*                             Connected Callback                             */
 	/* -------------------------------------------------------------------------- */
+	/* ------------- Fires every time the event is added to the DOM ------------- */
 
 	public connectedCallback(): void {
-		// 1. Get local storage for sort and filters. Overrides attributes
-		this.getLocalStorage();
+		/* -------------- Init code which requires DOM to be ready -------------- */
 
-		// 2. Get URL params. Overrides local storage and attributes
-		this.getURLParams();
-
-		// 3. Get table, tbody, rows, and column names
+		// 1. Get table, tbody, rows, and column names in this.cols
 		this.getTable();
 
-		// 4. Add no results tfoot message
+		// 2. Add no results tfoot message
 		this.addNoResultsTfoot();
+
+		// 3. Get local storage for sort and filters. Overrides attributes
+		this.getLocalStorage();
+
+		// 4. Get URL params. Overrides local storage and attributes
+		this.getURLParams();
 
 		// 5. Sort & Filter Table if they have values
 		if (this.sort) this.sortTable();
 		if (Object.keys(this.filters).length > 0) {
 			this.initialFilter();
 		}
-
-		// 7. Add Event Listeners
-		this.addEventListeners();
 	}
 
+	/* -------------------------------------------------------------------------- */
+	/*                         Attribute Changed Callback                        */
+	/* -------------------------------------------------------------------------- */
+
+	public attributeChangedCallback(name: string) {
+		if (name === "sort" || name === "direction") {
+			this.sortTable();
+		}
+	}
+
+	/* -------------------------------------------------------------------------- */
+	/*                               PRIVATE METHODS                              */
+	/* -------------------------------------------------------------------------- */
+
+	/* -------------------------------------------------------------------------- */
+	/*                   Private Method: Trigger Initial Filter                   */
+	/* -------------------------------------------------------------------------- */
+
 	private async initialFilter() {
+		// 1. Filter the table
+		this.filterTable();
+
+		// 2. If no rows are shown then reset the filters
+		if (this.rowsShown.length === 0) {
+			this.resetFilters();
+		}
+		// 3. Wait for the inner custom elements to be loaded
 		const customEls = await this.waitForCustomElements();
+		// 4. if <action-table-filters> exists then trigger setFilterElements
 		if (customEls.length > 0) {
 			const actionTableFilters = customEls.find((el) => el.tagName.toLowerCase() === "action-table-filters") as ActionTableFilters;
 			if (actionTableFilters) {
 				actionTableFilters.setFilterElements(this.filters);
 			}
 		}
-		this.filterTable();
-
-		if (this.rowsShown.length === 0) {
-			this.resetFilters();
-			this.resetAllFilterElements();
-		}
 	}
+
+	/* -------------------------------------------------------------------------- */
+	/*        Private Method: Wait for inner custom elements to be defined        */
+	/* -------------------------------------------------------------------------- */
 
 	private async waitForCustomElements(): Promise<Element[]> {
 		// 1. Get any custom elements
@@ -113,33 +147,48 @@ export class ActionTable extends HTMLElement {
 			return customElementsArray;
 		} catch (error) {
 			// Handle timeout error here
+			// eslint-disable-next-line  no-console
 			console.error("Timeout occurred while waiting for custom elements");
 			return [];
 		}
 	}
 
 	/* -------------------------------------------------------------------------- */
-	/*                         Attribute Changed Callback                        */
+	/*                           Filter variable methods                          */
 	/* -------------------------------------------------------------------------- */
 
-	public attributeChangedCallback(name: string) {
-		if (name === "sort" || name === "direction") {
-			this.sortTable();
-		}
+	private setFilter(columnName: string, values: string[], exclusive = false): void {
+		// 1. create temporary filter object
+		const filters = this.filters;
+		// 2. Make sure filter actually exists as a column name and isn't search whole table special name "action-table"
+		if (!this.doesColumnExist(columnName)) return;
+		// 3. makes sure that the column name key exists; if not create it
+		filters[columnName] = filters[columnName] || {};
+		// 4. add values to filter object
+		filters[columnName].values = values;
+		// 5. Add exclusive if true
+		if (exclusive) filters[columnName].exclusive = exclusive;
+		// 6. Replace existing this.filters with new
+		this.filters = filters;
+		// 7. Update local storage
+		this.setFiltersLocalStorage();
 	}
 
 	/* -------------------------------------------------------------------------- */
-	/*                               PRIVATE METHODS                              */
+	/*                Private Method: make sure columnName is legit               */
 	/* -------------------------------------------------------------------------- */
 
+	private doesColumnExist(columnName: string): boolean {
+		return this.cols.includes(columnName) && columnName !== "action-table";
+	}
+
 	/* -------------------------------------------------------------------------- */
-	/*            Private Method: get localStorage for sort and filters           */
+	/*              Private Method: localStorage for sort and filters             */
 	/* -------------------------------------------------------------------------- */
 
 	private getLocalStorage(): void {
 		if (!this.store) return;
 		// 1. Get sort and direction from local storage
-
 		const lsActionTable = localStorage.getItem("action-table");
 		if (lsActionTable) {
 			const lsActionTableJSON = JSON.parse(lsActionTable) as { sort: string; direction: "ascending" | "descending" };
@@ -152,6 +201,12 @@ export class ActionTable extends HTMLElement {
 		if (lsActionTableFilters) {
 			this.filters = JSON.parse(lsActionTableFilters) as FiltersObject;
 		}
+	}
+
+	/* ---------------------------- Set Local Storage --------------------------- */
+
+	private setFiltersLocalStorage() {
+		if (this.store) localStorage.setItem("action-table-filters", JSON.stringify(this.filters));
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -174,7 +229,9 @@ export class ActionTable extends HTMLElement {
 		// sort through remaining params for filters to create a filters object
 		const filters: FiltersObject = {};
 		for (const [key, value] of params.entries()) {
-			if (key !== "sort" && key !== "direction") {
+			// Only add key if it's not sort or direction and exists as a column name
+			if (key !== "sort" && key !== "direction" && this.doesColumnExist(key)) {
+				filters[key] = filters[key] || {};
 				filters[key].values = [value];
 			}
 		}
@@ -184,7 +241,34 @@ export class ActionTable extends HTMLElement {
 			this.filters = filters;
 		}
 
-		// console.log(params, this.filters);
+		console.log("getURLParams", params, this.filters);
+	}
+
+	/* -------------------------------------------------------------------------- */
+	/*                  Private Method: add event listeners                       */
+	/* -------------------------------------------------------------------------- */
+
+	private addEventListeners(): void {
+		this.addEventListener(
+			"click",
+			(event) => {
+				const el = event.target as HTMLTableCellElement;
+				if (el.tagName === "BUTTON") {
+					const name = el.dataset.col;
+					if (name) {
+						if (this.sort === name && this.direction === "ascending") {
+							this.direction = "descending";
+						} else {
+							this.sort = name;
+							this.direction = "ascending";
+						}
+						this.sortTable();
+						if (this.store) localStorage.setItem("action-table", JSON.stringify({ sort: this.sort, direction: this.direction }));
+					}
+				}
+			},
+			false
+		);
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -214,7 +298,7 @@ export class ActionTable extends HTMLElement {
 				name = name.trim().toLowerCase();
 				if (name) {
 					// 4. Add column name to cols array
-					this.cols.push({ name: name });
+					this.cols.push(name);
 					// 5. Set data-col attribute just in case it is
 					th.dataset.col = name;
 					// 6. if the column is sortable then wrap it in a button, and add aria
@@ -224,6 +308,7 @@ export class ActionTable extends HTMLElement {
 				}
 			});
 		}
+
 		// console.log("action-table cols", this.cols);
 		// 7. Return cols array
 		return this.cols;
@@ -240,85 +325,23 @@ export class ActionTable extends HTMLElement {
 		tfoot.addEventListener("click", (e) => {
 			const button = e.target as HTMLButtonElement;
 			if (button.tagName !== "BUTTON") return;
+			// 1. Reset the filters and filterTable element
 			this.resetFilters();
-			this.resetAllFilterElements();
-			this.showTfoot(false);
+			// 2. if <action-table-filter> exists then trigger resetAllFilterElements
+			const actionTableFilters = this.querySelector("action-table-filters") as ActionTableFilters;
+			if (actionTableFilters) {
+				actionTableFilters.resetAllFilterElements();
+			}
 		});
+		tfoot.style.display = "none";
 		this.tfoot = tfoot;
-		this.showTfoot(false);
 		this.tbody.after(this.tfoot);
 	}
 
-	/* ----------------------------- Hide/Show TFOOT ---------------------------- */
-	private showTfoot(show = true) {
-		if (this.tfoot) {
-			this.tfoot.style.display = show ? "table-footer-group" : "none";
-		}
-	}
-
 	/* -------------------------------------------------------------------------- */
-	/*        Private Method: reset all action-table-filters elements             */
+	/*                     Private Method: get cell content                        */
 	/* -------------------------------------------------------------------------- */
-
-	private resetAllFilterElements() {
-		const actionTableFilters = this.querySelector("action-table-filters") as ActionTableFilters;
-		if (actionTableFilters) {
-			actionTableFilters.resetAllFilterElements();
-		}
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                  Private Method: add event listeners                        */
-	/* -------------------------------------------------------------------------- */
-
-	private addEventListeners(): void {
-		this.addEventListener(
-			"click",
-			(event) => {
-				const el = event.target as HTMLTableCellElement;
-				if (el.tagName === "BUTTON") {
-					if (el.dataset.sortable === "false") return;
-					let name = el.dataset.col;
-					if (name) {
-						if (this.sort === name && this.direction === "ascending") {
-							this.direction = "descending";
-						} else {
-							this.sort = name;
-							this.direction = "ascending";
-						}
-						this.sortTable();
-						if (this.store) localStorage.setItem("action-table", JSON.stringify({ sort: this.sort, direction: this.direction }));
-					}
-				}
-			},
-			false
-		);
-	}
-
-	private setFiltersLocalStorage() {
-		if (this.store) localStorage.setItem("action-table-filters", JSON.stringify(this.filters));
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                               PUBLIC METHODS                               */
-	/* -------------------------------------------------------------------------- */
-
-	/* -------------------------------------------------------------------------- */
-	/*                        Public Method: reset filters                        */
-	/* -------------------------------------------------------------------------- */
-
-	public resetFilters(): void {
-		// remove all filters from this.col then call filterTable
-		this.filters = {};
-		this.setFiltersLocalStorage();
-		this.filterTable();
-		this.showTfoot(false);
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                     Public Method: get cell content                        */
-	/* -------------------------------------------------------------------------- */
-	public getCellContent(cell: HTMLTableCellElement): string {
+	private getCellContent(cell: HTMLTableCellElement): string {
 		// 1. get cell content with dataset or innerText
 		let cellContent: string = cell.dataset.sort || cell.innerText || "";
 		// 2. trim to make sure it's not just spaces
@@ -341,23 +364,34 @@ export class ActionTable extends HTMLElement {
 	}
 
 	/* -------------------------------------------------------------------------- */
+	/*                               PUBLIC METHODS                               */
+	/* -------------------------------------------------------------------------- */
+
+	/* -------------------------------------------------------------------------- */
+	/*                        Public Method: reset filters                        */
+	/* -------------------------------------------------------------------------- */
+	/* ---------- Used by reset button in action-table-filters element ---------- */
+
+	public resetFilters(): void {
+		// remove all filters from this.col then call filterTable
+		this.filters = {};
+		this.setFiltersLocalStorage();
+		this.filterTable();
+	}
+
+	/* -------------------------------------------------------------------------- */
 	/*            Public Method: filter table on column name and value            */
 	/* -------------------------------------------------------------------------- */
+	/* ------------- Used by filters in action-table-filter element ------------- */
+	/* ------------- Also triggered by local storage and URL params ------------- */
+
 	public filterTable(columnName: string = "", values: string[] = [], exclusive = false, regexOpt = "i"): void {
 		columnName = columnName.trim().toLowerCase();
 
-		// 1. If col then store filter value locally and in localStorage; otherwise filter table based on existed filter
-		if (columnName !== "") {
-			if (!this.filters[columnName]) {
-				this.filters[columnName] = { values: [] };
-			}
-
-			this.filters[columnName].values = values;
-
-			if (exclusive) this.filters[columnName].exclusive = exclusive;
-			this.setFiltersLocalStorage();
+		// 1. If columnName exists as a column then store filter value locally and in localStorage; otherwise filter table based on existed filter
+		if (this.doesColumnExist(columnName)) {
+			this.setFilter(columnName, values, exclusive);
 		}
-		// console.log("filters", this.filters);
 
 		// function to see test content vs filterValue
 		function shouldHide(filter: SingleFilterObject, content: string): boolean {
@@ -397,7 +431,7 @@ export class ActionTable extends HTMLElement {
 			// 3.4 if columnName is not action-table then run filter against td cell content
 			cells.forEach((cell, i) => {
 				const content = this.dataset.filter || this.getCellContent(cell);
-				let filter = this.filters[this.cols[i].name];
+				const filter = this.filters[this.cols[i]];
 				if (!filter) return;
 				if (shouldHide(filter, content)) {
 					display = "none";
@@ -408,12 +442,8 @@ export class ActionTable extends HTMLElement {
 			row.style.display = display;
 		});
 
-		if (this.rowsShown.length === 0) {
-			console.error("All rows hidden!");
-			this.showTfoot();
-		} else {
-			this.showTfoot(false);
-		}
+		// if there are no rows visible then display no results tfoot
+		this.tfoot.style.display = this.rowsShown.length === 0 ? "table-footer-group" : "none";
 	}
 
 	// Simple rowsShown getter; not an attribute
@@ -424,12 +454,16 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 	/*        Public Method: sort table based on column name and direction        */
 	/* -------------------------------------------------------------------------- */
+	/* ----------- Used by sort header buttons and attributes callback ----------- */
+	/* ------------- Also triggered by local storage and URL params ------------- */
+
 	public sortTable(columnName = this.sort, direction = this.direction) {
 		columnName = columnName.toLowerCase();
 		// 1. Get column index from column name
-		const columnIndex = this.cols.findIndex((c) => c.name === columnName);
+		const columnIndex = this.cols.findIndex((col) => col === columnName);
 		// 2. If column exists and there are rows then sort
 		if (columnIndex >= 0 && this.rowsArray.length > 0) {
+			// eslint-disable-next-line no-console
 			console.log(`sort by ${columnName} ${direction}`);
 
 			// 1. Sort rows
@@ -461,6 +495,8 @@ export class ActionTable extends HTMLElement {
 		}
 	}
 
+	/* --------------------------- Private Sort Method -------------------------- */
+
 	private customSort(rows: HTMLTableRowElement[], columnIndex: number): HTMLTableRowElement[] {
 		return rows.sort((r1, r2) => {
 			// 1. If descending sort, swap rows
@@ -473,8 +509,8 @@ export class ActionTable extends HTMLElement {
 			// 2. Get content
 			const c1 = r1.children[columnIndex] as HTMLTableCellElement;
 			const c2 = r2.children[columnIndex] as HTMLTableCellElement;
-			let v1 = this.getCellContent(c1);
-			let v2 = this.getCellContent(c2);
+			const v1 = this.getCellContent(c1);
+			const v2 = this.getCellContent(c2);
 
 			function isNumber(s: string) {
 				return !isNaN(parseFloat(s));

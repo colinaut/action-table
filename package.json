@@ -35,6 +35,7 @@
 		"preview": "vite preview",
 		"start": "vite",
 		"docs": "npx serve docs",
+		"lint": "eslint .",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"browserslist": [
@@ -43,10 +44,13 @@
 		"not dead"
 	],
 	"devDependencies": {
-		"eslint": "^8.54.0",
+		"@typescript-eslint/eslint-plugin": "^6.14.0",
+		"@typescript-eslint/parser": "^6.14.0",
+		"eslint": "^8.55.0",
 		"rollup-plugin-minify-html-literals": "^1.2.6",
 		"typescript": "^5.3.2",
-		"vite": "^5.0.2"
+		"vite": "^5.0.2",
+		"vite-plugin-eslint": "^1.8.1"
 	},
 	"publishConfig": {
 		"access": "public"

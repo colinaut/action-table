@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import minifyHTML from "rollup-plugin-minify-html-literals";
-
+import eslint from "vite-plugin-eslint";
 // https://vitejs.dev/config/
 
 export default defineConfig(({ mode }) => {
@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
 					},
 				],
 				plugins: [
+					eslint(),
 					minifyHTML.default({
 						options: {
 							shouldMinify(template) {
