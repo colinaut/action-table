@@ -97,11 +97,12 @@ export class ActionTable extends HTMLElement {
 	/*                         Attribute Changed Callback                        */
 	/* -------------------------------------------------------------------------- */
 
+	// TODO: refactor so this doesn't fire 2-3 times on load?
 	public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-		// console.log("attributeChangedCallback", name, oldValue, newValue);
-		if (oldValue === newValue || !newValue) return;
-		if (name === "sort" || name === "direction") {
-			this.sortTable();
+		if (oldValue !== newValue) {
+			if (name === "sort" || name === "direction") {
+				this.sortTable();
+			}
 		}
 	}
 
@@ -193,7 +194,7 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private doesColumnExist(columnName: string): boolean {
-		return this.cols.includes(columnName) && columnName !== "action-table";
+		return this.cols.includes(columnName) || columnName === "action-table";
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -421,6 +422,7 @@ export class ActionTable extends HTMLElement {
 					// console.log("hide", columnName, content);
 					return true;
 				}
+				// console.log("show", columnName, content);
 			}
 			return false;
 		}
