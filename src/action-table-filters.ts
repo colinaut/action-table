@@ -80,12 +80,13 @@ export class ActionTableFilters extends HTMLElement {
 				});
 			}
 
-			function debounce(func: Function, timeout = 300) {
-				let timer: number;
-				return (...args: any[]) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			function debounce<T extends (...args: any[]) => any>(func: T, timeout = 300) {
+				let timer: ReturnType<typeof setTimeout>;
+				return (...args: Parameters<T>) => {
 					clearTimeout(timer);
 					timer = setTimeout(() => {
-						func(args);
+						func(...args);
 					}, timeout);
 				};
 			}
@@ -124,8 +125,7 @@ export class ActionTableFilters extends HTMLElement {
 	/*                  Public Method: reset all filter elements                  */
 	/* -------------------------------------------------------------------------- */
 
-	public async resetAllFilterElements() {
-		await this.checkForActionTableFilterElements();
+	public resetAllFilterElements() {
 		this.filterElements.forEach((el) => {
 			if (el.type === "checkbox" || el.type === "radio") {
 				const input = el as HTMLInputElement;
@@ -143,15 +143,22 @@ export class ActionTableFilters extends HTMLElement {
 	}
 
 	/* -------------------------------------------------------------------------- */
-	/*                  Public Method: set filter elements                       */
+	/*                  Public Method: set filter elements                        */
 	/* -------------------------------------------------------------------------- */
+	/* ------------------ If no args are passed then it resets ------------------ */
+
 	public async setFilterElements(filters: FiltersObject) {
 		await this.checkForActionTableFilterElements();
-		// console.log("setFilterElements", filters);
-		Object.keys(filters).forEach((key) => {
-			if (!filters[key].values) return;
-			this.setFilterElement(key, filters[key].values);
-		});
+		// 1. if there are filters then set the filters on all the elements
+		if (Object.keys(filters).length > 0) {
+			Object.keys(filters).forEach((key) => {
+				if (!filters[key].values) return;
+				this.setFilterElement(key, filters[key].values);
+			});
+		} else {
+			// else reset all filters
+			this.resetAllFilterElements();
+		}
 	}
 
 	/* --------------------------- Set Filter element --------------------------- */

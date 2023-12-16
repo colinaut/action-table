@@ -1,7 +1,4 @@
-export type ColsArray = {
-	name: string;
-	filter?: string;
-}[];
+export type ColsArray = string[];
 
 export type SingleFilterObject = {
 	values: string[];

@@ -10,7 +10,10 @@ export class ActionTable extends HTMLElement {
 		/* ------------------- Only fires once on js initial load ------------------- */
 		/* --------------- Does not require the inner DOM to be ready --------------- */
 
-		// 1. Add Event Listeners (loading them here means I don't need disconnectedCallback)
+		// 1. set initial values
+		this.direction = "ascending";
+
+		// 2. Add Event Listeners (loading them here means I don't need disconnectedCallback)
 		this.addEventListeners();
 	}
 
@@ -70,18 +73,21 @@ export class ActionTable extends HTMLElement {
 
 		// 1. Get table, tbody, rows, and column names in this.cols
 		this.getTable();
+		// console.log("1. init: getTable ~ this.cols", this.cols);
 
 		// 2. Add no results tfoot message
 		this.addNoResultsTfoot();
 
 		// 3. Get local storage for sort and filters. Overrides attributes
 		this.getLocalStorage();
+		// console.log("3. init: getLocalStorage ~ this.filters", this.filters);
 
 		// 4. Get URL params. Overrides local storage and attributes
 		this.getURLParams();
+		// console.log("4. init: getURLParams ~ this.filters", this.filters);
 
 		// 5. Sort & Filter Table if they have values
-		if (this.sort) this.sortTable();
+		// if (this.sort) this.sortTable();
 		if (Object.keys(this.filters).length > 0) {
 			this.initialFilter();
 		}
@@ -91,7 +97,9 @@ export class ActionTable extends HTMLElement {
 	/*                         Attribute Changed Callback                        */
 	/* -------------------------------------------------------------------------- */
 
-	public attributeChangedCallback(name: string) {
+	public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+		// console.log("attributeChangedCallback", name, oldValue, newValue);
+		if (oldValue === newValue || !newValue) return;
 		if (name === "sort" || name === "direction") {
 			this.sortTable();
 		}
@@ -106,15 +114,21 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private async initialFilter() {
-		// 1. Filter the table
+		// 1. wait for any custom elements to to load
+		/* this is needed in case there are action-table-switch or similar elements in the table that need to be filtered or sorted
+        /* it is also needed for setting the filter elements in the action-table-filters
+        */
+		const customEls = await this.waitForCustomElements();
+
+		// 2. Filter & Sort the table now that the custom elements have loaded
 		this.filterTable();
+		this.sortTable();
 
 		// 2. If no rows are shown then reset the filters
 		if (this.rowsShown.length === 0) {
 			this.resetFilters();
 		}
-		// 3. Wait for the inner custom elements to be loaded
-		const customEls = await this.waitForCustomElements();
+
 		// 4. if <action-table-filters> exists then trigger setFilterElements
 		if (customEls.length > 0) {
 			const actionTableFilters = customEls.find((el) => el.tagName.toLowerCase() === "action-table-filters") as ActionTableFilters;
@@ -240,8 +254,6 @@ export class ActionTable extends HTMLElement {
 		if (Object.keys(filters).length > 0) {
 			this.filters = filters;
 		}
-
-		console.log("getURLParams", params, this.filters);
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -262,7 +274,6 @@ export class ActionTable extends HTMLElement {
 							this.sort = name;
 							this.direction = "ascending";
 						}
-						this.sortTable();
 						if (this.store) localStorage.setItem("action-table", JSON.stringify({ sort: this.sort, direction: this.direction }));
 					}
 				}
@@ -404,6 +415,7 @@ export class ActionTable extends HTMLElement {
 					regexPattern = `${regexParts.join("")}.*`;
 				}
 				const regex = new RegExp(regexPattern, regexOpt);
+
 				// 2. check if content matches
 				if (!regex.test(content)) {
 					// console.log("hide", columnName, content);

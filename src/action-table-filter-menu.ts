@@ -89,7 +89,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 		if (this.type === "radio") {
 			start = `<label><input name="${columnName}" type="radio" value="" checked>All</label>`;
 		}
-		let html = `${mainLabel}${start}${this.options
+		const html = `${mainLabel}${start}${this.options
 			.map((option) => {
 				if (this.type === "select") return `<option value="${option}">${option}</option>`;
 				if (this.type === "radio" || this.type === "checkbox") return `<label><input type="${this.type}" name="${columnName}" value="${option}" />${option}</label>`;
