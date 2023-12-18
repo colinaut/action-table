@@ -163,9 +163,9 @@ export class ActionTableFilters extends HTMLElement {
 
 	/* --------------------------- Set Filter element --------------------------- */
 
-	public setFilterElement(col: string, values: string[]) {
+	public setFilterElement(columnName: string, values: string[]) {
 		this.filterElements?.forEach((el) => {
-			if (el.name !== col) return;
+			if (el.name !== columnName) return;
 
 			if (el.type === "checkbox") {
 				const input = el as HTMLInputElement;

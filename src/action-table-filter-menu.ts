@@ -38,18 +38,17 @@ export class ActionTableFilterMenu extends HTMLElement {
 		columnName = columnName.toLowerCase();
 		// 2. Get action table; of not found, return
 		const actionTable = this.closest("action-table") as ActionTable;
-		if (!actionTable) {
-			return;
-		}
-		// 3. Find all column headers
-		const ths = actionTable.querySelectorAll("table thead th") as NodeListOf<HTMLTableCellElement>;
+
+		// 3. Get cols and tbody from actionTable
+		const cols = actionTable.cols;
+		const tbody = actionTable.tbody;
+
 		// 4. Find column index based on column name in header data-col attribute; if not found, return
-		const columnIndex = Array.from(ths).findIndex((th) => th.dataset.col?.toLowerCase() === columnName);
+		const columnIndex = cols.indexOf(columnName);
 		if (columnIndex === -1) {
 			return;
 		}
-		// 5. Get tbody
-		const tbody = actionTable.querySelector("table tbody") as HTMLTableSectionElement;
+
 		// 6. Get all cells in column
 		const columnTDs = `td:nth-child(${columnIndex + 1})`;
 		const cells = tbody.querySelectorAll(columnTDs) as NodeListOf<HTMLTableCellElement>;
@@ -67,12 +66,14 @@ export class ActionTableFilterMenu extends HTMLElement {
 			options = Array.from(cells).map((cell) => cell.dataset.filter || cell.innerText);
 		}
 
-		// 8. Set options
+		// 8. Make array of all unique options
 		this.options = Array.from(new Set(options));
 	}
 
 	public connectedCallback(): void {
-		if (this.options.length < 1) this.findOptions(this.name);
+		if (this.options.length < 1) {
+			this.findOptions(this.name);
+		}
 		this.render();
 	}
 

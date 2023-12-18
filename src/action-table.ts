@@ -17,7 +17,7 @@ export class ActionTable extends HTMLElement {
 		this.addEventListeners();
 	}
 
-	private tbody!: HTMLTableSectionElement;
+	public tbody!: HTMLTableSectionElement;
 	private tfoot!: HTMLTableSectionElement;
 	private ths!: NodeListOf<HTMLTableCellElement>;
 	public cols: ColsArray = [];
@@ -274,13 +274,14 @@ export class ActionTable extends HTMLElement {
 				if (el.tagName === "BUTTON") {
 					const name = el.dataset.col;
 					if (name) {
+						let direction: "ascending" | "descending" = "ascending";
 						if (this.sort === name && this.direction === "ascending") {
-							this.direction = "descending";
-						} else {
-							this.sort = name;
-							this.direction = "ascending";
+							direction = "descending";
 						}
-						if (this.store) localStorage.setItem("action-table", JSON.stringify({ sort: this.sort, direction: this.direction }));
+
+						this.sort = name;
+						this.direction = direction;
+						if (this.store) localStorage.setItem("action-table", JSON.stringify({ sort: this.sort, direction: direction }));
 					}
 				}
 			},
@@ -316,7 +317,7 @@ export class ActionTable extends HTMLElement {
 				if (name) {
 					// 4. Add column name to cols array
 					this.cols.push(name);
-					// 5. Set data-col attribute just in case it is
+					// 5. Set data-col attribute for easy access later
 					th.dataset.col = name;
 					// 6. if the column is sortable then wrap it in a button, and add aria
 					if (!th.hasAttribute("no-sort")) {
