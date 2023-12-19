@@ -15,8 +15,8 @@ Check out the [Demo Page](https://colinaut.github.io/action-table/)
 
 ### CDN
 ```
-<script src="https://unpkg.com/@colinaut/action-table/dist/index.js"></script>
-<!-- optional: <script src="https://unpkg.com/@colinaut/action-table/dist/action-table-switch.js"></script> -->
+<script type="module" src="https://unpkg.com/@colinaut/action-table/dist/index.js"></script>
+<!-- optional: <script type="module" src="https://unpkg.com/@colinaut/action-table/dist/action-table-switch.js"></script> -->
 <link rel="stylesheet" href="https://unpkg.com/@colinaut/action-table/dist/action-table.css" />
 
 ```
