@@ -52,19 +52,27 @@ export class ActionTableFilterMenu extends HTMLElement {
 		// 6. Get all cells in column
 		const columnTDs = `td:nth-child(${columnIndex + 1})`;
 		const cells = tbody.querySelectorAll(columnTDs) as NodeListOf<HTMLTableCellElement>;
-
-		// 6. Get all spans or li in column
-		const subItems = tbody.querySelectorAll(`${columnTDs} > span, ${columnTDs} > ul > li`) as NodeListOf<HTMLElement>;
-
-		// 7. Get all options
+		// 7. Create array of options
 		let options: string[] = [];
-		if (subItems && subItems.length > 0) {
-			// 7.1 If subitems exist, get all options in subitems
-			options = Array.from(subItems).map((item) => item.innerText);
-		} else {
-			// 7.2 else get data-filter or innerText
-			options = Array.from(cells).map((cell) => cell.dataset.filter || cell.innerText);
-		}
+
+		// 8. Review all cells for filter values
+		Array.from(cells).forEach((cell) => {
+			if (cell.dataset.filter) {
+				// 8.1 If data-filter exists, add to options
+				options.push(cell.dataset.filter);
+			} else {
+				// 8.2 If data-filter does not exist, check for subitems
+				const subItems = cell.querySelectorAll(`span, ul > li`) as NodeListOf<HTMLElement>;
+				if (subItems?.length > 0) {
+					// 8.3 If subitems exist, get all options in subitems
+					const subOptions = Array.from(subItems).map((item) => item.innerText);
+					options = options.concat(subOptions);
+				} else {
+					// 8.4 If subitems do not exist, get innerText of cell
+					options.push(cell.innerText);
+				}
+			}
+		});
 
 		// 8. Make array of all unique options
 		this.options = Array.from(new Set(options));
