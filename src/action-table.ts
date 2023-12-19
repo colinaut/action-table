@@ -359,9 +359,10 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 	/*                     Private Method: get cell content                        */
 	/* -------------------------------------------------------------------------- */
+	// TODO: remove dataset.sort from get cell content so it's not used when filtering. TEST THIS!
 	private getCellContent(cell: HTMLTableCellElement): string {
-		// 1. get cell content with dataset or innerText
-		let cellContent: string = cell.dataset.sort || cell.innerText || "";
+		// 1. get cell content with innerText
+		let cellContent: string = cell.innerText || "";
 		// 2. trim to make sure it's not just spaces
 		cellContent = cellContent?.trim();
 
@@ -530,8 +531,10 @@ export class ActionTable extends HTMLElement {
 			// 2. Get content
 			const c1 = r1.children[columnIndex] as HTMLTableCellElement;
 			const c2 = r2.children[columnIndex] as HTMLTableCellElement;
-			const v1 = this.getCellContent(c1);
-			const v2 = this.getCellContent(c2);
+			const v1 = c1.dataset.sort || this.getCellContent(c1);
+			const v2 = c2.dataset.sort || this.getCellContent(c2);
+
+			// console.log("values", v1, v2);
 
 			function isNumber(s: string) {
 				return !isNaN(parseFloat(s));
@@ -541,15 +544,16 @@ export class ActionTable extends HTMLElement {
 			if (isNumber(v1) && isNumber(v2)) {
 				// console.log("Both numbers", v1, v2);
 				return parseFloat(v1) - parseFloat(v2);
-			}
-			// 2. If only one of the values is a number, prioritize it
-			if (isNumber(v1)) {
-				// console.log("Is Number", v1);
-				return -1;
-			}
-			if (isNumber(v2)) {
-				// console.log("Is Number", v2);
-				return 1;
+			} else {
+				// 2. If only one of the values is a number, prioritize it
+				if (isNumber(v1)) {
+					// console.log("Is Number", v1);
+					return -1;
+				}
+				if (isNumber(v2)) {
+					// console.log("Is Number", v2);
+					return 1;
+				}
 			}
 
 			// 3. If both values are strings, sort by string

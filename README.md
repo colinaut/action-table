@@ -174,5 +174,9 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
 - [x] Add whole table search
 - [x] Refactor to use name instead of col attribute
 - [x] Make action-table-switch optional
-- [ ] Test multiple action-table on same page. Likely messes with local storage
+- [ ] **Multiple Action Tables** - Test multiple action-table on same page. Likely messes with local storage. Might need to add an id to the table so it stores the data separately
+- [ ] **Performance** - test sort and filter performance for 100s of table rows with multiple columns
+  - [ ] Might need to convert the contents of the table to a data structure instead of sorting the rows/cells directly
+  - [ ] Review [DataTables](https://datatables.net/) which is a jquery plugin, [Active Table](https://activetable.io/) which is a web component, and [Smart Table](https://www.htmlelements.com/docs/table/) which is a web component
 - [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
+- [ ] **Pagination** - table pagination for large tables
