@@ -413,7 +413,7 @@ export class ActionTable extends HTMLElement {
 
 		// function to see test content vs filterValue
 		function shouldHide(filter: SingleFilterObject, content: string): boolean {
-			// console.log("shouldHide", filterValue, content);
+			// console.log("shouldHide", filter, content);
 			if (filter.values && filter.values.length > 0) {
 				// 1. build regex from filterValues array (checkboxes and select menus send arrays)
 				let regexPattern = filter.values.join("|");
@@ -450,9 +450,10 @@ export class ActionTable extends HTMLElement {
 			}
 			// 3.4 if columnName is not action-table then run filter against td cell content
 			cells.forEach((cell, i) => {
-				const content = this.dataset.filter || this.getCellContent(cell);
+				const content = cell.dataset.filter || this.getCellContent(cell);
 				const filter = this.filters[this.cols[i]];
 				if (!filter) return;
+
 				if (shouldHide(filter, content)) {
 					display = "none";
 				}

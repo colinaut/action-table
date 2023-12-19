@@ -174,4 +174,5 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
 - [x] Add whole table search
 - [x] Refactor to use name instead of col attribute
 - [x] Make action-table-switch optional
+- [ ] Test multiple action-table on same page. Likely messes with local storage
 - [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
