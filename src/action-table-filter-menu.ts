@@ -76,7 +76,8 @@ export class ActionTableFilterMenu extends HTMLElement {
 		// 8. Make array of all unique options
 		options = Array.from(new Set(options));
 		// 9. Sort options alphabetically
-		this.options = options.sort(actionTable.alphaNumSort);
+		// this.options = options.sort(actionTable.alphaNumSort);
+		this.options = options.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 	}
 
 	public connectedCallback(): void {
