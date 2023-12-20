@@ -92,7 +92,8 @@ export class ActionTableFilters extends HTMLElement {
 			}
 
 			if (el.type === "search") {
-				el.addEventListener("input", () => {
+				const event = el.dataset.event || "input";
+				el.addEventListener(event, () => {
 					const debouncedFilter = debounce(() => actionTable.filterTable(el.name, [el.value]));
 					debouncedFilter();
 					actionTable.filterTable(el.name, [el.value]);

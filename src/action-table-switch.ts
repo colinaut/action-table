@@ -1,4 +1,8 @@
-import { ActionTable } from "./action-table";
+/* -------------------------------------------------------------------------- */
+/*                             Action Table Switch                            */
+/* -------------------------------------------------------------------------- */
+/* ----- Optional element added as an example to be extended by the user ---- */
+
 export class ActionTableSwitch extends HTMLElement {
 	constructor() {
 		super();
@@ -51,7 +55,6 @@ export class ActionTableSwitch extends HTMLElement {
 		const input = this.querySelector("input") as HTMLInputElement;
 		input?.addEventListener("change", () => {
 			this.checked = input.checked;
-			this.triggerFilter();
 			this.sendEvent();
 		});
 	}
@@ -65,13 +68,6 @@ export class ActionTableSwitch extends HTMLElement {
 	private async sendEvent() {
 		const detail = { checked: this.checked, id: this.id || this.dataset.id, name: this.name, value: this.value };
 		this.dispatchEvent(new CustomEvent("action-table-switch", { detail, bubbles: true }));
-	}
-
-	private triggerFilter() {
-		const actionTable = this.closest("action-table") as ActionTable;
-		if (actionTable) {
-			actionTable.filterTable();
-		}
 	}
 
 	private render(): void {

@@ -8,3 +8,11 @@ export type SingleFilterObject = {
 export type FiltersObject = {
 	[key: string]: SingleFilterObject;
 };
+
+export type ActionCell = HTMLTableCellElement & {
+	actionTable: {
+		col: string;
+		sort: string;
+		filter: string;
+	};
+};

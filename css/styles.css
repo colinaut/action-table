@@ -99,7 +99,7 @@ action-table td {
     padding: .2em .4em;
 }
 
-action-table td.sorted {
+action-table .sorted {
     background-color: var(--action-table-td-sorted,rgb(255, 253, 240));
 }
 
@@ -142,12 +142,6 @@ action-table input {
 /* -------------------------------------------------------------------------- */
 /*                            Action Table Filters                            */
 /* -------------------------------------------------------------------------- */
-
-action-table-filters {
-    display: flex;
-    flex-direction: column;
-    gap: .3em;
-}
 
 action-table-filters input[type=search] {
     -webkit-appearance: none;

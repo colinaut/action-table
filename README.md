@@ -64,7 +64,7 @@ When initialized, for accessibility action-table wraps the innerHTML in a button
 
 * sort: name of the default column to sort by
 * direction: set the direction "ascending" or "descending" (defaults to ascending)
-* store: add the store attribute to have action-table store the sort and filters in localStorage so that it retains the state on reload. LocalStorage will override initial attributes.
+* store: add the store attribute to have action-table store the sort and filters in localStorage so that it retains the state on reload. LocalStorage will override initial attributes. Note, if you have more than one action-table on a page you should give them different id attributes so that they store data in localStorage separately.
 * urlparams: add the urlparams attribute to have the action-table grab sort and filters from url params on load. URL params will override sort and direction attributes, and localStorage.
 
 ### Sorting
@@ -119,7 +119,7 @@ This custom element is used primarily for filtering columns that contain checkbo
 
 ### Action Table Filter Manual Search Field
 
-Just add `<input type="search name="column name" />` and action-table-filters will listen for input changes and filter the results.
+Just add `<input type="search name="column name" />` and action-table-filters will listen for input changes and filter the results. This uses "input" event as default but if you prefer blur then add data-event="blur" to the input field.
 
 ### Action Table Filter Reset
 
@@ -174,9 +174,12 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
 - [x] Add whole table search
 - [x] Refactor to use name instead of col attribute
 - [x] Make action-table-switch optional
-- [ ] **Multiple Action Tables** - Test multiple action-table on same page. Likely messes with local storage. Might need to add an id to the table so it stores the data separately
-- [ ] **Performance** - test sort and filter performance for 100s of table rows with multiple columns
-  - [ ] Might need to convert the contents of the table to a data structure instead of sorting the rows/cells directly
-  - [ ] Review [DataTables](https://datatables.net/) which is a jquery plugin, [Active Table](https://activetable.io/) which is a web component, and [Smart Table](https://www.htmlelements.com/docs/table/) which is a web component
+- [ ] **Multiple Action Tables** -
+  - [x] Test multiple action-table on same page.
+  - [x] Likely messes with local storage. Might want to add an id to the table so it stores the data separately
+- [x] **Performance** - test sort and filter performance for 100s of table rows with multiple columns
+  - [x] add sort and filter values directly as properties to the td element for quick access
+  - [x] add mutation observer to update sort and filter properties
 - [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
 - [ ] **Pagination** - table pagination for large tables
+- [ ] **Filter Display Number of Rows** - component that displays the number of rows shown/hidden
