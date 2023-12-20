@@ -32,7 +32,7 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	static get observedAttributes(): string[] {
-		return ["sort", "direction", "store", "params", "id"];
+		return ["sort", "direction"];
 	}
 
 	// sort attribute to set the sort column
@@ -124,10 +124,8 @@ export class ActionTable extends HTMLElement {
 
 	public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 		if (oldValue !== newValue) {
-			if (name === "sort" || name === "direction") {
-				// this ready is set to true after localstorage and URL Params are loaded. This stops it from sorting multiple times on load.
-				if (this.ready) this.sortTable();
-			}
+			// this ready is set to true after localstorage and URL Params are loaded. This stops it from sorting multiple times on load.
+			if (this.ready) this.sortTable();
 		}
 	}
 
