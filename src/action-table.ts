@@ -646,31 +646,35 @@ export class ActionTable extends HTMLElement {
 
 			// console.log("values", v1, v2);
 
-			function isNumber(s: string) {
-				return !isNaN(parseFloat(s));
-			}
-
-			// 1. If both values are numbers, sort by number
-			if (isNumber(v1) && isNumber(v2)) {
-				// console.log("Both numbers", v1, v2);
-				return parseFloat(v1) - parseFloat(v2);
-			} else {
-				// 2. If only one of the values is a number, prioritize it
-				if (isNumber(v1)) {
-					// console.log("Is Number", v1);
-					return -1;
-				}
-				if (isNumber(v2)) {
-					// console.log("Is Number", v2);
-					return 1;
-				}
-			}
-
-			// 3. If both values are strings, sort by string
-			// console.log("both string", v1, v2);
-
-			return v1.localeCompare(v2);
+			return this.alphaNumSort(v1, v2);
 		});
+	}
+
+	public alphaNumSort(v1: string, v2: string) {
+		function isNumber(s: string) {
+			return !isNaN(Number(s));
+		}
+
+		// 1. If both values are numbers, sort by number
+		if (isNumber(v1) && isNumber(v2)) {
+			// console.log("Both numbers", v1, v2);
+			return Number(v1) - Number(v2);
+		} else {
+			// 2. If only one of the values is a number, prioritize it
+			if (isNumber(v1)) {
+				// console.log("Is Number", v1);
+				return -1;
+			}
+			if (isNumber(v2)) {
+				// console.log("Is Number", v2);
+				return 1;
+			}
+		}
+
+		// 3. If both values are strings, sort by string
+		// console.log("both string", v1, v2);
+
+		return v1.localeCompare(v2);
 	}
 }
 

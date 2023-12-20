@@ -1,5 +1,4 @@
 import { ActionTable } from "./action-table";
-
 export class ActionTableFilterMenu extends HTMLElement {
 	constructor() {
 		super();
@@ -75,7 +74,9 @@ export class ActionTableFilterMenu extends HTMLElement {
 		});
 
 		// 8. Make array of all unique options
-		this.options = Array.from(new Set(options));
+		options = Array.from(new Set(options));
+		// 9. Sort options alphabetically
+		this.options = options.sort(actionTable.alphaNumSort);
 	}
 
 	public connectedCallback(): void {
