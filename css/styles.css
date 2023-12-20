@@ -52,14 +52,15 @@ action-table th button {
     height: 100%;
     display: block;
     padding: .2em 1.5em .2em .5em;
-    background-color: var(--action-table-th, whitesmoke);
+    background-color: transparent;
     position: relative;
     text-align: left;
     font-size: inherit;
     line-height: inherit;
 }
 
-action-table th button:hover {
+action-table th button:hover,
+action-table th:has(button):hover {
     background-color: var(--action-table-th-hover, paleturquoise);
 }
 
@@ -81,7 +82,8 @@ action-table th button::after {
     transition: transform .3s ease-in-out, opacity .3s ease-in-out;
 }
 
-action-table th[aria-sort$="ing"] button{
+action-table th[aria-sort$="ing"] button,
+action-table th[aria-sort$="ing"]:has(button) {
     background-color: var(--action-table-th-on, rgb(244, 220, 188));
 }
 
