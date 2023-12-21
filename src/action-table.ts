@@ -122,7 +122,7 @@ export class ActionTable extends HTMLElement {
 	/*                         Attribute Changed Callback                        */
 	/* -------------------------------------------------------------------------- */
 
-	public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+	public attributeChangedCallback(_name: string, oldValue: string, newValue: string) {
 		if (oldValue !== newValue) {
 			// this ready is set to true after localstorage and URL Params are loaded. This stops it from sorting multiple times on load.
 			if (this.ready) this.sortTable();
