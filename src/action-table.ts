@@ -594,13 +594,19 @@ export class ActionTable extends HTMLElement {
 			// eslint-disable-next-line no-console
 			console.log(`sort by ${columnName} ${direction}`);
 
+			console.timeLog("sortTable");
 			// 1. Sort rows
 			this.customSort(this.rowsArray, columnIndex);
+
+			console.timeLog("sortTable");
+
+			// create a document fragment
+			const fragment = document.createDocumentFragment();
 
 			// 2. Update DOM
 			this.rowsArray.forEach((row, i) => {
 				// 2.1 Add row to tbody
-				this.tbody.appendChild(row);
+				fragment.appendChild(row);
 
 				// 2.1 On first row, update aria-sort on ths
 				if (i < 1) {
@@ -610,6 +616,11 @@ export class ActionTable extends HTMLElement {
 					});
 				}
 			});
+
+			// Replace tbody
+			this.tbody.appendChild(fragment);
+
+			console.timeLog("sortTable");
 
 			// 3. Add/Remove sorted class on colGroup based on columnIndex
 			// const colGroupCols = this.querySelectorAll("col");
@@ -639,13 +650,23 @@ export class ActionTable extends HTMLElement {
 			// 2. Get content
 			const c1 = r1.children[columnIndex] as ActionCell;
 			const c2 = r2.children[columnIndex] as ActionCell;
-			const v1 = c1.actionTable.sort;
-			const v2 = c2.actionTable.sort;
+			let a: string | number = c1.actionTable.sort;
+			let b: string | number = c2.actionTable.sort;
 
 			// console.log("values", v1, v2);
 
 			// return this.alphaNumSort(v1, v2);
-			return v1.localeCompare(v2, undefined, { numeric: true });
+			// return a.localeCompare(b, undefined, { numeric: true });
+
+			function isNumber(n: string) {
+				return !isNaN(parseFloat(n));
+			}
+
+			isNumber(a) && isNumber(b) && ((a = Number(a)), (b = Number(b)));
+
+			if (a < b) return -1;
+			if (a > b) return 1;
+			return 0;
 		});
 	}
 }
