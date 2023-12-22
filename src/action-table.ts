@@ -719,14 +719,11 @@ export class ActionTable extends HTMLElement {
 		if (this.pagination > 0) {
 			// temporary variable
 			let currentPage = this.page;
+			const numberOfPages = Math.ceil(rowsShown / this.pagination);
 
-			// if rowsShown is less than the oldValue of rowsShown then set page the max page
-			if (rowsShown < this.rowsShown) {
-				currentPage = Math.ceil(rowsShown / this.pagination);
-			}
-			// if rowsShown is zero than set page to 1
-			if (rowsShown < 1) {
-				currentPage = 1;
+			// if current page is greater than the number of pages then set it to the last page; if number of pages is 0 (if no rows) then set to the first page.
+			if (currentPage > numberOfPages) {
+				currentPage = numberOfPages || 1;
 			}
 
 			// if the action-table-pagination element exists then any changes to pagination or page will setProps
