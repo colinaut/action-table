@@ -101,40 +101,48 @@ export class ActionTable extends HTMLElement {
 
 	private async init() {
 		// 1. Get table, tbody, rows, and column names in this.cols
+		console.time("init");
 		this.getTable();
 
 		// 2. wait for any custom elements to to load; need this in case action-table-switch or similar elements are used
+		console.timeLog("init", "2");
 		await this.waitForCustomElements(this);
 
 		// 3. Get table content
+		console.timeLog("init", "3");
 		this.getTableContent();
 
 		// 4. add mutation observer to tbody
-
+		console.timeLog("init", "4");
 		this.addObserver(this.tbody);
 
 		// 5. Add no results tfoot message
+		console.timeLog("init", "5");
 		this.addNoResultsTfoot();
 
 		// 6. Get local storage for sort and filters. Overrides attributes
+		console.timeLog("init", "6");
 		this.getLocalStorage();
 		// console.log("3. init: getLocalStorage ~ this.filters", this.filters);
 
 		// 7. Get URL params. Overrides local storage and attributes
+		console.timeLog("init", "7");
 		this.getURLParams();
 		// console.log("4. init: getURLParams ~ this.filters", this.filters);
-
+		console.timeLog("init", "8");
 		if (this.pagination > 0) {
 			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
 			if (actionTablePagination) {
 				actionTablePagination.pagination = this.pagination;
+				actionTablePagination.setProps({ page: this.page, rowsShown: this.rowsShown });
 			}
 		}
-
+		console.timeLog("init", "9");
 		// 9. set ready so that attributeChangedCallback can run automatically when sort or direction is changed
 		this.ready = true;
-
+		console.timeLog("init", "10");
 		this.initialFilter();
+		console.timeEnd("init");
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -171,20 +179,32 @@ export class ActionTable extends HTMLElement {
 		/* this is needed in case there are action-table-switch or similar elements in the table that need to be filtered or sorted
         /* it is also needed for setting the filter elements in the action-table-filters
         */
+		console.time("initialFilter");
 		const customEls = await this.waitForCustomElements();
 
 		// 2. Filter and sort the table now that the custom elements have loaded
+		console.timeLog("initialFilter", "2");
 		if (Object.keys(this.filters).length > 0) {
 			this.filterTable();
 		}
 
-		this.sortTable();
+		console.timeLog("initialFilter", "3");
+		if (this.sort) this.sortTable();
+
+		console.timeLog("initialFilter", "4");
+
+		if (Object.keys(this.filters).length === 0 && !this.sort) {
+			this.appendRows();
+		}
 
 		// 2. If no rows are shown then reset the filters
+		console.timeLog("initialFilter", "5");
+		// TODO: this is firing why????
 		if (this.rowsShown === 0) {
 			this.resetFilters();
 		}
 
+		console.timeLog("initialFilter", "6");
 		// 4. if <action-table-filters> exists then trigger setFilterElements
 		if (customEls.length > 0) {
 			const actionTableFilters = customEls.find((el) => el.tagName.toLowerCase() === "action-table-filters") as ActionTableFilters;
@@ -192,13 +212,17 @@ export class ActionTable extends HTMLElement {
 				actionTableFilters.setFilterElements(this.filters);
 			}
 		}
+		console.timeEnd("initialFilter");
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*        Private Method: Wait for inner custom elements to be defined        */
 	/* -------------------------------------------------------------------------- */
 
+	// TODO: wonder if there is a better way to speed this up
 	private async waitForCustomElements(node: Element = this): Promise<Element[]> {
+		console.time("waitForCustomElements");
+
 		// 1. Get any custom elements
 		const customElementsArray = Array.from(node.querySelectorAll("*")).filter((el) => el.tagName.indexOf("-") !== -1);
 
@@ -207,13 +231,16 @@ export class ActionTable extends HTMLElement {
 		if (allDefined) {
 			return customElementsArray;
 		}
+		console.timeLog("waitForCustomElements", "1");
 		// 3. Create custom elements when defined Array
 		const customElementsDefinedArray = customElementsArray.map((element) => customElements.whenDefined(element.tagName.toLowerCase()));
+		console.timeLog("waitForCustomElements", "2");
 		// 4. Create Timeout Promise
 		const timeoutPromise = new Promise<Element[]>((_, reject) => setTimeout(() => reject("Timeout"), 300));
 		try {
 			// 5. Wait for custom elements or timeout
 			await Promise.race([Promise.all(customElementsDefinedArray), timeoutPromise]);
+			console.timeEnd("waitForCustomElements");
 			return customElementsArray;
 		} catch (error) {
 			// Handle timeout error here
@@ -361,12 +388,17 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private getTable(): void {
+		console.time("getTable");
 		const table = this.querySelector("table") as HTMLTableElement;
 		this.thead = table.querySelector("thead") as HTMLTableSectionElement;
 		this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
 		const rows = this.tbody.querySelectorAll("tbody tr") as NodeListOf<HTMLTableRowElement>;
+		console.timeLog("getTable", "2");
 		this.rowsArray = Array.from(rows) as Array<ActionRow>;
+		this.rowsShown = this.rowsArray.length;
+		console.timeLog("getTable", "3");
 		this.getColumns(table);
+		console.timeEnd("getTable");
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -374,8 +406,12 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private getColumns(table: HTMLTableElement): ColsArray {
+		console.time("getColumns");
 		// 1. Get column headers
 		this.ths = table.querySelectorAll("th");
+		const theadRow = table.querySelector("thead tr");
+
+		const fragment = document.createDocumentFragment();
 
 		if (this.ths) {
 			this.ths.forEach((th) => {
@@ -390,11 +426,22 @@ export class ActionTable extends HTMLElement {
 					th.dataset.col = name;
 					// 6. if the column is sortable then wrap it in a button, and add aria
 					if (!th.hasAttribute("no-sort")) {
-						th.innerHTML = `<button data-col="${name}">${th.innerHTML}</button>`;
+						const thClone = th.cloneNode();
+						const button = document.createElement("button");
+						button.dataset.col = name;
+						button.innerHTML = th.innerHTML;
+						thClone.appendChild(button);
+						fragment.appendChild(thClone);
+					} else {
+						fragment.appendChild(th);
 					}
 				}
 			});
 		}
+
+		theadRow?.replaceChildren(fragment);
+
+		console.timeLog("getColumns", "2");
 
 		// 7. add colGroup unless it already exists
 		const colGroup = table.querySelector("colgroup");
@@ -409,10 +456,12 @@ export class ActionTable extends HTMLElement {
 			// 7.3 prepend colgroup
 			table.prepend(colGroup);
 		}
+		console.timeLog("getColumns", "3");
 
 		this.colGroupCols = this.querySelectorAll("col");
 		// console.log("action-table cols", this.cols);
 		// 8. Return cols array
+		console.timeEnd("getColumns");
 		return this.cols;
 	}
 
@@ -691,8 +740,8 @@ export class ActionTable extends HTMLElement {
 	}
 
 	private appendRows(rows: ActionRow[] = this.rowsArray): void {
-		console.log("appendRows");
-		// console.time("appendRows");
+		console.log("appendRows log");
+		console.time("appendRows");
 
 		// fragment for holding rows
 		const fragment = document.createDocumentFragment();
@@ -717,6 +766,8 @@ export class ActionTable extends HTMLElement {
 
 		// Pagination only stuff
 		if (this.pagination > 0) {
+			console.log("pagination");
+
 			// temporary variable
 			let currentPage = this.page;
 			const numberOfPages = Math.ceil(rowsShown / this.pagination);
@@ -728,6 +779,7 @@ export class ActionTable extends HTMLElement {
 
 			// if the action-table-pagination element exists then any changes to pagination or page will setProps
 			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
+
 			if (actionTablePagination) {
 				const props: PaginationProps = {};
 				if (this.page !== currentPage) {
@@ -746,7 +798,7 @@ export class ActionTable extends HTMLElement {
 
 		this.rowsShown = rowsShown;
 
-		// console.timeEnd("appendRows");
+		console.timeEnd("appendRows");
 	}
 }
 
