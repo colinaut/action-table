@@ -23,7 +23,8 @@
 		"./dist/action-table.css": "./dist/action-table.css",
 		"./dist/action-table.js": "./dist/action-table.js",
 		"./dist/action-table-filters.js": "./dist/action-table-filters.js",
-		"./dist/action-table-switch.js": "./dist/action-table-switch.js"
+		"./dist/action-table-switch.js": "./dist/action-table-switch.js",
+		"./dist/action-table-pagination.js": "./dist/action-table-pagination.js"
 	},
 	"main": "dist/index.js",
 	"files": [
