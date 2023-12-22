@@ -668,7 +668,10 @@ export class ActionTable extends HTMLElement {
 			}
 
 			if (isNumber(a) && isNumber(b)) {
-				Number(a) - Number(b);
+				const aNum = Number(a);
+				const bNum = Number(b);
+				if (aNum < bNum) return -1;
+				if (aNum > bNum) return 1;
 			}
 			if (typeof a === "string" && typeof b === "string") {
 				return a.localeCompare(b);
