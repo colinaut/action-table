@@ -1,4 +1,4 @@
-import { ActionTable } from "./action-table";
+import type { ActionTable } from "./action-table";
 export class ActionTableFilterMenu extends HTMLElement {
 	constructor() {
 		super();

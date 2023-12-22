@@ -249,3 +249,33 @@ action-table .switch input {
   action-table .star input:checked::before {
     background: var(--action-table-star-checked, orange);
   }
+
+  /* -------------------------------------------------------------------------- */
+  /*                           Action Table Pagination                          */
+  /* -------------------------------------------------------------------------- */
+
+  action-table-pagination {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: .3em;
+    max-width: 100%;
+    overflow: auto;
+  }
+  action-table-pagination button {
+    cursor: pointer;
+    font-size: inherit;
+    background-color: var(--action-table-th, whitesmoke);
+    border: 0;
+    border-radius: .3em;
+    padding: .2em .5em;
+  }
+
+  action-table-pagination button:hover {
+    background-color: var(--action-table-th-hover, paleturquoise);
+  }
+
+  action-table-pagination .active {
+    font-weight: bold;
+    background-color: var(--action-table-th-on, rgb(244, 220, 188));
+  }

@@ -16,3 +16,9 @@ export type ActionCell = HTMLTableCellElement & {
 		filter: string;
 	};
 };
+
+export type ActionRow = HTMLTableRowElement & {
+	hideRow: boolean;
+};
+
+export type PaginationProps = { page?: number; pagination?: number; rowsShown?: number };

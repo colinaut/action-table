@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
 					index: resolve(__dirname, "src/main.ts"),
 					"action-table": resolve(__dirname, "src/action-table.ts"),
 					"action-table-filters": resolve(__dirname, "src/action-table-filters.ts"),
+					"action-table-pagination": resolve(__dirname, "src/action-table-pagination.ts"),
 					"action-table-switch": resolve(__dirname, "src/action-table-switch.ts"),
 				},
 				output: [
@@ -31,6 +32,7 @@ export default defineConfig(({ mode }) => {
 				],
 				plugins: [
 					eslint(),
+					// @ts-expect-error types are missing
 					minifyHTML.default({
 						options: {
 							shouldMinify(template) {

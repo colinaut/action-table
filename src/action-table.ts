@@ -1,5 +1,6 @@
-import { ColsArray, FiltersObject, SingleFilterObject, ActionCell } from "./types";
-import { ActionTableFilters } from "./action-table-filters";
+import { ColsArray, FiltersObject, SingleFilterObject, ActionCell, ActionRow, PaginationProps } from "./types";
+import type { ActionTableFilters } from "./action-table-filters";
+import type { ActionTablePagination } from "./action-table-pagination";
 export class ActionTable extends HTMLElement {
 	constructor() {
 		super();
@@ -23,16 +24,17 @@ export class ActionTable extends HTMLElement {
 	private ths!: NodeListOf<HTMLTableCellElement>;
 	public cols: ColsArray = [];
 	public filters: FiltersObject = {};
-	private rowsArray!: Array<HTMLTableRowElement>;
+	public rowsArray!: Array<ActionRow>;
 	private ready = false;
 	private colGroupCols!: NodeListOf<HTMLTableColElement>;
+	public rowsShown = 0;
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 Attributes                                 */
 	/* -------------------------------------------------------------------------- */
 
 	static get observedAttributes(): string[] {
-		return ["sort", "direction"];
+		return ["sort", "direction", "page", "pagination"];
 	}
 
 	// sort attribute to set the sort column
@@ -70,6 +72,22 @@ export class ActionTable extends HTMLElement {
 		return this.getAttribute("id") || "";
 	}
 
+	get pagination(): number {
+		return Number(this.getAttribute("pagination")) || 0;
+	}
+
+	set pagination(value: number) {
+		this.setAttribute("pagination", value.toString());
+	}
+
+	get page(): number {
+		return Number(this.getAttribute("page")) || 1;
+	}
+
+	set page(value: number) {
+		this.setAttribute("page", value.toString());
+	}
+
 	/* -------------------------------------------------------------------------- */
 	/*                             Connected Callback                             */
 	/* -------------------------------------------------------------------------- */
@@ -86,7 +104,7 @@ export class ActionTable extends HTMLElement {
 		this.getTable();
 
 		// 2. wait for any custom elements to to load; need this in case action-table-switch or similar elements are used
-		await this.waitForCustomElements(this.tbody);
+		await this.waitForCustomElements(this);
 
 		// 3. Get table content
 		this.getTableContent();
@@ -106,26 +124,37 @@ export class ActionTable extends HTMLElement {
 		this.getURLParams();
 		// console.log("4. init: getURLParams ~ this.filters", this.filters);
 
-		// 8. sort the table
-		if (this.sort) this.sortTable();
+		if (this.pagination > 0) {
+			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
+			if (actionTablePagination) {
+				actionTablePagination.pagination = this.pagination;
+			}
+		}
 
 		// 9. set ready so that attributeChangedCallback can run automatically when sort or direction is changed
 		this.ready = true;
 
-		// 10. Sort & Filter Table if they have values
-		if (Object.keys(this.filters).length > 0) {
-			this.initialFilter();
-		}
+		this.initialFilter();
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                         Attribute Changed Callback                        */
 	/* -------------------------------------------------------------------------- */
 
-	public attributeChangedCallback(_name: string, oldValue: string, newValue: string) {
-		if (oldValue !== newValue) {
-			// this ready is set to true after localstorage and URL Params are loaded. This stops it from sorting multiple times on load.
-			if (this.ready) this.sortTable();
+	public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+		// this ready is set to true after localStorage and URL Params are loaded.
+		if (oldValue !== newValue && this.ready) {
+			if (name === "sort" || name === "direction") {
+				this.sortTable();
+			}
+			if (name === "page") {
+				this.appendRows();
+			}
+			// TODO: create function to change pagination for table and pagination element
+			if (name === "pagination") {
+				console.log("pagination", oldValue, newValue);
+				// this.appendRows();
+			}
 		}
 	}
 
@@ -144,11 +173,15 @@ export class ActionTable extends HTMLElement {
         */
 		const customEls = await this.waitForCustomElements();
 
-		// 2. Filter the table now that the custom elements have loaded
-		this.filterTable();
+		// 2. Filter and sort the table now that the custom elements have loaded
+		if (Object.keys(this.filters).length > 0) {
+			this.filterTable();
+		}
+
+		this.sortTable();
 
 		// 2. If no rows are shown then reset the filters
-		if (this.rowsShown.length === 0) {
+		if (this.rowsShown === 0) {
 			this.resetFilters();
 		}
 
@@ -284,6 +317,7 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private addEventListeners(): void {
+		// Sort buttons
 		this.addEventListener(
 			"click",
 			(event) => {
@@ -304,18 +338,22 @@ export class ActionTable extends HTMLElement {
 			false
 		);
 
+		// Listens for checkboxes in the table since mutation observer does not support checkbox changes
 		this.addEventListener("change", (event) => {
 			const el = event.target as HTMLInputElement;
 			// only fire if event target is a checkbox in a td; this stops it firing for filters
 			if (el.closest("td") && el.type === "checkbox") {
 				// get new content, sort and filter. This works for checkboxes and action-table-switch
 				console.log("event change", el);
-
-				this.getTableContent();
-				this.sortTable();
-				this.filterTable();
+				this.getContentSortAndFilter();
 			}
 		});
+	}
+
+	private getContentSortAndFilter(): void {
+		this.getTableContent();
+		this.filterTable();
+		this.sortTable();
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -327,7 +365,7 @@ export class ActionTable extends HTMLElement {
 		this.thead = table.querySelector("thead") as HTMLTableSectionElement;
 		this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
 		const rows = this.tbody.querySelectorAll("tbody tr") as NodeListOf<HTMLTableRowElement>;
-		this.rowsArray = Array.from(rows);
+		this.rowsArray = Array.from(rows) as Array<ActionRow>;
 		this.getColumns(table);
 	}
 
@@ -465,9 +503,7 @@ export class ActionTable extends HTMLElement {
 				if (target instanceof HTMLTableCellElement || target instanceof HTMLSpanElement || target instanceof HTMLLIElement) {
 					// 1.2 if mutation.target is a cell, span, or then run getTableContent, filterTable, and sortTable
 					console.log("MutationObserver", target, mutation.type);
-					this.getTableContent();
-					this.filterTable();
-					this.sortTable();
+					this.getContentSortAndFilter();
 				}
 			});
 			// }
@@ -498,8 +534,10 @@ export class ActionTable extends HTMLElement {
 	/* ------------- Also triggered by local storage and URL params ------------- */
 
 	public filterTable(columnName: string = "", values: string[] = [], exclusive = false, regexOpt = "i"): void {
+		console.log("filterTable");
+
 		// eslint-disable-next-line no-console
-		console.time("filterTable");
+		// console.time("filterTable");
 		columnName = columnName.trim().toLowerCase();
 		// this.filterTable(columnName, values, exclusive, regexOpt);
 
@@ -510,12 +548,10 @@ export class ActionTable extends HTMLElement {
 
 		// 2. get filter value for whole row based on special reserved name "action-table"
 		const filterForWholeRow = this.filters["action-table"];
-		console.log("🚀 ~ file: action-table.ts:511 ~ filterTable ~ filterForWholeRow:", filterForWholeRow);
 
-		// 3. Filter based on filter value
 		this.rowsArray.forEach((row) => {
 			// 3.1 set base display value as ""
-			let display = "";
+			let hide = false;
 			// 3.2 get td cells
 			const cells = row.querySelectorAll("td") as NodeListOf<ActionCell>;
 			// 3.3 if filter value for whole row exists then run filter against innerText of entire row content
@@ -524,10 +560,9 @@ export class ActionTable extends HTMLElement {
 				const content = Array.from(cells)
 					.map((cell) => cell.actionTable.filter)
 					.join(" ");
-				console.log("content", content);
 
 				if (this.shouldHide(filterForWholeRow, content, regexOpt)) {
-					display = "none";
+					hide = true;
 				}
 			}
 			// 3.4 if columnName is not action-table then run filter against td cell content
@@ -537,18 +572,17 @@ export class ActionTable extends HTMLElement {
 				if (!filter) return;
 
 				if (this.shouldHide(filter, content, regexOpt)) {
-					display = "none";
+					hide = true;
 				}
 			});
 
 			// 3.5 set display
-			row.style.display = display;
+			row.hideRow = hide;
 		});
 
-		// if there are no rows visible then display no results tfoot
-		this.tfoot.style.display = this.rowsShown.length === 0 ? "table-footer-group" : "none";
-		// eslint-disable-next-line no-console
-		console.timeEnd("filterTable");
+		this.appendRows(this.rowsArray);
+
+		// console.timeEnd("filterTable");
 	}
 
 	private shouldHide(filter: SingleFilterObject, content: string, regexOpt: string): boolean {
@@ -572,11 +606,6 @@ export class ActionTable extends HTMLElement {
 		return false;
 	}
 
-	// Simple rowsShown getter; not an attribute
-	get rowsShown() {
-		return this.rowsArray.filter((row) => row.style.display !== "none");
-	}
-
 	/* -------------------------------------------------------------------------- */
 	/*        Public Method: sort table based on column name and direction        */
 	/* -------------------------------------------------------------------------- */
@@ -591,39 +620,12 @@ export class ActionTable extends HTMLElement {
 		const columnIndex = this.cols.findIndex((col) => col === columnName);
 		// 2. If column exists and there are rows then sort
 		if (columnIndex >= 0 && this.rowsArray.length > 0) {
-			// eslint-disable-next-line no-console
 			console.log(`sort by ${columnName} ${direction}`);
 
 			console.timeLog("sortTable");
 			// 1. Sort rows
-			this.customSort(this.rowsArray, columnIndex);
+			const sortedRows = this.customSort(this.rowsArray, columnIndex);
 
-			console.timeLog("sortTable");
-
-			// create a document fragment
-			const fragment = document.createDocumentFragment();
-
-			// 2. Update DOM
-			this.rowsArray.forEach((row, i) => {
-				// 2.1 Add row to tbody
-				fragment.appendChild(row);
-
-				// 2.1 On first row, update aria-sort on ths
-				if (i < 1) {
-					this.ths.forEach((th, i) => {
-						const ariaSort = i === columnIndex ? direction : "none";
-						th.setAttribute("aria-sort", ariaSort);
-					});
-				}
-			});
-
-			// Replace tbody
-			this.tbody.appendChild(fragment);
-
-			console.timeLog("sortTable");
-
-			// 3. Add/Remove sorted class on colGroup based on columnIndex
-			// const colGroupCols = this.querySelectorAll("col");
 			this.colGroupCols.forEach((colGroupCol, i) => {
 				if (i === columnIndex) {
 					colGroupCol.classList.add("sorted");
@@ -631,6 +633,14 @@ export class ActionTable extends HTMLElement {
 					colGroupCol.classList.remove("sorted");
 				}
 			});
+
+			// set aria sorting direction
+			this.ths.forEach((th, i) => {
+				const ariaSort = i === columnIndex ? direction : "none";
+				th.setAttribute("aria-sort", ariaSort);
+			});
+
+			this.appendRows(sortedRows);
 		}
 		// eslint-disable-next-line no-console
 		console.timeEnd("sortTable");
@@ -638,7 +648,7 @@ export class ActionTable extends HTMLElement {
 
 	/* --------------------------- Private Sort Method -------------------------- */
 
-	private customSort(rows: HTMLTableRowElement[], columnIndex: number): HTMLTableRowElement[] {
+	private customSort(rows: ActionRow[], columnIndex: number): ActionRow[] {
 		return rows.sort((r1, r2) => {
 			// 1. If descending sort, swap rows
 			if (this.direction === "descending") {
@@ -650,24 +660,93 @@ export class ActionTable extends HTMLElement {
 			// 2. Get content
 			const c1 = r1.children[columnIndex] as ActionCell;
 			const c2 = r2.children[columnIndex] as ActionCell;
-			let a: string | number = c1.actionTable.sort;
-			let b: string | number = c2.actionTable.sort;
-
-			// console.log("values", v1, v2);
-
-			// return this.alphaNumSort(v1, v2);
-			// return a.localeCompare(b, undefined, { numeric: true });
+			const a: string = c1.actionTable.sort;
+			const b: string = c2.actionTable.sort;
 
 			function isNumber(n: string) {
-				return !isNaN(parseFloat(n));
+				return !isNaN(Number(n));
 			}
 
-			isNumber(a) && isNumber(b) && ((a = Number(a)), (b = Number(b)));
-
-			if (a < b) return -1;
-			if (a > b) return 1;
+			if (isNumber(a) && isNumber(b)) {
+				Number(a) - Number(b);
+			}
+			if (typeof a === "string" && typeof b === "string") {
+				return a.localeCompare(b);
+			}
 			return 0;
 		});
+	}
+
+	private isActivePage(i: number): boolean {
+		// returns if pagination is enabled (> 0) and row is on current page.
+		// For instance if the current page is 2 and pagination is 10 then is greater than 10 and less than or equal to 20
+		const pagination = this.pagination;
+		if (pagination === 0) return true;
+		const startIndex = pagination * (this.page - 1) + 1;
+		const endIndex = pagination * this.page;
+		return i + 1 > startIndex && i <= endIndex;
+	}
+
+	private appendRows(rows: ActionRow[] = this.rowsArray): void {
+		console.log("appendRows");
+		// console.time("appendRows");
+
+		// fragment for holding rows
+		const fragment = document.createDocumentFragment();
+		// temporary variable
+		let rowsShown = 0;
+
+		// loop through rows to set hide or show
+		rows.forEach((row) => {
+			if (!row.hideRow) rowsShown++;
+
+			if (row.hideRow || !this.isActivePage(rowsShown)) {
+				row.style.display = "none";
+			} else {
+				row.style.display = "";
+				fragment.appendChild(row);
+			}
+		});
+
+		this.tfoot.style.display = rowsShown === 0 ? "table-footer-group" : "none";
+
+		this.tbody.prepend(fragment);
+
+		// Pagination only stuff
+		if (this.pagination > 0) {
+			// temporary variable
+			let currentPage = this.page;
+
+			// if rowsShown is less than the oldValue of rowsShown then set page the max page
+			if (rowsShown < this.rowsShown) {
+				currentPage = Math.ceil(rowsShown / this.pagination);
+			}
+			// if rowsShown is zero than set page to 1
+			if (rowsShown < 1) {
+				currentPage = 1;
+			}
+
+			// if the action-table-pagination element exists then any changes to pagination or page will setProps
+			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
+			if (actionTablePagination) {
+				const props: PaginationProps = {};
+				if (this.page !== currentPage) {
+					props.page = currentPage;
+				}
+				if (this.rowsShown !== rowsShown) {
+					props.rowsShown = rowsShown;
+				}
+				if (Object.keys(props).length > 0) {
+					actionTablePagination.setProps(props);
+				}
+			}
+
+			this.page = currentPage;
+		}
+
+		this.rowsShown = rowsShown;
+
+		// console.timeEnd("appendRows");
 	}
 }
 

@@ -138,6 +138,10 @@ Any select menu, checkbox group, or radio button group can be created and the `<
 
 Filtering is handled with regex.test(cellContent) where regex is based on RegExp(value, "i"). Thus if you want to get fancy with your filtering you can use regex for your filter value. This is useful for say filtering [number ranges with regex](https://www.regex-range.com/).
 
+## Action Table Pagination
+
+To add pagination to any table add the number of visible rows with `pagination="10"` attribute on the action-table element. Then add the `<action-table-pagination></action-table-pagination>` element within the action-table element.
+
 ## Action Table Switch
 
 The `<action-table-switch>` element is an optional element used to add toggle checkbox switches to the table. It is not added in the default index.js import. The action-table.css file includes "star" and "switch" classes for easy styling. On it's own it's not much different then just manually adding a checkbox to the table using the same styles. One thing it does differently is trigger tableFilter on action-table when changed. I've included it as a basic element for strapping functionality onto as I assume you'll want to do something when people click it. It fires off a `action-table-switch` custom event containing details about the element. You can also of extend the ActionTableSwitch class and replace the sendEvent() function with your own.
@@ -182,4 +186,9 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
   - [x] add mutation observer to update sort and filter properties
 - [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
 - [ ] **Pagination** - table pagination for large tables
+  - [x] Get pagination buttons element working
+  - [x] Paginate button groups for large tables with lots of pagination
+  - [x] Make sure it's not refiltering or rerendering more than needed
+  - [x] Clean and comment code
+  - [ ] Add ability for user to change pagination as part of the UI
 - [ ] **Filter Display Number of Rows** - component that displays the number of rows shown/hidden
