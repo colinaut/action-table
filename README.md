@@ -178,14 +178,14 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
 - [x] Add whole table search
 - [x] Refactor to use name instead of col attribute
 - [x] Make action-table-switch optional
-- [ ] **Multiple Action Tables** -
+- [x] **Multiple Action Tables** -
   - [x] Test multiple action-table on same page.
   - [x] Likely messes with local storage. Might want to add an id to the table so it stores the data separately
 - [x] **Performance** - test sort and filter performance for 100s of table rows with multiple columns
   - [x] add sort and filter values directly as properties to the td element for quick access
   - [x] add mutation observer to update sort and filter properties
 - [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
-- [ ] **Pagination** - table pagination for large tables
+- [x] **Pagination** - table pagination for large tables
   - [x] Get pagination buttons element working
   - [x] Paginate button groups for large tables with lots of pagination
   - [x] Make sure it's not refiltering or rerendering more than needed
