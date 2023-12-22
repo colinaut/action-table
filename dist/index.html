@@ -47,6 +47,7 @@
 		</style>
 		<script type="module" crossorigin src="/action-table.js"></script>
 		<script type="module" crossorigin src="/action-table-filters.js"></script>
+		<script type="module" crossorigin src="/action-table-pagination.js"></script>
 		<script type="module" crossorigin src="/index.js"></script>
 		<script type="module" crossorigin src="/action-table-switch.js"></script>
 		<link rel="stylesheet" crossorigin href="/action-table.css">
@@ -229,13 +230,13 @@
 					});
 				</script>
 			</div>
-			<h2>Example Large 1000 Row Table</h2>
-			<action-table store id="big-table">
+			<h2>Example Large 1000 Row Table with Pagination</h2>
+			<action-table store id="big-table" pagination="5">
 				<action-table-filters class="flex flex-col">
-					<div>
+					<div class="flex">
 						<action-table-filter-menu name="Founded"></action-table-filter-menu>
+						<action-table-filter-menu name="Industry"></action-table-filter-menu>
 					</div>
-					<div><action-table-filter-menu name="Industry"></action-table-filter-menu></div>
 					<div>
 						<label for="action-table-search2">Search Whole Table</label>
 						<input id="action-table-search2" name="action-table" type="search" placeholder="Search" size="14" />
@@ -11260,7 +11261,7 @@
 							</tr>
 						</tbody>
 					</table>
-					<div style="margin-top: 8px">Made with <a href="https://www.htmltables.io/" target="_blank">HTML Tables</a></div>
+					<action-table-pagination></action-table-pagination>
 				</div>
 			</action-table>
 		</div>
