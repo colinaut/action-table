@@ -106,7 +106,16 @@ export class ActionTable extends HTMLElement {
 
 		// 2. wait for any custom elements to to load; need this in case action-table-switch or similar elements are used
 		console.timeLog("init", "2");
-		await this.waitForCustomElements(this);
+		// TODO: rewrite this so it is better
+		// Only fires if there are custom elements as await slows it down.
+		// I will need to also add await for the pagination component later though as this breaks that test
+		const tbody = this.querySelector("tbody");
+		if (tbody) {
+			const customElementsArray = Array.from(tbody.querySelectorAll("*")).filter((el) => el.tagName.indexOf("-") !== -1);
+			if (customElementsArray.length > 0) {
+				await this.waitForCustomElements(tbody);
+			}
+		}
 
 		// 3. Get table content
 		console.timeLog("init", "3");
@@ -133,6 +142,7 @@ export class ActionTable extends HTMLElement {
 		if (this.pagination > 0) {
 			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
 			if (actionTablePagination) {
+				await customElements.whenDefined("action-table-pagination");
 				actionTablePagination.pagination = this.pagination;
 				actionTablePagination.setProps({ page: this.page, rowsShown: this.rowsShown });
 			}
@@ -180,7 +190,6 @@ export class ActionTable extends HTMLElement {
         /* it is also needed for setting the filter elements in the action-table-filters
         */
 		console.time("initialFilter");
-		const customEls = await this.waitForCustomElements();
 
 		// 2. Filter and sort the table now that the custom elements have loaded
 		console.timeLog("initialFilter", "2");
@@ -199,19 +208,19 @@ export class ActionTable extends HTMLElement {
 
 		// 2. If no rows are shown then reset the filters
 		console.timeLog("initialFilter", "5");
-		// TODO: this is firing why????
 		if (this.rowsShown === 0) {
 			this.resetFilters();
 		}
 
 		console.timeLog("initialFilter", "6");
 		// 4. if <action-table-filters> exists then trigger setFilterElements
-		if (customEls.length > 0) {
-			const actionTableFilters = customEls.find((el) => el.tagName.toLowerCase() === "action-table-filters") as ActionTableFilters;
-			if (actionTableFilters) {
-				actionTableFilters.setFilterElements(this.filters);
-			}
+
+		const actionTableFilters = this.querySelector("action-table-filters") as ActionTableFilters;
+		if (actionTableFilters) {
+			await customElements.whenDefined("action-table-filters");
+			actionTableFilters.setFilterElements(this.filters);
 		}
+
 		console.timeEnd("initialFilter");
 	}
 
@@ -220,11 +229,20 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	// TODO: wonder if there is a better way to speed this up
-	private async waitForCustomElements(node: Element = this): Promise<Element[]> {
+	private async waitForCustomElements(node: HTMLElement = this): Promise<Element[]> {
+		console.log("waitForCustomElements", node);
+
 		console.time("waitForCustomElements");
 
 		// 1. Get any custom elements
 		const customElementsArray = Array.from(node.querySelectorAll("*")).filter((el) => el.tagName.indexOf("-") !== -1);
+
+		console.timeLog("waitForCustomElements", "0");
+		if (customElementsArray.length === 0) {
+			console.timeEnd("waitForCustomElements");
+			return [];
+		}
+		console.log("customElementsArray", customElementsArray);
 
 		// 2. Return if empty or all custom elements are defined
 		const allDefined = customElementsArray.every((element) => element && customElements.get(element.tagName.toLowerCase()));
