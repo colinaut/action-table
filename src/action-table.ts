@@ -13,6 +13,7 @@ export class ActionTable extends HTMLElement {
 
 		// 1. set initial values
 		this.direction = "ascending";
+		this.page = 1;
 
 		// 2. Add Event Listeners (loading them here means I don't need disconnectedCallback)
 		this.addEventListeners();
@@ -96,7 +97,9 @@ export class ActionTable extends HTMLElement {
 	public connectedCallback(): void {
 		/* -------------- Init code which requires DOM to be ready -------------- */
 
+		console.time("Connected Callback");
 		this.init();
+		console.timeEnd("Connected Callback");
 	}
 
 	private async init() {
@@ -138,19 +141,8 @@ export class ActionTable extends HTMLElement {
 		console.timeLog("init", "7");
 		this.getURLParams();
 		// console.log("4. init: getURLParams ~ this.filters", this.filters);
-		console.timeLog("init", "8");
-		if (this.pagination > 0) {
-			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
-			if (actionTablePagination) {
-				await customElements.whenDefined("action-table-pagination");
-				console.timeLog("init", "8.1");
-				actionTablePagination.pagination = this.pagination;
-				actionTablePagination.setProps({ page: this.page, rowsShown: this.rowsShown });
-			}
-		}
 		console.timeLog("init", "9");
 		// 9. set ready so that attributeChangedCallback can run automatically when sort or direction is changed
-		this.ready = true;
 		console.timeLog("init", "10");
 		this.initialFilter();
 		console.timeEnd("init");
@@ -167,6 +159,7 @@ export class ActionTable extends HTMLElement {
 				this.sortTable();
 			}
 			if (name === "page") {
+				console.log("attributeChangedCallback: page", oldValue, newValue);
 				this.appendRows();
 			}
 			// TODO: create function to change pagination for table and pagination element
@@ -195,34 +188,45 @@ export class ActionTable extends HTMLElement {
 		// 2. Filter and sort the table now that the custom elements have loaded
 		console.timeLog("initialFilter", "2");
 		if (Object.keys(this.filters).length > 0) {
+			console.log("initialFilter: filters", this.filters);
 			this.filterTable();
 		}
 
 		console.timeLog("initialFilter", "3");
-		if (this.sort) this.sortTable();
+		if (this.sort) {
+			console.log("initialFilter: sort", this.sort);
+
+			this.sortTable();
+		}
 
 		console.timeLog("initialFilter", "4");
 
-		if (Object.keys(this.filters).length === 0 && !this.sort) {
-			this.appendRows();
-		}
+		// 3. Append rows
+		// Normally sortTable and filterTable do this but with ready false it won't
+		this.appendRows();
+		// 4. Set ready to true so sort and filter can run appendRows
+		this.ready = true;
 
-		// 2. If no rows are shown then reset the filters
+		// 5. If no rows are shown then reset the filters
 		console.timeLog("initialFilter", "5");
 		if (this.rowsShown === 0) {
 			this.resetFilters();
 		}
 
 		console.timeLog("initialFilter", "6");
-		// 4. if <action-table-filters> exists then trigger setFilterElements
 
+		// 6. if <action-table-filters> exists then trigger setFilterElements
 		const actionTableFilters = this.querySelector("action-table-filters") as ActionTableFilters;
 		if (actionTableFilters) {
-			await customElements.whenDefined("action-table-filters");
-			actionTableFilters.setFilterElements(this.filters);
+			this.setFilterElements(actionTableFilters);
 		}
 
 		console.timeEnd("initialFilter");
+	}
+
+	private async setFilterElements(actionTableFilters: ActionTableFilters): Promise<void> {
+		await customElements.whenDefined("action-table-filters");
+		actionTableFilters.setFilterElements(this.filters);
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -651,8 +655,8 @@ export class ActionTable extends HTMLElement {
 			// 3.5 set display
 			row.hideRow = hide;
 		});
-
-		this.appendRows(this.rowsArray);
+		// 3.6 append rows but only if action-table is ready (this stops it from firing twice on initialization)
+		if (this.ready) this.appendRows(this.rowsArray);
 
 		// console.timeEnd("filterTable");
 	}
@@ -711,8 +715,8 @@ export class ActionTable extends HTMLElement {
 				const ariaSort = i === columnIndex ? direction : "none";
 				th.setAttribute("aria-sort", ariaSort);
 			});
-
-			this.appendRows(sortedRows);
+			// append rows but only if action-table is ready (this stops it from firing twice on initialization)
+			if (this.ready) this.appendRows(sortedRows);
 		}
 		// eslint-disable-next-line no-console
 		console.timeEnd("sortTable");
@@ -769,13 +773,13 @@ export class ActionTable extends HTMLElement {
 		// fragment for holding rows
 		const fragment = document.createDocumentFragment();
 		// temporary variable
-		let rowsShown = 0;
+		let newRowsShown = 0;
 
 		// loop through rows to set hide or show
 		rows.forEach((row) => {
-			if (!row.hideRow) rowsShown++;
+			if (!row.hideRow) newRowsShown++;
 
-			if (row.hideRow || !this.isActivePage(rowsShown)) {
+			if (row.hideRow || !this.isActivePage(newRowsShown)) {
 				row.style.display = "none";
 			} else {
 				row.style.display = "";
@@ -783,45 +787,49 @@ export class ActionTable extends HTMLElement {
 			}
 		});
 
-		this.tfoot.style.display = rowsShown === 0 ? "table-footer-group" : "none";
+		this.tfoot.style.display = newRowsShown === 0 ? "table-footer-group" : "none";
 
 		this.tbody.prepend(fragment);
 
 		// Pagination only stuff
 		if (this.pagination > 0) {
-			console.log("pagination");
-
 			// temporary variable
-			let currentPage = this.page;
-			const numberOfPages = Math.ceil(rowsShown / this.pagination);
+			let newPage = this.page;
+			const numberOfPages = Math.ceil(newRowsShown / this.pagination);
 
 			// if current page is greater than the number of pages then set it to the last page; if number of pages is 0 (if no rows) then set to the first page.
-			if (currentPage > numberOfPages) {
-				currentPage = numberOfPages || 1;
+			if (newPage > numberOfPages) {
+				newPage = numberOfPages || 1;
 			}
 
 			// if the action-table-pagination element exists then any changes to pagination or page will setProps
 			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
 
 			if (actionTablePagination) {
-				const props: PaginationProps = {};
-				if (this.page !== currentPage) {
-					props.page = currentPage;
-				}
-				if (this.rowsShown !== rowsShown) {
-					props.rowsShown = rowsShown;
-				}
-				if (Object.keys(props).length > 0) {
-					actionTablePagination.setProps(props);
-				}
+				this.setPaginationElement(actionTablePagination, this.page, newPage, this.rowsShown, newRowsShown);
 			}
 
-			this.page = currentPage;
+			this.page = newPage;
 		}
 
-		this.rowsShown = rowsShown;
+		this.rowsShown = newRowsShown;
 
 		console.timeEnd("appendRows");
+	}
+	private async setPaginationElement(actionTablePagination: ActionTablePagination, oldPage: number, newPage: number, oldRowsShown: number, newRowsShown: number) {
+		console.log("setPaginationElement", oldPage, newPage, oldRowsShown, newRowsShown);
+
+		await customElements.whenDefined("action-table-pagination");
+		const props: PaginationProps = {};
+		if (oldPage !== newPage) {
+			props.page = newPage;
+		}
+		if (oldRowsShown !== newRowsShown) {
+			props.rowsShown = newRowsShown;
+		}
+		if (Object.keys(props).length > 0) {
+			actionTablePagination.setProps(props);
+		}
 	}
 }
 
