@@ -12,7 +12,13 @@ export class ActionTablePagination extends HTMLElement {
 	public rowsShown = 0;
 	private maxButtonGroups = 1;
 
-	public connectedCallback(): void {}
+	public connectedCallback(): void {
+		const actionTable = this.closest("action-table") as ActionTable;
+		this.pagination = actionTable.pagination;
+		this.page = actionTable.page;
+		this.rowsShown = actionTable.rowsShown;
+		this.render();
+	}
 
 	get maxButtons(): number {
 		return Number(this.getAttribute("max-buttons")) || 10;
