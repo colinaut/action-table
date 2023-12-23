@@ -143,6 +143,7 @@ export class ActionTable extends HTMLElement {
 			const actionTablePagination = document.querySelector("action-table-pagination") as ActionTablePagination;
 			if (actionTablePagination) {
 				await customElements.whenDefined("action-table-pagination");
+				console.timeLog("init", "8.1");
 				actionTablePagination.pagination = this.pagination;
 				actionTablePagination.setProps({ page: this.page, rowsShown: this.rowsShown });
 			}
@@ -431,15 +432,19 @@ export class ActionTable extends HTMLElement {
 
 		const fragment = document.createDocumentFragment();
 
+		console.timeLog("getColumns", "1");
 		if (this.ths) {
 			this.ths.forEach((th) => {
 				// 2. Column name is based on data-col attribute or results of getCellContent() function
 				let name = th.dataset.col || this.getCellContent(th);
+
 				// 3. Remove whitespace and convert to lowercase
 				name = name.trim().toLowerCase();
+
 				if (name) {
 					// 4. Add column name to cols array
 					this.cols.push(name);
+
 					// 5. Set data-col attribute for easy access later
 					th.dataset.col = name;
 					// 6. if the column is sortable then wrap it in a button, and add aria
@@ -512,7 +517,7 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 	private getCellContent(cell: HTMLTableCellElement): string {
 		// 1. get cell content with innerText
-		let cellContent: string = cell?.innerText || "";
+		let cellContent: string = cell?.textContent || "";
 		// 2. trim to make sure it's not just spaces
 		cellContent = cellContent?.trim();
 
