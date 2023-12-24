@@ -21,7 +21,6 @@ export class ActionTable extends HTMLElement {
 	public tbody!: HTMLTableSectionElement;
 	public thead!: HTMLTableSectionElement;
 	private tfoot!: HTMLTableSectionElement;
-	private ths!: NodeListOf<HTMLTableCellElement>;
 	public cols: ColsArray = [];
 	public filters: FiltersObject = {};
 	public rowsArray!: Array<ActionRow>;
@@ -432,14 +431,14 @@ export class ActionTable extends HTMLElement {
 	private getColumns(table: HTMLTableElement): ColsArray {
 		console.time("getColumns");
 		// 1. Get column headers
-		this.ths = table.querySelectorAll("th");
+		const ths = table.querySelectorAll("th") as NodeListOf<HTMLTableCellElement>;
 		const theadRow = table.querySelector("thead tr");
 
 		const fragment = document.createDocumentFragment();
 
 		console.timeLog("getColumns", "1");
-		if (this.ths) {
-			this.ths.forEach((th) => {
+		if (ths) {
+			ths.forEach((th) => {
 				// 2. Column name is based on data-col attribute or results of getCellContent() function
 				let name = th.dataset.col || this.getCellContent(th);
 
