@@ -12,7 +12,6 @@ export class ActionTable extends HTMLElement {
 		/* --------------- Does not require the inner DOM to be ready --------------- */
 
 		// 1. set initial values
-		this.direction = "ascending";
 		this.page = 1;
 
 		// 2. Add Event Listeners (loading them here means I don't need disconnectedCallback)
@@ -186,20 +185,22 @@ export class ActionTable extends HTMLElement {
 		console.time("initialFilter");
 
 		// 2. Filter and sort the table now that the custom elements have loaded
-		console.timeLog("initialFilter", "2");
+		// console.timeLog("initialFilter", "2");
 		if (Object.keys(this.filters).length > 0) {
 			console.log("initialFilter: filters", this.filters);
 			this.filterTable();
 		}
 
-		console.timeLog("initialFilter", "3");
+		// console.timeLog("initialFilter", "3");
+		console.log("initialFilter: sort", this.sort);
+
 		if (this.sort) {
 			console.log("initialFilter: sort", this.sort);
 
 			this.sortTable();
 		}
 
-		console.timeLog("initialFilter", "4");
+		// console.timeLog("initialFilter", "4");
 
 		// 3. Append rows
 		// Normally sortTable and filterTable do this but with ready false it won't
@@ -208,12 +209,12 @@ export class ActionTable extends HTMLElement {
 		this.ready = true;
 
 		// 5. If no rows are shown then reset the filters
-		console.timeLog("initialFilter", "5");
+		// console.timeLog("initialFilter", "5");
 		if (this.rowsShown === 0) {
 			this.resetFilters();
 		}
 
-		console.timeLog("initialFilter", "6");
+		// console.timeLog("initialFilter", "6");
 
 		// 6. if <action-table-filters> exists then trigger setFilterElements
 		const actionTableFilters = this.querySelector("action-table-filters") as ActionTableFilters;
@@ -711,7 +712,9 @@ export class ActionTable extends HTMLElement {
 			});
 
 			// set aria sorting direction
-			this.ths.forEach((th, i) => {
+			// TODO: Maybe remove this.th
+			const ths = this.thead.querySelectorAll(`th`) as NodeListOf<HTMLTableCellElement>;
+			ths.forEach((th, i) => {
 				const ariaSort = i === columnIndex ? direction : "none";
 				th.setAttribute("aria-sort", ariaSort);
 			});
