@@ -711,7 +711,7 @@ export class ActionTable extends HTMLElement {
 			});
 
 			// set aria sorting direction
-			// TODO: Maybe remove this.th
+			// TODO: Maybe move this to this again for speed?
 			const ths = this.thead.querySelectorAll(`th`) as NodeListOf<HTMLTableCellElement>;
 			ths.forEach((th, i) => {
 				const ariaSort = i === columnIndex ? direction : "none";
