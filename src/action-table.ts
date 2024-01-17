@@ -457,6 +457,7 @@ export class ActionTable extends HTMLElement {
 						const button = document.createElement("button");
 						button.dataset.col = name;
 						button.innerHTML = th.innerHTML;
+						button.type = "button";
 						thClone.appendChild(button);
 						fragment.appendChild(thClone);
 					} else {
