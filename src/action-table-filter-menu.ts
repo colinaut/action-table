@@ -75,6 +75,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 		const type = (this.getAttribute("type") as "select" | "checkbox" | "radio") || "select";
 		const label = this.getAttribute("label") || columnName;
 		const multiple = this.hasAttribute("multiple") ? "multiple" : "";
+		const all = this.getAttribute("all") || "All";
 
 		// Build element
 		let start = "";
@@ -82,12 +83,12 @@ export class ActionTableFilterMenu extends HTMLElement {
 		const mainLabel = type === "select" ? `<label for="filter-${columnName}">${label}</label>` : `<span class="filter-label">${label}</span>`;
 		// is this is a select menu then add start and end wrapper and an All option
 		if (type === "select") {
-			start = `<select id="filter-${columnName}" name="${columnName}" ${multiple}><option value="">All</option>`;
+			start = `<select id="filter-${columnName}" name="${columnName}" ${multiple}><option value="">${all}</option>`;
 			end = `</select>`;
 		}
 		// If this is a radio button then add an all option
 		if (type === "radio") {
-			start = `<label><input name="${columnName}" type="radio" value="" checked>All</label>`;
+			start = `<label><input name="${columnName}" type="radio" value="" checked>${all}</label>`;
 		}
 		// add select options, radio buttons, or checkboxes from options
 		const html = `${mainLabel}${start}${this.options

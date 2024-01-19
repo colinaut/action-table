@@ -99,6 +99,7 @@ If you want to filter based on values different from then content then add `data
 
 * name - the name of the column to filter; or search entire table with name "action-table".
 * label - the label to display. Defaults to the column name
+* all - text used for "All" for first select menu option and first radio button that resets the filter. Defaults to "All".
 * options - (optional) to override the generated menu add a list of options as a comma delimited string. NOTE: If you set the name to "action-table" you must set options manually.
 * type - the menu type. Defaults to 'select', can also be 'checkbox' or 'radio'.
 * multiple – adds multiple attribute to select menu. This has poor accessibility so it is recommended to use checkboxes instead
