@@ -10,6 +10,7 @@ Check out the [Demo Page](https://colinaut.github.io/action-table/)
 *  `dist/index.js` the main file installs action-table.js and action-table-filters.js. You can also install the components separately:
    *  `dist/action-table.js` automatic sort headers and public accessible filtering functions
    *  `dist/action-table-filters.js` includes action-table-filters wrapper which adds event listeners for form elements;  also includes the action-table-filter-menu and action-table-filter-switch components.
+   *  `dist/action-table-pagination.js` includes action-table-pagination for displaying pagination buttons and action-table-pagination-options for a menu to allow users to adjust the number of rows displayed per page.
 *  `dist/action-table-switch.js` optional action-table-switch element. Not installed by default index.js.
 *  `dist/action-table.css` optional but recommended stylesheet. You can override the styles or ignore build your own.
 
@@ -102,6 +103,7 @@ If you want to filter based on values different from then content then add `data
 * type - the menu type. Defaults to 'select', can also be 'checkbox' or 'radio'.
 * multiple – adds multiple attribute to select menu. This has poor accessibility so it is recommended to use checkboxes instead
 * exclusive - only applies to checkboxes and multiple select menus. Add exclusive if you want the multiple selections to be exclusive rather than the default inclusive.
+* regex - this will cause the table to use regex for matching (see Regex Filtering below)
 
 ### Action Table Filter Switch
 
@@ -125,6 +127,10 @@ Just add `<input type="search name="column name" />` and action-table-filters wi
 
 Just add a `<button type="reset">Reset</button>` and action-table-filters will trigger a reset for all filters on button press.
 
+### Regex Filtering
+
+Filtering is handled using includes by default. You can have it use with regex where regex is based on RegExp(value, "i") which allows you to get fancy with your filtering. This is useful for say filtering [number ranges with regex](https://www.regex-range.com/).
+
 ### Manually making your own filters
 
 Any select menu, checkbox group, or radio button group can be created and the `<action-table-filters>` will make it active.
@@ -132,19 +138,42 @@ Any select menu, checkbox group, or radio button group can be created and the `<
 * The select or input element must be named the same as the column name it is filtering, or named "action-table" if you want it to search entire row.
 * The values are the filter values. Any select option, checkbox, or radio button where value="" will reset the filter.
 * Checkboxes can be styled with "switch" or "star" by adding the class to a wrapping element.
-* Multiple selected checkboxes are inclusive by default unless you add the attribute exclusive on a parent wrapper for the group.
+* Multiple selected checkboxes are inclusive by default unless you add the attribute 'exclusive' on a parent wrapper for the group.
+* You can add 'regex' attribute to the element or wrapping element to have it use regex.
 
-### Advanced Regex Filtering
 
-Filtering is handled with regex.test(cellContent) where regex is based on RegExp(value, "i"). Thus if you want to get fancy with your filtering you can use regex for your filter value. This is useful for say filtering [number ranges with regex](https://www.regex-range.com/).
+## Action Table No Results
+
+The `<action-table-no-results>` element is for alerting when the table has no results due to filtering. It is a purely functional element that you supply the content to. It is hidden by default and shows when the table has no results. If you include a reset type button it will trigger the reset.
+
+**Example:**
+
+```
+<action-table-no-results>
+	<strong><em>No results found</em></strong> <button type="reset">Reset Filters</button>
+</action-table-no-results>
+```
 
 ## Action Table Pagination
 
 To add pagination to any table add the number of visible rows with `pagination="10"` attribute on the action-table element. Then add the `<action-table-pagination></action-table-pagination>` element within the action-table element.
 
+**Attributes:**
+
+* label - string that will be displayed as the pagination title. This attribute is special as it automatically replaces {rows} for the current rows range and {total} for the total rows. _Defaults to "Showing {rows} of {total}:"_
+
+## Action Table Pagination Options
+
+The `<action-table-pagination-options></action-table-pagination-options>` element adds a select menu to allow users to change the number of pagination rows.
+
+**Attributes:**
+
+* options - (required) comma separated list of numbers for the options menu
+* label - select menu label text. _Defaults to "Rows per:"_
+
 ## Action Table Switch
 
-The `<action-table-switch>` element is an optional element used to add toggle checkbox switches to the table. It is not added in the default index.js import. The action-table.css file includes "star" and "switch" classes for easy styling. On it's own it's not much different then just manually adding a checkbox to the table using the same styles. One thing it does differently is trigger tableFilter on action-table when changed. I've included it as a basic element for strapping functionality onto as I assume you'll want to do something when people click it. It fires off a `action-table-switch` custom event containing details about the element. You can also of extend the ActionTableSwitch class and replace the sendEvent() function with your own.
+The `<action-table-switch>` element is an optional element used to add toggle checkbox switches to the table. It is not added in the default index.js import. You The action-table.css file includes "star" and "switch" classes for easy styling. On it's own it's not much different then just manually adding a checkbox to the table using the same styles. I've included it as a basic element for strapping functionality onto as I assume you'll want to do something when people click it. It fires off a `action-table-switch` custom event containing details about the element. You can also of extend the ActionTableSwitch class and replace the sendEvent() function with your own.
 
 ```
 <action-table-switch class="star"></action-table-switch>
@@ -156,6 +185,15 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
 * label - Sets the aria-label for the input. Defaults to "switch". It's recommended that you make it more explicit for accessibility purposes.
 * value - Sets the value
 * name - Sets the name
+
+## Custom Events
+
+The components use a number of custom events for reactively passing variables. You can tap into this if you want to add your own customized javascript.
+
+* action-table - the action-table element dispatches an 'action-table' event whenever it triggers a change in the pagination, numberOfPages, rowsVisible, or page variable. The action-table-pagination element listens for this events in order to update itself when the table is filtered or when the pagination attribute is changed. Event detail type is ActionTableEventDetail
+* action-table-filter - The action-table element listens for this events in order to filter the table. The action-table-filters element dispatches this whenever a filter menu or input is changed. Event detail type is FiltersObject.
+* action-table-filters-reset - the action-table-filters element listens for this to reset all it's filters. The action-table-no-results dispatches this when the reset button is triggered. No event detail.
+* action-table-update - the action-table element listens for this events in order to update the content in a specific table cell. This is mainly useful for custom elements inside of table cells with dynamic content. Event detail type is UpdateContentDetail
 
 ## Roadmap
 
@@ -190,5 +228,7 @@ The `<action-table-switch>` element is an optional element used to add toggle ch
   - [x] Paginate button groups for large tables with lots of pagination
   - [x] Make sure it's not refiltering or rerendering more than needed
   - [x] Clean and comment code
-  - [ ] Add ability for user to change pagination as part of the UI
-- [ ] **Filter Display Number of Rows** - component that displays the number of rows shown/hidden
+  - [x] Add ability for user to change pagination as part of the UI
+  - [x] Display number of rows and pages
+  - [x] Allow changing label text
+- [x] Make no-results a seperate element so it can be modified

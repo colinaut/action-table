@@ -6,6 +6,7 @@
 		<title>Action Table: HTML Web Component</title>
 		<script type="module" src="/src/main.ts"></script>
 		<script type="module" src="/src/action-table-switch.ts"></script>
+		<script type="module" src="/src/random-number.ts"></script>
 		<link rel="stylesheet" href="/css/styles.css" />
 		<style>
 			body {
@@ -40,12 +41,21 @@
 			h6 {
 				margin: 1em 0 0.2em;
 			}
+			* > :is(h2, h3, h4, h5, h6):first-child {
+				margin-top: 0;
+			}
 			action-table-filter-menu {
 				display: flex;
 			}
 			.my-4 {
 				margin-top: 1rem;
 				margin-bottom: 1rem;
+			}
+			.p-2 {
+				padding: 0.5rem;
+			}
+			.bg-gray {
+				background-color: lightgray;
 			}
 		</style>
 	</head>
@@ -75,7 +85,7 @@
 								<h4>Action Table Filter Elements: Checkbox/Radio</h4>
 								<action-table-filter-menu name="Color" type="checkbox" label="Color (default inclusive)"></action-table-filter-menu>
 								<action-table-filter-menu name="Actions" type="checkbox" exclusive label="Actions (exclusive)"></action-table-filter-menu>
-								<action-table-filter-menu name="Age" type="radio"></action-table-filter-menu>
+								<action-table-filter-menu name="Age" type="radio" options="N/A,[1-5],[6-9]" regex></action-table-filter-menu>
 							</div>
 							<div>
 								<h4>Action Table Filter Elements: Switch</h4>
@@ -95,6 +105,7 @@
 					</action-table-filters>
 				</div>
 				<h3>Table</h3>
+				<p><em>Note: Age is using a random-number custom element for testing.</em></p>
 				<table>
 					<thead>
 						<tr>
@@ -125,7 +136,7 @@
 							<td>small dog</td>
 							<td>Sophia</td>
 							<td>black</td>
-							<td>4</td>
+							<td>3</td>
 							<td><span>run</span><span>eat</span><span>snuggle</span></td>
 							<td>
 								<action-table-switch checked class="star" label="favorite"></action-table-switch>
@@ -150,7 +161,7 @@
 							<td>raccoon</td>
 							<td>Sewer</td>
 							<td>gray</td>
-							<td>2</td>
+							<td><random-number></random-number></td>
 							<td><span>run</span><span>eat</span><span>hide</span></td>
 							<td>
 								<action-table-switch class="star" label="favorite"></action-table-switch>
@@ -162,7 +173,7 @@
 							<td>dog</td>
 							<td>Ziggy</td>
 							<td>gray</td>
-							<td>8</td>
+							<td><random-number></random-number></td>
 							<td><span>run</span><span>snuggle</span></td>
 							<td>
 								<action-table-switch class="star" label="favorite"></action-table-switch>
@@ -174,7 +185,7 @@
 							<td>raccoon</td>
 							<td>Wrapper</td>
 							<td>brown</td>
-							<td>6</td>
+							<td><random-number></random-number></td>
 							<td><span>eat</span></td>
 							<td>
 								<action-table-switch class="star" label="favorite"></action-table-switch>
@@ -186,7 +197,7 @@
 							<td>cat</td>
 							<td>Tommy</td>
 							<td>brown</td>
-							<td>2</td>
+							<td><random-number></random-number></td>
 							<td><span>run</span><span>explore</span></td>
 							<td>
 								<action-table-switch checked class="star" label="favorite"></action-table-switch>
@@ -198,7 +209,7 @@
 							<td>cat</td>
 							<td>Steve</td>
 							<td>black</td>
-							<td>6</td>
+							<td><random-number></random-number></td>
 							<td><span>run</span><span>snuggle</span></td>
 							<td>
 								<action-table-switch class="star" checked label="favorite"></action-table-switch>
@@ -208,8 +219,13 @@
 						</tr>
 					</tbody>
 				</table>
+				<action-table-no-results>
+					<p class="flex">
+						<strong><em>No results found</em></strong> <button type="reset">Reset Filters</button>
+					</p>
+				</action-table-no-results>
 			</action-table>
-			<div class="my-4">
+			<div class="my-4 p-2 bg-gray">
 				<h4>Test for text change mutation observer</h4>
 				<label for="sewer-age">Sewer's Age</label>
 				<input type="text" id="sewer-age" value="Sewer" />
@@ -11258,8 +11274,15 @@
 							</tr>
 						</tbody>
 					</table>
-					<action-table-pagination></action-table-pagination>
+					<div class="flex">
+						<action-table-pagination></action-table-pagination><action-table-pagination-options options="5,10,25,50"></action-table-pagination-options>
+					</div>
 				</div>
+				<action-table-no-results>
+					<p class="flex">
+						<strong><em>No results found</em></strong> <button type="reset">Reset Filters</button>
+					</p>
+				</action-table-no-results>
 			</action-table>
 		</div>
 		<a href="https://github.com/colinaut/action-table" class="github-corner" aria-label="View source on GitHub"

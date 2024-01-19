@@ -6,15 +6,13 @@
 export class ActionTableSwitch extends HTMLElement {
 	constructor() {
 		super();
+		this.render();
+		this.addEventListeners();
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 Attributes                                 */
 	/* -------------------------------------------------------------------------- */
-
-	static get observedAttributes(): string[] {
-		return ["checked", "label", "name", "value"];
-	}
 
 	get checked(): boolean {
 		return this.hasAttribute("checked");
@@ -39,24 +37,17 @@ export class ActionTableSwitch extends HTMLElement {
 	}
 
 	/* -------------------------------------------------------------------------- */
-	/*                             Connected Callback                             */
-	/* -------------------------------------------------------------------------- */
-
-	public connectedCallback(): void {
-		this.render();
-		this.addEventListeners();
-	}
-
-	/* -------------------------------------------------------------------------- */
 	/*                               Event Listeners                              */
 	/* -------------------------------------------------------------------------- */
 
 	private addEventListeners() {
-		const input = this.querySelector("input") as HTMLInputElement;
-		input?.addEventListener("change", () => {
-			this.checked = input.checked;
-			this.sendEvent();
-		});
+		const input = this.querySelector("input");
+		if (input) {
+			input.addEventListener("change", () => {
+				this.checked = input.checked;
+				this.sendEvent();
+			});
+		}
 	}
 
 	/* -------------------------------------------------------------------------- */

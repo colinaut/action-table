@@ -1,117 +1,99 @@
 import type { ActionTable } from "./action-table";
-import { PaginationProps } from "./types";
+import "./action-table-pagination-options";
+
 export class ActionTablePagination extends HTMLElement {
 	constructor() {
 		super();
 		this.addEventListeners();
 	}
 
-	private buttonGroup = 1;
-	public page = 1;
-	public pagination = 0;
-	public rowsShown = 0;
-	private maxButtonGroups = 1;
+	private page = 1;
+	private numberOfPages = 1;
+	private group = 1;
+	private maxGroups = 1;
+	private actionTable = this.closest("action-table") as ActionTable;
 
 	public connectedCallback(): void {
-		const actionTable = this.closest("action-table") as ActionTable;
-		this.pagination = actionTable.pagination;
-		this.page = actionTable.page;
-		this.rowsShown = actionTable.rowsShown;
 		this.render();
 	}
 
-	get maxButtons(): number {
-		return Number(this.getAttribute("max-buttons")) || 10;
-	}
-
-	public setProps(props: PaginationProps) {
-		const { page, rowsShown } = props;
-		console.log("setProps", { page, rowsShown });
-
-		let triggerRender = false;
-		if (page !== undefined && page !== this.page) {
-			this.page = page;
-			triggerRender = true;
-		}
-		if (rowsShown !== undefined && rowsShown !== this.rowsShown) {
-			this.rowsShown = rowsShown;
-			triggerRender = true;
-		}
-
-		if (triggerRender) {
-			this.render();
-		}
-	}
-
-	// TODO: clean this up
 	public render() {
-		const { page, pagination, rowsShown } = this;
-		console.log("rendering pagination", { page, pagination, rowsShown });
+		console.log("render pagination");
 
+		const { page, numberOfPages } = this.actionTable;
+		// reassign number of pages based on this.actionTable
+		this.numberOfPages = numberOfPages;
+		this.page = page;
 		// temporarily local variables
-		const maxButtons = this.maxButtons;
-		const numberOfButtons = Math.ceil(rowsShown / pagination);
-		const maxButtonGroups = Math.ceil(numberOfButtons / maxButtons); // reassign to this at end of render
-		let buttonGroup = this.buttonGroup; // reassign to this at end of render
+		const maxButtons = Number(this.getAttribute("max-buttons")) || 10;
+		const maxGroups = Math.ceil(numberOfPages / maxButtons); // reassign to this at end of render
+		let group = this.group; // reassign to this at end of render
 
-		if (buttonGroup > maxButtonGroups) {
-			buttonGroup = maxButtonGroups;
-		} else if (buttonGroup < 1) {
-			buttonGroup = 1;
+		if (group > maxGroups) {
+			group = maxGroups;
+		} else if (group < 1) {
+			group = 1;
 		}
 
-		const startIndex = (buttonGroup - 1) * maxButtons + 1;
+		const startIndex = (group - 1) * maxButtons + 1;
 
 		/* -------------------------------------------------------------------------- */
 		/*                             Render the buttons                             */
 		/* -------------------------------------------------------------------------- */
 
 		/* ----------------------------- Button strings ----------------------------- */
-		const buttonStart = `<button type="button" class="`;
-
-		function pageButton(i: number, className: string = ""): string {
-			return `${buttonStart}${page === i ? `active ${className}` : `${className}`}" data-page="${i}">${i}</button>`;
-		}
-
-		function paginationButton(className: string, title: number): string {
-			return `${buttonStart}${className}" title="${title}">...</button>`;
+		function pageButton(i: number, className: string = "", text?: string): string {
+			return `<button type="button" class="${page === i ? `active ${className}` : `${className}`}" data-page="${i}" title="${className}">${text || i}</button>`;
 		}
 
 		/* -------------------------- Start making buttons -------------------------- */
 
 		let paginatedButtons = "";
 
-		if (buttonGroup > 1) {
-			paginatedButtons += `${pageButton(1, "first")}${paginationButton("prev", startIndex - 1)}`;
+		if (group > 1) {
+			paginatedButtons += `${pageButton(1, "first")}${pageButton(startIndex - 1, "prev", "...")}`;
 		}
 
-		if (rowsShown > 0) {
+		if (numberOfPages > 0) {
 			// for looping through the number of pages
-			for (let i = startIndex; i <= numberOfButtons; i++) {
+			for (let i = startIndex; i <= numberOfPages; i++) {
 				// code to handle each page
 				paginatedButtons += pageButton(i);
-				if (i !== numberOfButtons && i >= maxButtons * buttonGroup) {
-					paginatedButtons += `${paginationButton("next", i + 1)}${pageButton(numberOfButtons, "last")}`;
+				if (i !== numberOfPages && i >= maxButtons * group) {
+					paginatedButtons += `${pageButton(i + 1, "next", "...")}${pageButton(numberOfPages, "last")}`;
 					break;
 				}
 			}
 		}
 
-		this.innerHTML = `<span class="pagination-title">Pagination:</span> ${paginatedButtons}`;
+		const classAttr = (suffix: string) => ` class="pagination-${suffix}"`;
+
+		this.innerHTML = `<span${classAttr("label")}></span> <span${classAttr("buttons")}>${paginatedButtons}</span>`;
+		this.changeLabel(page);
 
 		// assign temporary variables back to this
-		this.buttonGroup = buttonGroup;
-		this.maxButtonGroups = maxButtonGroups;
+		this.group = group;
+		this.maxGroups = maxGroups;
+	}
+
+	private changeLabel(page: number) {
+		const { pagination, rowsVisible } = this.actionTable;
+
+		const label = this.getAttribute("label") || "Showing {rows} of {total}:";
+
+		const labelStr = label.replace("{rows}", `${page * pagination - pagination + 1}&ndash;${page * pagination}`).replace("{total}", `${rowsVisible}`);
+
+		const labelSpan = this.querySelector("span.pagination-label");
+		if (labelSpan) labelSpan.innerHTML = labelStr;
 	}
 
 	private addEventListeners(): void {
 		this.addEventListener("click", (event) => {
-			const target = event.target as HTMLInputElement;
-
-			if (target.tagName.toLowerCase() === "button") {
+			const target = event.target;
+			if (target instanceof HTMLButtonElement) {
 				// temp variable
 				// must trigger action-table page change if it changes
-				let page = this.page;
+				let page: number = 1;
 
 				if (target.dataset.page) {
 					// set the current page before setting the current page on the action table so that it doesn't rerender when setProps is returned
@@ -124,33 +106,43 @@ export class ActionTablePagination extends HTMLElement {
 						}
 					});
 				}
-				// TODO: simplify this
-				// temp variable
-				// Must rerender if the buttonGroup changes
-				let buttonGroup = this.buttonGroup;
-				if (target.classList.contains("next")) {
-					page = buttonGroup * this.maxButtons + 1;
-					buttonGroup++;
+				// temp variables
+				// Must rerender if the group changes
+				let group = this.group;
+
+				const hasClass = (className: string) => {
+					return target.classList.contains(className);
+				};
+				if (hasClass("next")) {
+					group++;
 				}
-				if (target.classList.contains("prev")) {
-					buttonGroup--;
-					page = buttonGroup * this.maxButtons;
+				if (hasClass("prev")) {
+					group--;
 				}
-				if (target.classList.contains("first")) {
-					buttonGroup = 1;
+				if (hasClass("first")) {
+					group = 1;
 				}
-				if (target.classList.contains("last")) {
-					buttonGroup = this.maxButtonGroups;
+				if (hasClass("last")) {
+					group = this.maxGroups;
 				}
-				if (this.page !== page) {
-					this.page = page;
-					const actionTable = this.closest("action-table") as ActionTable;
-					actionTable.page = this.page;
-				}
-				if (this.buttonGroup !== buttonGroup) {
-					this.buttonGroup = buttonGroup;
+
+				this.actionTable.page = this.page = page;
+				this.changeLabel(page);
+
+				if (this.group !== group) {
+					this.group = group;
 					this.render();
 				}
+				// }
+			}
+		});
+
+		this.actionTable.addEventListener("action-table", (e) => {
+			const { page, pagination, numberOfPages } = e.detail;
+			console.log("action-table pagination", e.detail);
+			if ((page && page !== this.page) || (numberOfPages !== undefined && numberOfPages !== this.numberOfPages) || pagination !== undefined) {
+				console.log("action-table pagination render", page, this.page, pagination, numberOfPages, this.numberOfPages);
+				this.render();
 			}
 		});
 	}

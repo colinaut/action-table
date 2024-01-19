@@ -4,37 +4,12 @@ export class ActionTableFilterMenu extends HTMLElement {
 		super();
 	}
 
-	static get observedAttributes(): string[] {
-		return ["name", "options", "label", "type", "exclusive", "multiple"];
-	}
+	private options: string[] = [];
 
-	get name(): string {
-		return this.getAttribute("name") || "";
-	}
-
-	get options(): string[] {
-		return this.getAttribute("options")?.split(",") || [];
-	}
-
-	set options(value: string[]) {
-		this.setAttribute("options", value.join(","));
-	}
-
-	get label(): string {
-		return this.getAttribute("label") || this.name;
-	}
-
-	get type(): "select" | "checkbox" | "radio" {
-		return (this.getAttribute("type") as "select" | "checkbox" | "radio") || "select";
-	}
-
-	get multiple(): "multiple" | "" {
-		return this.hasAttribute("multiple") ? "multiple" : "";
-	}
-
-	public findOptions(columnName: string): void {
+	private findOptions(columnName: string): void {
 		// 1. Set column name to lowercase
 		columnName = columnName.toLowerCase();
+
 		// 2. Get action table; of not found, return
 		const actionTable = this.closest("action-table") as ActionTable;
 
@@ -80,34 +55,50 @@ export class ActionTableFilterMenu extends HTMLElement {
 		this.options = options.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 	}
 
+	// Using connectedCallback because options may need to be rerendered when added to the DOM
 	public connectedCallback(): void {
-		if (this.options.length < 1) {
-			this.findOptions(this.name);
+		const columnName = this.getAttribute("name");
+		// name is required
+		if (!columnName) return;
+		// If options are not specified then find them
+		if (this.hasAttribute("options")) {
+			this.options = this.getAttribute("options")?.split(",") || [];
+		} else {
+			this.findOptions(columnName);
 		}
-		this.render();
+		this.render(columnName);
 	}
 
-	private render(): void {
+	private render(columnName: string): void {
 		if (this.options.length < 1) return;
-		const columnName = this.name.toLowerCase();
-		const mainLabel = this.type === "select" ? `<label for="filter-${columnName}">${this.label}</label>` : `<span class="filter-label">${this.label}</span>`;
+		// Get options from custom element attributes
+		const type = (this.getAttribute("type") as "select" | "checkbox" | "radio") || "select";
+		const label = this.getAttribute("label") || columnName;
+		const multiple = this.hasAttribute("multiple") ? "multiple" : "";
+
+		// Build element
 		let start = "";
 		let end = "";
-		if (this.type === "select") {
-			start = `<select id="filter-${columnName}" name="${columnName}" ${this.multiple}><option value="">All</option>`;
+		const mainLabel = type === "select" ? `<label for="filter-${columnName}">${label}</label>` : `<span class="filter-label">${label}</span>`;
+		// is this is a select menu then add start and end wrapper and an All option
+		if (type === "select") {
+			start = `<select id="filter-${columnName}" name="${columnName}" ${multiple}><option value="">All</option>`;
 			end = `</select>`;
 		}
-		if (this.type === "radio") {
+		// If this is a radio button then add an all option
+		if (type === "radio") {
 			start = `<label><input name="${columnName}" type="radio" value="" checked>All</label>`;
 		}
+		// add select options, radio buttons, or checkboxes from options
 		const html = `${mainLabel}${start}${this.options
 			.map((option) => {
-				if (this.type === "select") return `<option value="${option}">${option}</option>`;
-				if (this.type === "radio" || this.type === "checkbox") return `<label><input type="${this.type}" name="${columnName}" value="${option}" />${option}</label>`;
+				if (type === "select") return `<option value="${option}">${option}</option>`;
+				if (type === "radio" || type === "checkbox") return `<label><input type="${type}" name="${columnName}" value="${option}" />${option}</label>`;
 				return "";
 			})
 			.join("")}${end}`;
 
+		// Add to inner HTML
 		this.innerHTML = `${html}`;
 	}
 }

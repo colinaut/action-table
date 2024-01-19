@@ -258,9 +258,17 @@ action-table .switch input {
     display: flex;
     justify-content: start;
     align-items: center;
-    gap: .3em;
+    flex-wrap: wrap;
+    gap: .6em;
     max-width: 100%;
     overflow: auto;
+  }
+
+  action-table-pagination .pagination-buttons {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: .3em;
   }
   action-table-pagination button {
     cursor: pointer;
