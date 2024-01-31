@@ -18,7 +18,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 		const tbody = actionTable.tbody;
 
 		// 4. Find column index based on column name in header data-col attribute; if not found, return
-		const columnIndex = cols.indexOf(columnName);
+		const columnIndex = cols.findIndex((col) => col.name === columnName);
 		if (columnIndex === -1) {
 			return;
 		}
@@ -50,9 +50,22 @@ export class ActionTableFilterMenu extends HTMLElement {
 
 		// 8. Make array of all unique options
 		options = Array.from(new Set(options));
-		// 9. Sort options alphabetically
-		// this.options = options.sort(actionTable.alphaNumSort);
-		this.options = options.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+		const sortOrder = cols[columnIndex].order;
+		function checkSortOrder(value: string) {
+			return sortOrder?.includes(value) ? sortOrder.indexOf(value).toString() : value;
+		}
+
+		// 9. Sort options using action table alpha numeric sort
+		options.sort((a, b) => {
+			a = checkSortOrder(a);
+			b = checkSortOrder(b);
+			return actionTable.alphaNumSort(a, b);
+		});
+		// 10. reverse order if descending
+		if (this.hasAttribute("descending")) options.reverse();
+		// 11. Set options
+		this.options = options;
 	}
 
 	// Using connectedCallback because options may need to be rerendered when added to the DOM

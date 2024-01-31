@@ -65,7 +65,6 @@ export class ActionTable extends HTMLElement {
 
 	public table!: HTMLTableElement;
 	public tbody!: HTMLTableSectionElement;
-	public thead!: HTMLTableSectionElement;
 	public cols: ColsArray = [];
 	public rows: Array<ActionRow> = [];
 	public filters: FiltersObject = {};
@@ -176,7 +175,7 @@ export class ActionTable extends HTMLElement {
 		if (hasFilters || this.sort) {
 			// 6.1 remove filters that are not in the table
 			Object.keys(this.filters).forEach((key) => {
-				if (!this.cols.includes(key)) {
+				if (!this.cols.some((col) => col.name === key)) {
 					delete this.filters[key];
 				}
 			});
@@ -360,13 +359,11 @@ export class ActionTable extends HTMLElement {
 
 		ths.forEach((th) => {
 			// 2. Column name is based on data-col attribute or results of getCellContent() function
-			let name = th.dataset.col || this.getCellContent(th);
-
-			// 3. Remove whitespace and convert to lowercase
-			name = name.trim().toLowerCase();
+			const name = (th.dataset.col || this.getCellContent(th)).trim().toLowerCase();
+			const order = th.dataset.order ? th.dataset.order.split(",") : undefined;
 
 			// 4. Add column name to cols array
-			this.cols.push(name);
+			this.cols.push({ name, order });
 
 			// 5. if the column is sortable then wrap it in a button, and add aria
 			if (!th.hasAttribute("no-sort")) {
@@ -444,7 +441,7 @@ export class ActionTable extends HTMLElement {
 			cells.forEach((cell, i) => {
 				// 1. get matching column name
 				const col = this.cols[i];
-				this.setCellContent(cell, { col });
+				this.setCellContent(cell, { col: col.name });
 			});
 		});
 		// eslint-disable-next-line no-console
@@ -522,7 +519,7 @@ export class ActionTable extends HTMLElement {
 			}
 			// 3.4 if columnName is not action-table then run filter against td cell content
 			cells.forEach((cell, i) => {
-				const filter = this.filters[this.cols[i]];
+				const filter = this.filters[this.cols[i].name];
 				if (!filter) return;
 
 				if (this.shouldHide(filter, cell.actionTable.filter)) {
@@ -581,15 +578,36 @@ export class ActionTable extends HTMLElement {
 		console.time("sortTable");
 		columnName = columnName.toLowerCase();
 		// 1. Get column index from column name
-		const columnIndex = this.cols.findIndex((col) => col === columnName);
+		const columnIndex = this.cols.findIndex((col) => col.name === columnName);
+
 		// 2. If column exists and there are rows then sort
 		if (columnIndex >= 0 && this.rows.length > 0) {
 			console.log(`sort by ${columnName} ${direction}`);
 
-			// 1. Sort rows
-			this.customSort(this.rows, columnIndex);
+			// 1 Get sort order for column if it exists
+			const sortOrder = this.cols[columnIndex].order;
+			// helper function to return sort order index for row sort
+			const checkSortOrder = (value: string) => {
+				return sortOrder?.includes(value) ? sortOrder.indexOf(value).toString() : value;
+			};
 
-			// 2. Add sorted class to columns
+			// 2. Sort rows
+			this.rows.sort((r1, r2) => {
+				// 1. If descending sort, swap rows
+				if (this.direction === "descending") {
+					const temp = r1;
+					r1 = r2;
+					r2 = temp;
+				}
+
+				// 2. Get content from stored actionTable.sort; If it matches value in sort order exists then return index
+				const a: string = checkSortOrder((r1.children[columnIndex] as ActionCell).actionTable.sort);
+				const b: string = checkSortOrder((r2.children[columnIndex] as ActionCell).actionTable.sort);
+
+				return this.alphaNumSort(a, b);
+			});
+
+			// 3. Add sorted class to columns
 			const colGroupCols = this.querySelectorAll("col");
 			colGroupCols.forEach((colGroupCol, i) => {
 				if (i === columnIndex) {
@@ -610,36 +628,24 @@ export class ActionTable extends HTMLElement {
 		console.timeEnd("sortTable");
 	}
 
-	/* --------------------------- Private Sort Method -------------------------- */
+	/* --------------------------- Public Sort Method --------------------------- */
+	// Also used by action-table-filter-menu.js when building options menu
 
-	private customSort(rows: ActionRow[], columnIndex: number): ActionRow[] {
-		return rows.sort((r1, r2) => {
-			// 1. If descending sort, swap rows
-			if (this.direction === "descending") {
-				const temp = r1;
-				r1 = r2;
-				r2 = temp;
-			}
+	public alphaNumSort(a: string, b: string): number {
+		function isNumber(n: string) {
+			return !isNaN(Number(n));
+		}
 
-			// 2. Get content
-			const a: string = (r1.children[columnIndex] as ActionCell).actionTable.sort;
-			const b: string = (r2.children[columnIndex] as ActionCell).actionTable.sort;
-
-			function isNumber(n: string) {
-				return !isNaN(Number(n));
-			}
-
-			if (isNumber(a) && isNumber(b)) {
-				const aNum = Number(a);
-				const bNum = Number(b);
-				if (aNum < bNum) return -1;
-				if (aNum > bNum) return 1;
-			}
-			if (typeof a === "string" && typeof b === "string") {
-				return a.localeCompare(b);
-			}
-			return 0;
-		});
+		if (isNumber(a) && isNumber(b)) {
+			const aNum = Number(a);
+			const bNum = Number(b);
+			if (aNum < bNum) return -1;
+			if (aNum > bNum) return 1;
+		}
+		if (typeof a === "string" && typeof b === "string") {
+			return a.localeCompare(b);
+		}
+		return 0;
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -681,6 +687,7 @@ export class ActionTable extends HTMLElement {
 		});
 
 		// prepend fragment to tbody
+
 		this.tbody.prepend(fragment);
 
 		console.timeEnd("appendRows");
