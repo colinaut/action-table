@@ -74,9 +74,8 @@ Sorting is done alphanumerically based on either:
 * Alphanumerically/Numerically — cell that starts with a number is sorted numerically, otherwise sorted as text
 * SVGs using the SVG title attribute.
 * Checkboxes based on checked status.
-* You can override any of the above by adding a value to a `data-sort` attribute on the td.
-
-The data-sort attribute is useful for time-based sorting as you can add the a unix timestamp. Another use would be having a cell list list the full name but have it sort by last name.
+* You can override any of the above by adding a value to a `data-sort` attribute on the td. This is useful for time-based sorting as you can add the a unix timestamp. Another use would be having a cell list list the full name but have it sort by last name.
+* The sort order can also be set with a comma separated list in the `data-order` attribute on the th for the column. For instance, adding `data-order="Jan,Feb,Mar"` to the th will force the column to sort using that order as long as the cell values match. Non-matching cell values revert to alphanumeric order.
 
 ### Filtering
 Filtering is done via the public filterTable() method. You can trigger this with javascript or better just use the action-table-filters element to set up controls. If the filter hides all results, the table automatically show a message indicating "No Results" along with a button to reset the filters. If on load all results are filtered out then it will automatically reset the filters. This protects against odd filter conditions in localStorage or URLparams.
@@ -87,7 +86,7 @@ The `<action-table-filters>` is a wrapper element for filter menus and switches.
 
 ### Action Table Filter Menu
 
-The menu defaults to a select menu but can be changed to a checkboxes or radio buttons. On load this custom element automatically finds all unique values in the cells of the specified column and creates a menu with those options. You can also have columns where cells can contain multiple values, by including those options in span tags.
+The menu defaults to a select menu but can be changed to a checkboxes or radio buttons. On load this custom element automatically finds all unique values in the cells of the specified column and creates a menu with those options. You can also have columns where cells can contain multiple values, by including those options in span tags. If the th for the column includes `data-order` attribute it will used this when ordering the options list.
 
 If you want to filter based on values different from then content then add `dataset-filter` attribute with the filter values to the td. This is useful for when you want to simplify the menu; for instance, when a cell that displays date and time but you only want to filter by the date.
 
@@ -105,6 +104,7 @@ If you want to filter based on values different from then content then add `data
 * multiple – adds multiple attribute to select menu. This has poor accessibility so it is recommended to use checkboxes instead
 * exclusive - only applies to checkboxes and multiple select menus. Add exclusive if you want the multiple selections to be exclusive rather than the default inclusive.
 * regex - this will cause the table to use regex for matching (see Regex Filtering below)
+* descending - reverses the order of the options
 
 ### Action Table Filter Switch
 
