@@ -558,9 +558,16 @@ export class ActionTable extends HTMLElement {
 				// 2. check if content matches
 				return !regex.test(content);
 			}
+			if (filter.range) {
+				const [min, max] = filter.values;
+				return Number(content) < Number(min) || Number(content) > Number(max);
+			}
 			// console.log("show", columnName, content);
 			if (filter.exclusive) {
 				return !filter.values.every((v) => content.toLowerCase().includes(v.toLowerCase()));
+			}
+			if (filter.exact) {
+				return !filter.values.some((v) => content === v);
 			}
 			return !filter.values.some((v) => content.toLowerCase().includes(v.toLowerCase()));
 		}
