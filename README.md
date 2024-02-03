@@ -103,7 +103,8 @@ If you want to filter based on values different from then content then add `data
 * type - the menu type. Defaults to 'select', can also be 'checkbox' or 'radio'.
 * multiple – adds multiple attribute to select menu. This has poor accessibility so it is recommended to use checkboxes instead
 * exclusive - only applies to checkboxes and multiple select menus. Add exclusive if you want the multiple selections to be exclusive rather than the default inclusive.
-* regex - this will cause the table to use regex for matching (see Regex Filtering below)
+* regex - this will cause the table filter to use regex for matching (see Regex Filtering below)
+* exact - this will only use exact matches instead of includes
 * descending - reverses the order of the options
 
 ### Action Table Filter Switch
