@@ -1,5 +1,4 @@
 export type ColsArray = { name: string; order?: string[] }[];
-import { type } from "./types";
 
 export type SingleFilterObject = {
 	values: string[];
