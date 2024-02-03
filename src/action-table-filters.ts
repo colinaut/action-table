@@ -202,4 +202,3 @@ customElements.define("action-table-filters", ActionTableFilters);
 // Import filter components
 import "./action-table-filter-menu";
 import "./action-table-filter-switch";
-import "./action-table-filter-range";
