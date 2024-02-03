@@ -45,11 +45,12 @@ export class ActionTableFilters extends HTMLElement {
 			if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
 				const exclusive = el.hasAttribute("exclusive") || !!el.closest("[exclusive]");
 				const regex = el.hasAttribute("regex") || !!el.closest("[regex]");
+				const exact = el.hasAttribute("exact") || !!el.closest("[exact]");
 				const columnName = el.name.toLowerCase();
 				if (el instanceof HTMLSelectElement) {
 					this.toggleHighlight(el);
 					const selectedOptions = Array.from(el.selectedOptions).map((option) => option.value);
-					this.dispatch({ [columnName]: { values: selectedOptions, exclusive, regex } });
+					this.dispatch({ [columnName]: { values: selectedOptions, exclusive, regex, exact } });
 				}
 				if (el instanceof HTMLInputElement) {
 					if (el.type === "checkbox") {
@@ -61,10 +62,10 @@ export class ActionTableFilters extends HTMLElement {
 							})
 							.map((checkbox) => checkbox.value);
 
-						this.dispatch({ [columnName]: { values: checkboxValues, exclusive, regex } });
+						this.dispatch({ [columnName]: { values: checkboxValues, exclusive, regex, exact } });
 					}
 					if (el.type === "radio") {
-						this.dispatch({ [columnName]: { values: [el.value], exclusive, regex } });
+						this.dispatch({ [columnName]: { values: [el.value], exclusive, regex, exact } });
 					}
 				}
 			}
@@ -201,3 +202,4 @@ customElements.define("action-table-filters", ActionTableFilters);
 // Import filter components
 import "./action-table-filter-menu";
 import "./action-table-filter-switch";
+import "./action-table-filter-range";
