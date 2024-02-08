@@ -61,7 +61,6 @@ export class ActionTableFilters extends HTMLElement {
 								return e.checked;
 							})
 							.map((checkbox) => checkbox.value);
-
 						this.dispatch({ [columnName]: { values: checkboxValues, exclusive, regex, exact } });
 					}
 					if (el.type === "radio") {
@@ -96,9 +95,9 @@ export class ActionTableFilters extends HTMLElement {
 
 			const event = el.dataset.event || "input";
 			el.addEventListener(event, () => {
+				this.toggleHighlight(el);
 				const debouncedFilter = debounce(() => this.dispatch({ [el.name]: { values: [el.value] } }));
 				debouncedFilter();
-				this.dispatch({ [el.name]: { values: [el.value] } });
 			});
 		});
 
