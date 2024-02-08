@@ -40,7 +40,7 @@ export class ActionTableFilters extends HTMLElement {
 
 	private addEventListeners(): void {
 		/* ------------ Event Listeners for select/checkbox/radio ------------ */
-		this.addEventListener("change", (e) => {
+		this.addEventListener("input", (e) => {
 			const el = e.target;
 			if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
 				const exclusive = el.hasAttribute("exclusive") || !!el.closest("[exclusive]");
@@ -66,6 +66,15 @@ export class ActionTableFilters extends HTMLElement {
 					}
 					if (el.type === "radio") {
 						this.dispatch({ [columnName]: { values: [el.value], exclusive, regex, exact } });
+					}
+					if (el.type === "range") {
+						const sliders = this.querySelectorAll("input[type=range][name='" + el.name + "']") as NodeListOf<HTMLInputElement>;
+						const minMax: string[] = [];
+						sliders.forEach((slider) => {
+							if (slider.dataset.range === "min") minMax[0] = slider.value;
+							if (slider.dataset.range === "max") minMax[1] = slider.value;
+						});
+						this.dispatch({ [columnName]: { values: minMax, range: true } });
 					}
 				}
 			}
@@ -109,6 +118,14 @@ export class ActionTableFilters extends HTMLElement {
 		});
 	}
 
+	private dispatchInput(el: HTMLInputElement) {
+		el.dispatchEvent(
+			new Event("input", {
+				bubbles: true,
+			})
+		);
+	}
+
 	private dispatch(detail?: FiltersObject) {
 		// return no detail to reset filters on table
 		console.log("dispatch", detail);
@@ -126,7 +143,7 @@ export class ActionTableFilters extends HTMLElement {
 
 	public resetAllFilterElements() {
 		// Casting to types as we know what it is from selector
-		const filterElements = this.querySelectorAll("select, input[type=checkbox], input[type=radio], input[type=search]") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
+		const filterElements = this.querySelectorAll("select, input") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
 
 		filterElements.forEach((el) => {
 			if (el instanceof HTMLInputElement && (el.type === "checkbox" || el.type === "radio")) {
@@ -139,6 +156,11 @@ export class ActionTableFilters extends HTMLElement {
 			if (el instanceof HTMLSelectElement || (el instanceof HTMLInputElement && el.type === "search")) {
 				el.value = "";
 				this.toggleHighlight(el);
+			}
+			if (el instanceof HTMLInputElement && el.type === "range") {
+				el.value = el.dataset.range === "max" ? el.max : el.min;
+				// dispatch input event to trigger change for range slider
+				this.dispatchInput(el);
 			}
 		});
 	}
@@ -166,7 +188,7 @@ export class ActionTableFilters extends HTMLElement {
 	public setFilterElement(columnName: string, values: string[]) {
 		// Casting to types as we know what it is from selector
 
-		const filterElements = this.querySelectorAll("select, input[type=checkbox], input[type=radio], input[type=search]") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
+		const filterElements = this.querySelectorAll("select, input") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
 
 		console.log("setFilterElement", columnName, values);
 
@@ -192,6 +214,18 @@ export class ActionTableFilters extends HTMLElement {
 					el.value = values[0] || "";
 					this.toggleHighlight(el);
 				}
+				if (el.type === "range") {
+					if (el.dataset.range === "min") {
+						el.value = values[0] || el.min;
+						// trigger input event so range slider updates
+						this.dispatchInput(el);
+					}
+					if (el.dataset.range === "max") {
+						el.value = values[1] || el.max;
+						// trigger input event so range slider updates
+						this.dispatchInput(el);
+					}
+				}
 			}
 		});
 	}
@@ -202,3 +236,4 @@ customElements.define("action-table-filters", ActionTableFilters);
 // Import filter components
 import "./action-table-filter-menu";
 import "./action-table-filter-switch";
+import "./action-table-filter-range";

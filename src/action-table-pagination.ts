@@ -81,10 +81,10 @@ export class ActionTablePagination extends HTMLElement {
 
 		const label = this.getAttribute("label") || "Showing {rows} of {total}:";
 
-		const labelStr = label.replace("{rows}", `${page * pagination - pagination + 1}&ndash;${page * pagination}`).replace("{total}", `${rowsVisible}`);
+		const labelStr = label.replace("{rows}", `${page * pagination - pagination + 1}-${page * pagination}`).replace("{total}", `${rowsVisible}`);
 
 		const labelSpan = this.querySelector("span.pagination-label");
-		if (labelSpan) labelSpan.innerHTML = labelStr;
+		if (labelSpan) labelSpan.textContent = labelStr;
 	}
 
 	private addEventListeners(): void {

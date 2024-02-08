@@ -331,7 +331,7 @@ export class ActionTable extends HTMLElement {
 	/* ------------------------- Delayed Sort and Filter ------------------------ */
 
 	private sortAndFilter = this.delayUntilNoLongerCalled(() => {
-		console.log("🎲 sortAndFilter");
+		console.log("🎲 sortAndFilter", this.id);
 		this.filterTable();
 		this.sortTable();
 		this.appendRows();
@@ -560,7 +560,8 @@ export class ActionTable extends HTMLElement {
 			}
 			if (filter.range) {
 				const [min, max] = filter.values;
-				return Number(content) < Number(min) || Number(content) > Number(max);
+				// TODO: Maybe allow for alphabetical ranges?
+				if (!isNaN(Number(min)) && !isNaN(Number(max))) return Number(content) < Number(min) || Number(content) > Number(max);
 			}
 			// console.log("show", columnName, content);
 			if (filter.exclusive) {
