@@ -11,6 +11,7 @@ action-table {
 	--switch-checked: green;
 	--switch-unchecked: lightgray;
 	--border: 1px solid lightgray;
+	--border-radius: 0.2em;
 	--th-bg: whitesmoke;
 	--th-sorted: rgb(244, 220, 188);
 	--col-sorted: rgb(255, 253, 240);
@@ -19,7 +20,7 @@ action-table {
 	--page-btn-active: rgb(244, 220, 188);
 }
 
-action-table table {
+action-table :where(table) {
 	border-collapse: collapse;
 	margin: 1em 0;
 	max-width: 100%;
@@ -35,18 +36,18 @@ action-table table {
 	background-attachment: local, local, scroll, scroll;
 }
 
-action-table th {
+action-table :where(th) {
 	border: var(--border);
 	padding: 0;
 	text-align: left;
 	background: var(--th-bg);
 }
 
-action-table th[no-sort] {
+action-table :where(th[no-sort]) {
 	padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
-action-table th button {
+action-table :where(th button) {
 	cursor: pointer;
 	font-weight: bold;
 	border: 0;
@@ -61,12 +62,11 @@ action-table th button {
 	line-height: inherit;
 }
 
-action-table th button:hover,
-action-table th:has(button):hover {
+action-table :where(th button:hover, th:has(button):hover, th button:focus, th:has(button):focus) {
 	background-color: var(--highlight);
 }
 
-action-table th button::after {
+action-table :where(th button)::after {
 	content: "";
 	background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M9 16.172l-6.071-6.071-1.414 1.414 8.485 8.485 8.485-8.485-1.414-1.414-6.071 6.071v-16.172h-2z'%3E%3C/path%3E%3C/svg%3E%0A");
 	background-repeat: no-repeat;
@@ -84,22 +84,22 @@ action-table th button::after {
 	transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
-action-table th[aria-sort$="ing"] button,
-action-table th[aria-sort$="ing"]:has(button) {
+action-table :where(th[aria-sort$="ing"] button, th[aria-sort$="ing"]:has(button)) {
 	background-color: var(--th-sorted);
 }
 
-action-table th[aria-sort$="ing"] button::after {
+action-table :where(th[aria-sort$="ing"] button)::after {
 	opacity: 1;
 }
 
-action-table th[aria-sort="descending"] button::after {
+action-table :where(th[aria-sort="descending"] button)::after {
 	opacity: 1;
 	transform: translateY(-50%) rotate(180deg);
 }
 
-action-table td {
+action-table :where(td) {
 	border: var(--border);
+	border-radius: var(--border-radius);
 	padding: 0.2em 0.4em;
 }
 
@@ -108,7 +108,7 @@ action-table .sorted {
 }
 
 /* Use spans for multiple values in cell */
-action-table td span {
+action-table :where(td span) {
 	background-color: var(--td-options-bg);
 	padding: 0 0.4em 0.1em 0.4em;
 	margin: 0 0.2em;
@@ -120,21 +120,24 @@ action-table-filters:not(:defined) {
 	visibility: hidden;
 }
 
-action-table select,
-action-table input {
+action-table :where(select, input, button) {
 	font-size: inherit;
+}
+action-table :where(input[type="search"], select) {
+	border: var(--border);
+	border-radius: var(--border-radius);
 }
 action-table .selected {
 	background-color: var(--highlight);
+	transition: color 0.2s ease;
 }
 
-action-table .no-results td {
+action-table .no-results :where(td) {
 	padding: 1em;
 	text-align: center;
 }
-action-table button {
+action-table :where(button) {
 	cursor: pointer;
-	font-size: inherit;
 }
 
 /* -------------------------------------------------------------------------- */
