@@ -53,6 +53,9 @@
 			.bg-gray {
 				background-color: lightgray;
 			}
+			.w-full {
+				width: 100%;
+			}
 		</style>
 		<script type="module" crossorigin src="/main.js"></script>
 		<link rel="modulepreload" crossorigin href="/action-table.js">
@@ -105,7 +108,12 @@
 									<input id="action-table-search" name="action-table" type="search" placeholder="Search" size="14" />
 								</div>
 							</div>
-							<div><button type="reset">Reset</button></div>
+							<div class="w-full">
+								<h4>Action Table Filter Range</h4>
+								<action-table-filter-range name="ID"></action-table-filter-range>
+							</div>
+
+							<div><h4>Reset Filter</h4><button type="reset">Reset</h4></div>
 						</div>
 					</action-table-filters>
 				</div>
@@ -125,6 +133,7 @@
 							<th>Switch</th>
 							<th data-order="Mon, Tue, Wed, Thu, Fri, Sat, Sun">Day</th>
 							<th data-order="6 man,8 man,1A,2A,3A,4A,5A">Team</th>
+							<th>ID</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -140,6 +149,7 @@
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Mon" data-sort="210">Mon, 10am</td>
 							<td>5A</td>
+							<td>1</td>
 						</tr>
 						<tr>
 							<td>small dog</td>
@@ -153,6 +163,7 @@
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Tue" data-sort="311">Tue, 11am</td>
 							<td>8 man</td>
+							<td>2</td>
 						</tr>
 						<tr>
 							<td>rabbit</td>
@@ -167,6 +178,7 @@
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
 							<td data-filter="Sat" data-sort="713">Sat, 1pm</td>
 							<td>6 man</td>
+							<td>3</td>
 						</tr>
 						<tr>
 							<td>raccoon</td>
@@ -180,6 +192,7 @@
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Sun" data-sort="114">Sun, 2pm</td>
 							<td>8 man</td>
+							<td>4</td>
 						</tr>
 						<tr>
 							<td>dog</td>
@@ -193,6 +206,7 @@
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Mon" data-sort="215">Mon, 3pm</td>
 							<td>4A</td>
+							<td>5</td>
 						</tr>
 						<tr>
 							<td>raccoon</td>
@@ -206,6 +220,7 @@
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
 							<td data-filter="Mon" data-sort="110">Sun, 10am</td>
 							<td>2A</td>
+							<td>6</td>
 						</tr>
 						<tr>
 							<td>cat</td>
@@ -219,6 +234,7 @@
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
 							<td data-filter="Tue" data-sort="311">Tue, 11am</td>
 							<td>3A</td>
+							<td>7</td>
 						</tr>
 						<tr>
 							<td>cat</td>
@@ -232,6 +248,7 @@
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
 							<td data-filter="Wed" data-sort="412">Wed, 12pm</td>
 							<td>1A</td>
+							<td>8</td>
 						</tr>
 					</tbody>
 				</table>
@@ -269,6 +286,10 @@
 					<div>
 						<label for="action-table-search2">Search Whole Table</label>
 						<input id="action-table-search2" name="action-table" type="search" placeholder="Search" size="14" />
+					</div>
+
+					<div class="w-full">
+						<action-table-filter-range name="Number of Employees"></action-table-filter-range>
 					</div>
 					<div><button type="reset">Reset</button></div>
 				</action-table-filters>
