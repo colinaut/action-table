@@ -341,6 +341,7 @@ export class ActionTable extends HTMLElement {
 			if (this.rowsVisible === 0) {
 				console.error("no results found on initial render");
 				this.setFilters();
+				this.dispatchEvent(new Event("action-table-filters-reset"));
 			}
 			// show tbody
 			this.tbody.style.display = "";

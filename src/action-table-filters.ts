@@ -142,6 +142,7 @@ export class ActionTableFilters extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	public resetAllFilterElements() {
+		console.log("resetAllFilterElements");
 		// Casting to types as we know what it is from selector
 		const filterElements = this.querySelectorAll("select, input") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
 
@@ -171,6 +172,7 @@ export class ActionTableFilters extends HTMLElement {
 	/* ------------------ If no args are passed then it resets ------------------ */
 
 	public setFilterElements(filters: FiltersObject) {
+		console.log("action-table-filters.setFilterElements", filters);
 		// 1. if there are filters then set the filters on all the elements
 		if (Object.keys(filters).length > 0) {
 			Object.keys(filters).forEach((key) => {
@@ -190,13 +192,11 @@ export class ActionTableFilters extends HTMLElement {
 
 		const filterElements = this.querySelectorAll("select, input") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
 
-		console.log("setFilterElement", columnName, values);
-
 		filterElements.forEach((el) => {
-			if (el.name.toLowerCase() !== columnName) return;
+			if (el.name.toLowerCase() !== columnName || values.length === 0) return;
 
 			if (el instanceof HTMLSelectElement) {
-				el.value = values[0] || "";
+				el.value = values[0];
 				this.toggleHighlight(el);
 			}
 			if (el instanceof HTMLInputElement) {
@@ -206,12 +206,12 @@ export class ActionTableFilters extends HTMLElement {
 					}
 				}
 				if (el.type === "radio") {
-					if (el.value === values[0] || "") {
+					if (el.value === values[0]) {
 						el.checked = true;
 					}
 				}
 				if (el.type === "search") {
-					el.value = values[0] || "";
+					el.value = values[0];
 					this.toggleHighlight(el);
 				}
 				if (el.type === "range") {
