@@ -80,17 +80,17 @@
 						<div class="grid">
 							<div class="flex flex-col">
 								<h4>Action Table Filter Elements: Select Menu</h4>
-								<action-table-filter-menu name="Animal"></action-table-filter-menu>
-								<action-table-filter-menu name="Day"></action-table-filter-menu>
-								<div><em>Day options based on td data-filter</em></div>
-								<action-table-filter-menu name="Team"></action-table-filter-menu>
-								<div><em>Team options ordered via th data-order</em></div>
+								<div class="flex"><action-table-filter-menu name="Animal" exact></action-table-filter-menu> <em>this filter uses `exact`</em></div>
+								<div class="flex"><action-table-filter-menu name="Day"></action-table-filter-menu>
+								<em>options based on td `data-filter`</em></div>
+								<div class="flex"><action-table-filter-menu name="Team"></action-table-filter-menu>
+								<em>options ordered via th `data-order`</em></div>
 							</div>
 							<div class="flex flex-col">
 								<h4>Action Table Filter Elements: Checkbox/Radio</h4>
 								<action-table-filter-menu name="Color" type="checkbox" label="Color (default inclusive)"></action-table-filter-menu>
 								<action-table-filter-menu name="Actions" type="checkbox" exclusive label="Actions (exclusive)"></action-table-filter-menu>
-								<action-table-filter-menu name="Age" type="radio" options="N/A,[1-5],[6-9]" regex></action-table-filter-menu>
+								<div class="flex"><action-table-filter-menu name="Age" type="radio" options="N/A,[1-5],[6-9]" regex></action-table-filter-menu> <em>this filter uses `regex`</em></div>
 							</div>
 							<div>
 								<h4>Action Table Filter Elements: Switch</h4>

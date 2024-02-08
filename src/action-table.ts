@@ -569,7 +569,7 @@ export class ActionTable extends HTMLElement {
 				return !filter.values.every((v) => content.toLowerCase().includes(v.toLowerCase()));
 			}
 			if (filter.exact) {
-				return !filter.values.some((v) => content === v);
+				return filter.values.every((v) => v && v !== content);
 			}
 			return !filter.values.some((v) => content.toLowerCase().includes(v.toLowerCase()));
 		}
