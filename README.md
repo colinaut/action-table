@@ -225,6 +225,7 @@ action-table {
 	--switch-checked: green;
 	--switch-unchecked: lightgray;
 	--border: 1px solid lightgray;
+    --border-radius: 0.2em;
 	--th-bg: whitesmoke;
 	--th-sorted: rgb(244, 220, 188);
 	--col-sorted: rgb(255, 253, 240);
