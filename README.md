@@ -121,6 +121,21 @@ This custom element is used primarily for filtering columns that contain checkbo
 * label - the label to display. Defaults to the column name
 * value - (optional) defaults to the default checkbox.checked value of "on".
 
+### Action Table Filter Range
+
+Custom dual range slider element for filtering by number ranges. Can only be used for columns that contain only numbers. It will automatically find the minimum and maximum values for the column. You can manually set min and max values by setting min and max attributes. This element relies heavily on the action-table.css styles.
+
+```
+<action-table-filter-range name="Column Name"></action-table-filter-range>
+```
+
+**Attributes:**
+
+* name - the name of the column to filter.
+* label - the label to display. Defaults to the column name
+* min - (optional) manually set min value for ranges.
+* max - (optional) manually set value for ranges.
+
 ### Action Table Filter Manual Search Field
 
 Just add `<input type="search name="column name" />` and action-table-filters will listen for input changes and filter the results. This uses "input" event as default but if you prefer blur then add data-event="blur" to the input field.
@@ -142,7 +157,7 @@ Any select menu, checkbox group, or radio button group can be created and the `<
 * Checkboxes can be styled with "switch" or "star" by adding the class to a wrapping element.
 * Multiple selected checkboxes are inclusive by default unless you add the attribute 'exclusive' on a parent wrapper for the group.
 * You can add 'regex' attribute to the element or wrapping element to have it use regex.
-
+* Make your own range inputs using data-range="min" or "max". The action-table-filters will listen for changes.
 
 ## Action Table No Results
 
@@ -197,40 +212,37 @@ The components use a number of custom events for reactively passing variables. Y
 * action-table-filters-reset - the action-table-filters element listens for this to reset all it's filters. The action-table-no-results dispatches this when the reset button is triggered. No event detail.
 * action-table-update - the action-table element listens for this events in order to update the content in a specific table cell. This is mainly useful for custom elements inside of table cells with dynamic content. Event detail type is UpdateContentDetail
 
-## Roadmap
+## CSS Variables
 
-- [x] **Improve A11y** - The accessibility of this needs work. Some more proper aria attributes and ideally keyboard navigation. Review [Adrian Roselli: Sorting Table Columns](https://adrianroselli.com/2021/04/sortable-table-columns.html)
-  - [x] Fix focus outline for stars
-  - [x] Add aria-sort
-  - [x] Make table header sort actual buttons
-  - [x] Add class to td for sorted column for highlighting
-  - [x] Review all the filter menus and switches to see that they work properly
-- [x] **Responsive Design** - add ability to make the table responsive. Ideally css only, but js if I must.
-  - [x] Add shadow on side that is off screen see [Adrian Roselli: Under Engineered Responsive Tables](https://adrianroselli.com/2020/11/under-engineered-responsive-tables.html)
-- [x] **LocalStorage save state** — add saving to local storage for sorting and filtering settings.
-- [x] **Url Params** – grab URL parameters for default sorting and filtering
-- [x] **No Rows Auto Reset** – some sort of automatic dialog to reset the filters if there are no rows
-- [x] **data-filter** — add date-filter attribute to to allow filtering values different from sort values. useful for filtering dates when the cell lists the date and time.
-- [x] Redesign action-filter-menu filter element for checkboxes or radio buttons
-- [x] Add attribute for inclusive/exclusive selection for checkboxes
-- [x] Get select multiple working
-- [x] Add input text search with debounce
-- [x] Add whole table search
-- [x] Refactor to use name instead of col attribute
-- [x] Make action-table-switch optional
-- [x] **Multiple Action Tables** -
-  - [x] Test multiple action-table on same page.
-  - [x] Likely messes with local storage. Might want to add an id to the table so it stores the data separately
-- [x] **Performance** - test sort and filter performance for 100s of table rows with multiple columns
-  - [x] add sort and filter values directly as properties to the td element for quick access
-  - [x] add mutation observer to update sort and filter properties
-- [ ] **Date Handling** - automatic handing for sorting dates and times and filtering date ranges
-- [x] **Pagination** - table pagination for large tables
-  - [x] Get pagination buttons element working
-  - [x] Paginate button groups for large tables with lots of pagination
-  - [x] Make sure it's not refiltering or rerendering more than needed
-  - [x] Clean and comment code
-  - [x] Add ability for user to change pagination as part of the UI
-  - [x] Display number of rows and pages
-  - [x] Allow changing label text
-- [x] Make no-results a seperate element so it can be modified
+The action-table.css includes some css variables for easy overrides.
+
+```
+action-table {
+    --highlight: paleturquoise;
+	--focus: dodgerblue;
+	--star-checked: orange;
+	--star-unchecked: gray;
+	--switch-checked: green;
+	--switch-unchecked: lightgray;
+	--border: 1px solid lightgray;
+	--th-bg: whitesmoke;
+	--th-sorted: rgb(244, 220, 188);
+	--col-sorted: rgb(255, 253, 240);
+	--td-options-bg: whitesmoke;
+	--page-btn: whitesmoke;
+	--page-btn-active: rgb(244, 220, 188);
+}
+
+action-table-filter-range {
+	--thumb-size: 1.3em;
+	--thumb-bg: #fff;
+	--thumb-border: solid 2px #9e9e9e;
+	--thumb-shadow: 0 1px 4px 0.5px rgba(0, 0, 0, 0.25);
+	--thumb-highlight: var(--highlight);
+	--track-bg: lightgray;
+	--track-shadow: inset 0 0 2px #00000099;
+	--track-highlight: var(--highlight);
+	--ticks-color: #b2b2b2;
+	--ticks-width: 1;
+}
+```
