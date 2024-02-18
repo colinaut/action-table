@@ -119,7 +119,7 @@
 				</div>
 				<h3>Table</h3>
 				<div><em>Age is using a random-number custom element for some cells for testing purposes.</em></div>
-				<div><em>Day is sorted via custom td data-sort</em></div>
+				<div><em>Day is sorted via machine readable date in custom td data-sort</em></div>
 				<div><em>Team is sorted via custom th data-order</em></div>
 				<table>
 					<thead>
@@ -131,7 +131,7 @@
 							<th>Actions</th>
 							<th>Favs</th>
 							<th>Switch</th>
-							<th data-order="Mon, Tue, Wed, Thu, Fri, Sat, Sun">Day</th>
+							<th>Day</th>
 							<th data-order="6 man,8 man,1A,2A,3A,4A,5A">Team</th>
 							<th>ID</th>
 						</tr>
@@ -147,7 +147,7 @@
 								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
-							<td data-filter="Mon" data-sort="210">Mon, 10am</td>
+							<td data-filter="Mon" data-sort="1970-01-02T10:00">Mon, 10am</td>
 							<td>5A</td>
 							<td>1</td>
 						</tr>
@@ -161,7 +161,7 @@
 								<action-table-switch checked class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
-							<td data-filter="Tue" data-sort="311">Tue, 11am</td>
+							<td data-filter="Tue" data-sort="1970-01-03T11:00">Tue, 11am</td>
 							<td>8 man</td>
 							<td>2</td>
 						</tr>
@@ -176,7 +176,7 @@
 								<action-table-switch checked class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
-							<td data-filter="Sat" data-sort="713">Sat, 1pm</td>
+							<td data-filter="Sat" data-sort="1970-01-07T13:00">Sat, 1pm</td>
 							<td>6 man</td>
 							<td>3</td>
 						</tr>
@@ -190,7 +190,7 @@
 								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
-							<td data-filter="Sun" data-sort="114">Sun, 2pm</td>
+							<td data-filter="Sun" data-sort="1970-01-01T14:00">Sun, 2pm</td>
 							<td>8 man</td>
 							<td>4</td>
 						</tr>
@@ -204,7 +204,7 @@
 								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
-							<td data-filter="Mon" data-sort="215">Mon, 3pm</td>
+							<td data-filter="Mon" data-sort="1970-01-02T14:00">Mon, 3pm</td>
 							<td>4A</td>
 							<td>5</td>
 						</tr>
@@ -218,7 +218,7 @@
 								<action-table-switch class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
-							<td data-filter="Mon" data-sort="110">Sun, 10am</td>
+							<td data-filter="Sun" data-sort="1970-01-01T10:00">Sun, 10am</td>
 							<td>2A</td>
 							<td>6</td>
 						</tr>
@@ -232,7 +232,7 @@
 								<action-table-switch checked class="star" label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" aria-label="switch" /></td>
-							<td data-filter="Tue" data-sort="311">Tue, 11am</td>
+							<td data-filter="Tue" data-sort="1970-01-03T11:00">Tue, 11am</td>
 							<td>3A</td>
 							<td>7</td>
 						</tr>
@@ -246,7 +246,7 @@
 								<action-table-switch class="star" checked label="favorite"></action-table-switch>
 							</td>
 							<td class="switch"><input type="checkbox" checked aria-label="switch" /></td>
-							<td data-filter="Wed" data-sort="412">Wed, 12pm</td>
+							<td data-filter="Wed" data-sort="1970-01-03T12:00">Wed, 12pm</td>
 							<td>1A</td>
 							<td>8</td>
 						</tr>

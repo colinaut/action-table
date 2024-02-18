@@ -641,20 +641,21 @@ export class ActionTable extends HTMLElement {
 	// Also used by action-table-filter-menu.js when building options menu
 
 	public alphaNumSort(a: string, b: string): number {
-		function isNumber(n: string) {
-			return !isNaN(Number(n));
+		function isNumberOrDate(value: string): number | void {
+			if (!isNaN(Number(value))) {
+				return Number(value);
+			} else if (!isNaN(Date.parse(value))) {
+				return Date.parse(value);
+			}
 		}
 
-		if (isNumber(a) && isNumber(b)) {
-			const aNum = Number(a);
-			const bNum = Number(b);
-			if (aNum < bNum) return -1;
-			if (aNum > bNum) return 1;
+		const aSort = isNumberOrDate(a);
+		const bSort = isNumberOrDate(b);
+
+		if (aSort && bSort) {
+			return aSort - bSort;
 		}
-		if (typeof a === "string" && typeof b === "string") {
-			return a.localeCompare(b);
-		}
-		return 0;
+		return a.localeCompare(b);
 	}
 
 	/* -------------------------------------------------------------------------- */
