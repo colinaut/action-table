@@ -69,13 +69,17 @@ When initialized, for accessibility action-table wraps the innerHTML in a button
 * urlparams: add the urlparams attribute to have the action-table grab sort and filters from url params on load. URL params will override sort and direction attributes, and localStorage.
 
 ### Sorting
-Sorting is done alphanumerically based on either:
+Sorting is done based the cell value: numbers are sorted numerically, machine readable dates are sorted by date, and otherwise sorted as text. 
 
-* Alphanumerically/Numerically — cell that starts with a number is sorted numerically, otherwise sorted as text
-* SVGs using the SVG title attribute.
-* Checkboxes based on checked status.
-* You can override any of the above by adding a value to a `data-sort` attribute on the td. This is useful for time-based sorting as you can add the a unix timestamp. Another use would be having a cell list list the full name but have it sort by last name.
-* The sort order can also be set with a comma separated list in the `data-order` attribute on the th for the column. For instance, adding `data-order="Jan,Feb,Mar"` to the th will force the column to sort using that order as long as the cell values match. Non-matching cell values revert to alphanumeric order.
+The sort order can also be set with a comma separated list in the `data-order` attribute on the th for the column. For instance, adding `data-order="Jan,Feb,Mar"` to the th will force the column to sort using that order as long as the cell values match. Non-matching cell values revert to base sort function.
+
+The cell value is determined by:
+
+* if there is a `data-sort` attribute on the td it uses it
+* Otherwise it uses td cell textContent
+* If there is no `data-sort` or textContent it will read:
+  * SVGs using the SVG title attribute.
+  * Checkboxes based on checked status.
 
 ### Filtering
 Filtering is done via the public filterTable() method. You can trigger this with javascript or better just use the action-table-filters element to set up controls. If the filter hides all results, the table automatically show a message indicating "No Results" along with a button to reset the filters. If on load all results are filtered out then it will automatically reset the filters. This protects against odd filter conditions in localStorage or URLparams.
