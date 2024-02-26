@@ -18,6 +18,8 @@ action-table {
 	--td-options-bg: whitesmoke;
 	--page-btn: whitesmoke;
 	--page-btn-active: rgb(244, 220, 188);
+	--responsive-scroll-gradient: linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0)), linear-gradient(to right, rgba(255, 255, 255, 0), #fff 70%) 0 100%,
+		radial-gradient(farthest-side at 0% 50%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)), radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)) 0 100%;
 }
 
 action-table :where(table) {
@@ -27,10 +29,8 @@ action-table :where(table) {
 	overflow: auto;
 	display: block;
 	/* Responsive scroll shadow gradient. Code from https://adrianroselli.com/2020/11/under-engineered-responsive-tables.html */
-	background: linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0)), linear-gradient(to right, rgba(255, 255, 255, 0), #fff 70%) 0 100%,
-		radial-gradient(farthest-side at 0% 50%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)), radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)) 0 100%;
+	background: var(--responsive-scroll-gradient);
 	background-repeat: no-repeat;
-	background-color: #fff;
 	background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
 	background-position: 0 0, 100%, 0 0, 100%;
 	background-attachment: local, local, scroll, scroll;
@@ -99,7 +99,6 @@ action-table :where(th[aria-sort="descending"] button)::after {
 
 action-table :where(td) {
 	border: var(--border);
-	border-radius: var(--border-radius);
 	padding: 0.2em 0.4em;
 }
 

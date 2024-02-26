@@ -86,6 +86,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 		if (this.options.length < 1) return;
 		// Get options from custom element attributes
 		const type = (this.getAttribute("type") as "select" | "checkbox" | "radio") || "select";
+		if (type !== "checkbox" && this.options.length < 2) return;
 		const label = this.getAttribute("label") || columnName;
 		const multiple = this.hasAttribute("multiple") ? "multiple" : "";
 		const all = this.getAttribute("all") || "All";
