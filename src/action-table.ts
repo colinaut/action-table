@@ -270,10 +270,21 @@ export class ActionTable extends HTMLElement {
 
 		// Listens for action-table-filter event from action-table-filters
 		this.addEventListener("action-table-filter", (event) => {
-			// If details is undefined then reset filters
-			const filters = event.detail ? { ...this.filters, ...event.detail } : {};
-			// set filters object, filter table, and append rows
-			this.setFilters(filters);
+			if (event.detail) {
+				// 1. If detail is defined then add it to the filters object
+				const filters = { ...this.filters, ...event.detail };
+				// 2. Remove empty filters
+				Object.keys(filters).forEach((key) => {
+					if (filters[key].values.every((value) => value === "")) {
+						delete filters[key];
+					}
+				});
+				// 3. Set filters with new filters object
+				this.setFilters(filters);
+			} else {
+				// 3. if no detail than reset filters by calling setFilters with empty object
+				this.setFilters();
+			}
 		});
 
 		// Listens for action-table-update event used by custom elements that want to announce content changes
@@ -488,12 +499,11 @@ export class ActionTable extends HTMLElement {
 	/* ------------- Used by filters in action-table-filter element ------------- */
 	/* ------------- Also triggered by local storage and URL params ------------- */
 
-	// TODO: remove args
 	private filterTable(): void {
 		console.log("filterTable", this.filters);
 
 		// eslint-disable-next-line no-console
-		console.time("filterTable");
+		// console.time("filterTable");
 
 		// 1. Save current state of numberOfPages
 		const currentNumberOfPages = this.numberOfPages;
@@ -541,7 +551,7 @@ export class ActionTable extends HTMLElement {
 		if (this.rowsVisible !== currentRowsVisible) {
 			this.dispatch({ rowsVisible: this.rowsVisible });
 		}
-		console.timeEnd("filterTable");
+		// console.timeEnd("filterTable");
 	}
 
 	private shouldHide(filter: SingleFilterObject, content: string): boolean {
@@ -664,7 +674,7 @@ export class ActionTable extends HTMLElement {
 	/* --------- Sets row visibility based on sort,filter and pagination -------- */
 
 	private appendRows(): void {
-		console.time("appendRows");
+		// console.time("appendRows");
 
 		// Helper function for hiding rows based on pagination
 		const isActivePage = (i: number): boolean => {
@@ -700,7 +710,7 @@ export class ActionTable extends HTMLElement {
 
 		this.tbody.prepend(fragment);
 
-		console.timeEnd("appendRows");
+		// console.timeEnd("appendRows");
 
 		if (this.pagination > 0) {
 			// If page is greater than number of pages, set page to number of pages

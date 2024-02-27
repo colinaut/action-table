@@ -8,6 +8,7 @@ export class ActionTableFilters extends HTMLElement {
 	}
 
 	private actionTable = this.closest("action-table") as ActionTable;
+	private resetButton = this.querySelector("button[type=reset]") as HTMLButtonElement;
 
 	/* -------------------------------------------------------------------------- */
 	/*                             Connected Callback                             */
@@ -68,11 +69,21 @@ export class ActionTableFilters extends HTMLElement {
 					}
 					if (el.type === "range") {
 						const sliders = this.querySelectorAll("input[type=range][name='" + el.name + "']") as NodeListOf<HTMLInputElement>;
-						const minMax: string[] = [];
+						let minMax: string[] = [];
+						const defaultMinMax: string[] = [];
 						sliders.forEach((slider) => {
-							if (slider.dataset.range === "min") minMax[0] = slider.value;
-							if (slider.dataset.range === "max") minMax[1] = slider.value;
+							if (slider.dataset.range === "min") {
+								defaultMinMax[0] = slider.min;
+								minMax[0] = slider.value;
+							}
+							if (slider.dataset.range === "max") {
+								defaultMinMax[1] = slider.max;
+								minMax[1] = slider.value;
+							}
 						});
+						if (minMax.every((item, i) => item === defaultMinMax[i])) {
+							minMax = [];
+						}
 						this.dispatch({ [columnName]: { values: minMax, range: true } });
 					}
 				}
@@ -104,8 +115,7 @@ export class ActionTableFilters extends HTMLElement {
 		/* ------------------------------- Text Input ------------------------------- */
 
 		/* ------------------------------ Reset Button ------------------------------ */
-		const resetButton = this.querySelector("button[type=reset]");
-		resetButton?.addEventListener("click", () => {
+		this.resetButton?.addEventListener("click", () => {
 			this.resetAllFilterElements();
 			this.dispatch();
 		});
@@ -128,6 +138,22 @@ export class ActionTableFilters extends HTMLElement {
 	private dispatch(detail?: FiltersObject) {
 		// return no detail to reset filters on table
 		console.log("dispatch", detail);
+
+		// 1. If reset button exists then check if it should be enabled
+		if (this.resetButton) {
+			if (detail) {
+				// 2. Create temp filters object to check how it will change when details is added
+				let filters = this.actionTable.filters || {};
+				filters = { ...filters, ...detail };
+
+				// 3. If has filter then enable reset button; else disable
+				this.enableReset(this.hasFilters(filters));
+			} else {
+				// if no detail than this is a reset so disable reset button
+				this.enableReset(false);
+			}
+		}
+
 		this.dispatchEvent(
 			new CustomEvent<FiltersObject>("action-table-filter", {
 				detail,
@@ -136,12 +162,27 @@ export class ActionTableFilters extends HTMLElement {
 		);
 	}
 
+	private enableReset(enable = true) {
+		if (this.resetButton) {
+			if (enable) {
+				this.resetButton.removeAttribute("disabled");
+			} else {
+				this.resetButton.setAttribute("disabled", "");
+			}
+		}
+	}
+
+	private hasFilters(filters: FiltersObject) {
+		return Object.keys(filters).some((key) => filters[key].values.some((value) => value !== ""));
+	}
+
 	/* -------------------------------------------------------------------------- */
 	/*                  Public Method: reset all filter elements                  */
 	/* -------------------------------------------------------------------------- */
 
 	public resetAllFilterElements() {
 		console.log("resetAllFilterElements");
+
 		// Casting to types as we know what it is from selector
 		const filterElements = this.querySelectorAll("select, input") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
 
@@ -173,11 +214,12 @@ export class ActionTableFilters extends HTMLElement {
 	public setFilterElements(filters: FiltersObject) {
 		console.log("action-table-filters.setFilterElements", filters);
 		// 1. if there are filters then set the filters on all the elements
-		if (Object.keys(filters).length > 0) {
-			Object.keys(filters).forEach((key) => {
-				if (!filters[key].values) return;
-				this.setFilterElement(key, filters[key].values);
-			});
+
+		if (this.hasFilters(filters)) {
+			// enable reset button
+			this.enableReset();
+			// set filter elements
+			Object.keys(filters).forEach((key) => this.setFilterElement(key, filters[key].values));
 		} else {
 			// else reset all filters
 			this.resetAllFilterElements();

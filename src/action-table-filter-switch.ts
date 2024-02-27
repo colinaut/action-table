@@ -1,26 +1,12 @@
 export class ActionTableFilterSwitch extends HTMLElement {
-	constructor() {
-		super();
-		this.render();
-	}
-
-	public connectedCallback(): void {
-		this.render();
-	}
-
-	private render(): void {
+	connectedCallback(): void {
 		const name = this.getAttribute("name");
-		if (!name) {
-			return;
+		if (name) {
+			this.innerHTML = `<label>
+            <input type="checkbox" name="${name.toLowerCase()}" value="${this.getAttribute("value") || "on"}" />
+            <span>${this.getAttribute("label") || name}</span>
+          </label>`;
 		}
-		const label = this.getAttribute("label") || name;
-		const value = this.getAttribute("value") || "on";
-		const html = `<label>
-        <input type="checkbox" name="${name.toLowerCase()}" value="${value}" />
-        <span>${label}</span>
-      </label>`;
-
-		this.innerHTML = `${html}`;
 	}
 }
 

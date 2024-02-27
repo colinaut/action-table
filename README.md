@@ -90,7 +90,7 @@ The `<action-table-filters>` is a wrapper element for filter menus and switches.
 
 ### Action Table Filter Menu
 
-The menu defaults to a select menu but can be changed to a checkboxes or radio buttons. On load this custom element automatically finds all unique values in the cells of the specified column and creates a menu with those options. You can also have columns where cells can contain multiple values, by including those options in span tags. If the th for the column includes `data-order` attribute it will used this when ordering the options list.
+The menu defaults to a select menu but can be changed to a checkboxes or radio buttons. On load this custom element automatically finds all unique values in the cells of the specified column and creates a menu with those options. You can also have columns where cells can contain multiple values, by including those options in span tags. If the th for the column includes `data-order` attribute it will used this when ordering the options list. Note, select menus and radio buttons have a minimum of 2 options and checkboxes a minimum of 1 option (below the minimum and it won't render).
 
 If you want to filter based on values different from then content then add `dataset-filter` attribute with the filter values to the td. This is useful for when you want to simplify the menu; for instance, when a cell that displays date and time but you only want to filter by the date.
 
@@ -146,7 +146,7 @@ Just add `<input type="search name="column name" />` and action-table-filters wi
 
 ### Action Table Filter Reset
 
-Just add a `<button type="reset">Reset</button>` and action-table-filters will trigger a reset for all filters on button press.
+Just add a `<button type="reset" disabled>Reset</button>` and action-table-filters will trigger a reset for all filters on button press. The reset button will automatically be enabled/disabled based on whether the table is filtered.
 
 ### Regex Filtering
 
