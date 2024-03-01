@@ -61,6 +61,10 @@ The column names are important if you are using the filter function. If the head
 
 When initialized, for accessibility action-table wraps the innerHTML in a button. When sorting it adds aria-sort the th with the sort direction. It also adds "sorted" class to the td when a column is sorted.
 
+**Content Editable cells**
+
+You can add `contenteditable` to any td and action-table will recognize this, any changes made by the users will update the table on blur (when the user tabs or clicks away).
+
 **Attributes:**
 
 * sort: name of the default column to sort by
