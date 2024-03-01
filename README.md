@@ -2,7 +2,7 @@
 
 Native HTML web component for adding sort functionality and filtering to html tables. This component does not use the Shadow DOM. Instead it includes a custom css stylesheet you can use, which you can override or customize.
 
-Check out the [Demo Page](https://colinaut.github.io/action-table/index.html)
+Check out the [Demo Page](https://colinaut.github.io/action-table/)
 
 ## Installation
 
