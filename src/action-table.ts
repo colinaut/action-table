@@ -101,7 +101,7 @@ export class ActionTable extends HTMLElement {
 
 	// This is used for localStorage naming purposes
 	get id(): string {
-		return this.getAttribute("id") || "";
+		return `-${this.getAttribute("id")}` || "";
 	}
 
 	get pagination(): number {
@@ -334,7 +334,7 @@ export class ActionTable extends HTMLElement {
 				isCalling = true;
 			}
 
-			// Set a new timeout to execute the delayed callback after 100ms
+			// Set a new timeout to execute the delayed callback after 10ms
 			timeoutId = setTimeout(delayedCallback, 10);
 		};
 	}
@@ -480,17 +480,34 @@ export class ActionTable extends HTMLElement {
 			// Make sure it only gets content once if there are several changes at the same time
 			// 1.1 sort through all mutations
 			mutations.forEach((mutation) => {
-				const target = mutation.target;
-				if (target instanceof Element) {
-					if (target instanceof HTMLTableSectionElement || target instanceof HTMLTableRowElement) return;
-					// console.log("MutationObserver", target, mutation.type);
-					this.updateContent(target);
-					this.sortAndFilter();
+				let target = mutation.target;
+				// TODO: simplify this and make it less breakable. Need to somehow detect if there is a TD parent before doing anything
+				// If target is a text node, get its parentNode
+				if (target.nodeType === 3 && target.parentNode) target = target.parentNode;
+				// ignore if this is not an HTMLElement
+				if (!(target instanceof HTMLElement)) return;
+				// Get parent td
+				const td = target.closest("td");
+				// Only act on HTMLTableCellElements
+				if (td instanceof HTMLTableCellElement) {
+					// If this is a contenteditable element that is focused then only update on blur
+					if (td.hasAttribute("contenteditable") && td === document.activeElement) {
+						// function for event listener.
+						const updateContentEditable = () => this.updateContent(td);
+
+						// remove event listener and add new one so it's not duplicated
+						td.removeEventListener("blur", updateContentEditable);
+						td.addEventListener("blur", updateContentEditable);
+					} else {
+						// else update
+						this.updateContent(td);
+					}
 				}
+
 				// Ignore tbody changes which happens whenever a new row is added with sort
 			});
 		});
-		observer.observe(this.tbody, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-sort", "data-filter"] });
+		observer.observe(this.tbody, { childList: true, subtree: true, attributes: true, characterData: true, attributeFilter: ["data-sort", "data-filter"] });
 	}
 
 	/* -------------------------------------------------------------------------- */
