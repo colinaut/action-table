@@ -265,11 +265,20 @@
 					</p>
 				</action-table-no-results>
 			</action-table>
-			<div class="my-4 p-2 bg-gray">
-				<h4>Test for text change mutation observer</h4>
-				<label for="sewer-age">Sewer's Age</label>
-				<input type="text" id="sewer-age" value="Sewer" />
-				<button type="button" id="change-sewer-age">Change Sewer's Name</button>
+			<div class="my-4 p-2 bg-gray grid">
+				<div>
+				    <h4>Test for text change mutation observer</h4>
+    				<label for="sewer-age">Sewer's Age</label>
+    				<input type="text" id="sewer-age" value="Sewer" />
+    				<button type="button" id="change-sewer-age">Change Sewer's Name</button>
+				</div>
+                <div>
+                    <h4>Test for mutation observer</h4>
+                    <button type="button" id="add-column">Add Column</button>
+                    <button type="button" id="remove-column">Remove Column</button>
+                    <button type="button" id="add-row">Add Row</button>
+                    <button type="button" id="remove-row">Remove Row</button>
+                </div>
 				<script>
 					document.addEventListener("DOMContentLoaded", () => {
 						const button = document.getElementById("change-sewer-age");
@@ -280,6 +289,35 @@
 						button.addEventListener("click", () => {
 							sewerAgeCell.textContent = input.value;
 						});
+
+                        const addColumnButton = document.getElementById("add-column");
+                        addColumnButton.addEventListener("click", () => {
+                            const newColumnHeader = document.createElement("th");
+                            newColumnHeader.textContent = "Rank";
+                            animalTable.querySelector("thead tr").appendChild(newColumnHeader);
+                            const animalTableRows = animalTable.querySelectorAll("tbody tr");
+                            animalTableRows.forEach((row, i) => {
+                                const newCell = document.createElement("td");
+                                newCell.textContent = i;
+                                row.appendChild(newCell);
+                            })
+                        })
+                        const removeColumnButton = document.getElementById("remove-column");
+                        removeColumnButton.addEventListener("click", () => {
+                            console.log("remove column");
+                        })
+                        const addRowButton = document.getElementById("add-row");
+                        addRowButton.addEventListener("click", () => {
+                            console.log("add row");
+                        })
+                        const removeRowButton = document.getElementById("remove-row");
+                        removeRowButton.addEventListener("click", () => {
+                            console.log("remove row");
+                            const animalTableRows = animalTable.querySelectorAll("tbody tr");
+                            const lastRow = animalTableRows[animalTableRows.length - 1];
+                            console.log("🚀 ~ removeRowButton.addEventListener ~ lastRow:", lastRow)
+                            lastRow.remove();
+                        })
 					});
 				</script>
 			</div>

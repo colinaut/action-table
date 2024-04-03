@@ -369,25 +369,10 @@ export class ActionTable extends HTMLElement {
 		// casting type as we know what it is from selector
 		const ths = this.table.querySelectorAll("thead th") as NodeListOf<HTMLTableCellElement>;
 
-		ths.forEach((th) => {
-			// 2. Column name is based on data-col attribute or results of getCellContent() function
-			const name = (th.dataset.col || this.getCellContent(th)).trim().toLowerCase();
-			const order = th.dataset.order ? th.dataset.order.split(",") : undefined;
+		// 2. Add column names to cols array and add button wrapper if sortable
+		ths.forEach((th) => this.thActivate(th));
 
-			// 4. Add column name to cols array
-			this.cols.push({ name, order });
-
-			// 5. if the column is sortable then wrap it in a button, and add aria
-			if (!th.hasAttribute("no-sort")) {
-				const button = document.createElement("button");
-				button.dataset.col = name;
-				button.type = "button";
-				button.innerHTML = th.innerHTML;
-				th.replaceChildren(button);
-			}
-		});
-
-		// 7. add colGroup unless it already exists
+		// 3. add colGroup unless it already exists
 		if (!this.table.querySelector("colgroup")) {
 			// 7.1 create colgroup
 			const colGroup = document.createElement("colgroup");
@@ -402,6 +387,26 @@ export class ActionTable extends HTMLElement {
 		// console.log("action-table cols", this.cols);
 		// 8. Return cols array
 		console.timeEnd("getColumns");
+	}
+
+	// TODO: add ability to also add columns to colgroup
+	// TODO: add ability to remove columns
+	private thActivate(th: HTMLTableCellElement) {
+		// 1. Column name is based on data-col attribute or results of getCellContent() function
+		const name = (th.dataset.col || this.getCellContent(th)).trim().toLowerCase();
+		const order = th.dataset.order ? th.dataset.order.split(",") : undefined;
+
+		// 2. Add column name to cols array
+		this.cols.push({ name, order });
+
+		// 3. if the column is sortable then wrap it in a button, and add aria
+		if (!th.hasAttribute("no-sort")) {
+			const button = document.createElement("button");
+			button.dataset.col = name;
+			button.type = "button";
+			button.innerHTML = th.innerHTML;
+			th.replaceChildren(button);
+		}
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -476,39 +481,109 @@ export class ActionTable extends HTMLElement {
 	private addObserver() {
 		// Good reference for MutationObserver: https://davidwalsh.name/mutationobserver-api
 		// 1. Create an observer instance
+
+		const updateCell = (td: ActionCell) => {
+			// If this is a contenteditable element that is focused then only update on blur
+			if (td.hasAttribute("contenteditable") && td === document.activeElement) {
+				// function for event listener.
+				const updateContentEditable = () => this.updateContent(td);
+
+				// remove event listener and add new one so it's not duplicated
+				td.removeEventListener("blur", updateContentEditable);
+				td.addEventListener("blur", updateContentEditable);
+			} else {
+				// else update
+				this.updateContent(td);
+			}
+		};
 		const observer = new MutationObserver((mutations) => {
 			// Make sure it only gets content once if there are several changes at the same time
 			// 1.1 sort through all mutations
 			mutations.forEach((mutation) => {
 				let target = mutation.target;
-				// TODO: simplify this and make it less breakable. Need to somehow detect if there is a TD parent before doing anything
 				// If target is a text node, get its parentNode
 				if (target.nodeType === 3 && target.parentNode) target = target.parentNode;
 				// ignore if this is not an HTMLElement
 				if (!(target instanceof HTMLElement)) return;
+				// console.log("mutation", mutation, target);
+
 				// Get parent td
 				const td = target.closest("td");
 				// Only act on HTMLTableCellElements
 				if (td instanceof HTMLTableCellElement) {
-					// If this is a contenteditable element that is focused then only update on blur
-					if (td.hasAttribute("contenteditable") && td === document.activeElement) {
-						// function for event listener.
-						const updateContentEditable = () => this.updateContent(td);
+					updateCell(td as ActionCell);
+				}
+				if (target instanceof HTMLTableSectionElement) {
+					// console.log("tbody or thead mutation", target, mutation);
+					/*
+					 * NOTES on add/remove of rows
+					 * If a row is added then it triggers a mutation on the tbody with the nodes listed in mutation.addedNodes: NodeList [tr]
+					 * If a row is removed then it triggers a mutation on the tbody with the nodes listed in mutation.removedNodes: NodeList [tr]
+					 * When sort is fired it also triggers a mutation on the tbody with the nodes listed in mutation.addedNodes: NodeList [tr]
+					 * One way to differentiate sort is by checking the length of addedNodes; if (addedNodes.length === this.rows.length) then this is a sort
+					 * When sort is fired it also triggers a mutation on the tbody with the nodes listed in mutation.removedNodes: NodeList [tr]
+					 * Not sure how to differentiate sort from removedNodes as it does it one at a time. There isn't anything in the mutation object that differentiates a sort from a removed node.
+					 * Tried adding an isAppending that fires during the sort but that didn't work as the timing it wrong and mutation is fired after the rows are all appended.
+					 * Only thing I can think of is adding a delay that fires after the rows are removed so I can count the number and match to the pagination
+					 * If rows are added, we need to update this.rows, updateContent new cells, and sort/filter table
+					 * If rows are removed, we need to update this.rows and sort/filter table
+					 * This all needs to work for if multiple rows are added or removed at the same time
+					 */
 
-						// remove event listener and add new one so it's not duplicated
-						td.removeEventListener("blur", updateContentEditable);
-						td.addEventListener("blur", updateContentEditable);
-					} else {
-						// else update
-						this.updateContent(td);
+					// only trigger if addedNodes is not the same length as this.rows; if it is the same that it is a sort
+					const rowsPerPage = this.pagination || mutation.addedNodes.length;
+					if (mutation.addedNodes.length !== 0 && mutation.addedNodes.length !== rowsPerPage) {
+						// console.log("added nodes", mutation.addedNodes, this.rows.length, this.pagination, this.rowsVisible);
+
+						const newRows = Array.from(mutation.addedNodes).filter((node) => node instanceof HTMLTableRowElement) as ActionRow[];
+						newRows.forEach((row) => {
+							const cells = row.querySelectorAll("td") as NodeListOf<ActionCell>;
+							cells.forEach((cell) => {
+								updateCell(cell);
+							});
+						});
+						this.rows = [...this.rows, ...newRows];
 					}
+					if (mutation.removedNodes.length !== 0) {
+						// console.log("removed nodes", mutation.removedNodes, mutation);
+						// TODO: this is triggered when it is sorted.
+						const removedRows = Array.from(mutation.removedNodes).filter((node) => node instanceof HTMLTableRowElement) as ActionRow[];
+						this.removedRows = [...this.removedRows, ...removedRows];
+						this.removeRows();
+					}
+				}
+				if (target instanceof HTMLTableRowElement) {
+					console.log("table row mutation", target, mutation);
+
+					/*
+					 * NOTES on add/remove of columns
+					 * If a td or th is added then it triggers a mutation on the tr with the new nodes listed in mutation.addedNodes: NodeList [td]
+					 * If a td or th is removed then it triggers a mutation on the tr with the removed nodes listed in mutation.removedNodes: NodeList [td]
+					 * If a thead th is added we need to update this.cols, update the colgroup, and add the sort button wrapper
+					 * If a thead th is removed we need to update this.cols, and update the colgroup
+					 * If a tbody td is added we need to just updateContent on new cells ...I think?
+					 * If a tbody td is removed we don't need to do anything ...I think?
+					 * This all needs to work for if multiple columns are added or removed at the same time
+					 */
 				}
 
 				// Ignore tbody changes which happens whenever a new row is added with sort
 			});
 		});
-		observer.observe(this.tbody, { childList: true, subtree: true, attributes: true, characterData: true, attributeFilter: ["data-sort", "data-filter"] });
+		observer.observe(this.table, { childList: true, subtree: true, attributes: true, characterData: true, attributeFilter: ["data-sort", "data-filter"] });
 	}
+
+	private removedRows: ActionRow[] = [];
+
+	// TODO: this works but it is kludgy
+	private removeRows = this.delayUntilNoLongerCalled(() => {
+		const rowsPerPage = this.pagination || this.rows.length;
+		if (this.removedRows.length !== rowsPerPage) {
+			console.log("removeRows", this.removedRows, this.rows.length, rowsPerPage);
+			this.rows = this.rows.filter((row) => !this.removedRows.includes(row));
+		}
+		this.removedRows = [];
+	});
 
 	/* -------------------------------------------------------------------------- */
 	/*            Private Method: filter table on column name and value            */
@@ -692,7 +767,6 @@ export class ActionTable extends HTMLElement {
 
 	private appendRows(): void {
 		// console.time("appendRows");
-
 		// Helper function for hiding rows based on pagination
 		const isActivePage = (i: number): boolean => {
 			// returns if pagination is enabled (> 0) and row is on current page.
