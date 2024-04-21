@@ -88,6 +88,14 @@ The cell value is determined by:
 ### Filtering
 Filtering is done via the public filterTable() method. You can trigger this with javascript or better just use the action-table-filters element to set up controls. If the filter hides all results, the table automatically show a message indicating "No Results" along with a button to reset the filters. If on load all results are filtered out then it will automatically reset the filters. By adding the `store` attribute to the action-table it will store the sort and filters in localStorage. This protects against odd filter conditions in localStorage or URLparams.
 
+Filtering is based on the content of the cell much like sorting, except it uses a data-filter attribute:
+
+* if there is a `data-filter` attribute on the td it uses it
+* Otherwise it uses td cell textContent
+* If there is no `data-filter` or textContent it will read:
+  * SVGs using the SVG title attribute.
+  * Checkboxes based on checked status.
+
 ## Action Table Filters
 
 The `<action-table-filters>` is a wrapper element for filter menus and switches. In order for it to work it must live inside the `<action-table>` element. You can add your own filters manually using select menus, checkboxes, or radio buttons. There are two special elements which does some the work for you: `<action-table-filters-menu>` and `<action-table-filter-switch>`.
