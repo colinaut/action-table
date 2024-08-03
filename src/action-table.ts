@@ -40,8 +40,7 @@ export class ActionTable extends HTMLElement {
 						filters[key].values.push(value);
 					} else {
 						// if not, create it
-						filters[key] = filters[key] || {};
-						filters[key].values = [value];
+						filters[key] = { values: [value] };
 					}
 				}
 				if (key === "sort") {
@@ -74,7 +73,7 @@ export class ActionTable extends HTMLElement {
 	// sort attribute to set the sort column
 
 	get sort(): string {
-		return this.getAttribute("sort")?.trim().toLowerCase() || "";
+		return this.getCleanAttr("sort");
 	}
 	set sort(value: string) {
 		this.setAttribute("sort", value);
@@ -82,7 +81,7 @@ export class ActionTable extends HTMLElement {
 
 	// direction attribute to set the sort direction
 	get direction(): Direction {
-		const direction = this.getAttribute("direction")?.trim().toLowerCase();
+		const direction = this.getCleanAttr("direction");
 		if (direction === "ascending" || direction === "descending") {
 			return direction;
 		}
@@ -99,11 +98,11 @@ export class ActionTable extends HTMLElement {
 
 	// This is used for localStorage naming purposes
 	get id(): string {
-		return this.getAttribute("id") || "";
+		return this.getCleanAttr("id");
 	}
 
 	get pagination(): number {
-		return Number(this.getAttribute("pagination")) || 0;
+		return Number(this.getCleanAttr("pagination")) || 0;
 	}
 
 	set pagination(value: number) {
@@ -111,7 +110,7 @@ export class ActionTable extends HTMLElement {
 	}
 
 	get page(): number {
-		return Number(this.getAttribute("page")) || 1;
+		return Number(this.getCleanAttr("page")) || 1;
 	}
 
 	set page(value: number) {
@@ -130,6 +129,10 @@ export class ActionTable extends HTMLElement {
 				detail,
 			})
 		);
+	}
+
+	private getCleanAttr(attr: string): string {
+		return this.getAttribute(attr)?.trim().toLowerCase() || "";
 	}
 
 	/* -------------------------------------------------------------------------- */
