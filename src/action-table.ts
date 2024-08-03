@@ -1,5 +1,7 @@
-import { ColsArray, FiltersObject, SingleFilterObject, ActionCell, ActionRow, ActionTableEventDetail, ActionTableSortStore, UpdateContentDetail } from "./types";
+import { ColsArray, FiltersObject, SingleFilterObject, ActionCell, ActionRow, ActionTableEventDetail, UpdateContentDetail, Direction, ActionTableStore } from "./types";
 import "./action-table-no-results";
+
+const ACTION_TABLE = "action-table";
 
 export class ActionTable extends HTMLElement {
 	constructor() {
@@ -13,18 +15,12 @@ export class ActionTable extends HTMLElement {
 
 		// 1. Get sort and direction and filters from local storage
 		if (this.store) {
-			// 1. Get sort and direction from local storage
-			const lsActionTable = localStorage.getItem(`action-table${this.id}`);
+			// 1. Get sort and direction and filters from local storage
+			const lsActionTable = this.getStore();
 			if (lsActionTable) {
-				const lsActionTableJSON = JSON.parse(lsActionTable) as ActionTableSortStore;
-				this.sort = lsActionTableJSON.sort;
-				this.direction = lsActionTableJSON.direction;
-			}
-
-			// 2. Get filters from localStorage
-			const lsActionTableFilters = localStorage.getItem(`action-table-filters${this.id}`);
-			if (lsActionTableFilters) {
-				this.filters = JSON.parse(lsActionTableFilters) as FiltersObject;
+				this.sort = lsActionTable.sort || this.sort;
+				this.direction = lsActionTable.direction || this.direction;
+				this.filters = lsActionTable.filters || this.filters;
 			}
 		}
 
@@ -34,7 +30,9 @@ export class ActionTable extends HTMLElement {
 
 			// sort through remaining params for filters to create a filters object
 			const filters: FiltersObject = {};
-			for (const [key, value] of params.entries()) {
+			for (let [key, value] of params.entries()) {
+				key = key.toLowerCase();
+				value = value.toLowerCase();
 				// Only add key if it's not sort or direction
 				if (key !== "sort" && key !== "direction") {
 					// check for value and if so add it to the array.
@@ -83,14 +81,14 @@ export class ActionTable extends HTMLElement {
 	}
 
 	// direction attribute to set the sort direction
-	get direction(): "ascending" | "descending" {
+	get direction(): Direction {
 		const direction = this.getAttribute("direction")?.trim().toLowerCase();
 		if (direction === "ascending" || direction === "descending") {
 			return direction;
 		}
 		return "ascending";
 	}
-	set direction(value: "ascending" | "descending") {
+	set direction(value: Direction) {
 		this.setAttribute("direction", value);
 	}
 
@@ -101,7 +99,7 @@ export class ActionTable extends HTMLElement {
 
 	// This is used for localStorage naming purposes
 	get id(): string {
-		return `-${this.getAttribute("id")}` || "";
+		return this.getAttribute("id") || "";
 	}
 
 	get pagination(): number {
@@ -220,8 +218,10 @@ export class ActionTable extends HTMLElement {
 
 	private setFiltersObject(filters: FiltersObject = {}): void {
 		// If set empty it resets filters to default
+
 		this.filters = filters;
-		if (this.store) localStorage.setItem(`action-table-filters${this.id}`, JSON.stringify(this.filters));
+
+		if (this.store) this.setStore({ filters: this.filters });
 	}
 
 	/* ----------- Used by reset button and action-table-filter event ----------- */
@@ -251,7 +251,7 @@ export class ActionTable extends HTMLElement {
 
 					this.sort = name;
 					this.direction = direction;
-					if (this.store) localStorage.setItem(`action-table${this.id}`, JSON.stringify({ sort: this.sort, direction: direction }));
+					if (this.store) this.setStore({ sort: this.sort, direction: direction });
 				}
 			},
 			false
@@ -269,7 +269,7 @@ export class ActionTable extends HTMLElement {
 		});
 
 		// Listens for action-table-filter event from action-table-filters
-		this.addEventListener("action-table-filter", (event) => {
+		this.addEventListener(`${ACTION_TABLE}-filter`, (event) => {
 			if (event.detail) {
 				// 1. If detail is defined then add it to the filters object
 				const filters = { ...this.filters, ...event.detail };
@@ -288,13 +288,48 @@ export class ActionTable extends HTMLElement {
 		});
 
 		// Listens for action-table-update event used by custom elements that want to announce content changes
-		this.addEventListener("action-table-update", (event) => {
+		this.addEventListener(`${ACTION_TABLE}-update`, (event) => {
 			const target = event.target;
 			if (target instanceof Element) {
 				// console.log("🥳 action-table: update event", update);
 				this.updateContent(target, event.detail);
 			}
 		});
+	}
+
+	/* -------------------------------------------------------------------------- */
+	/*                      Private Method: Get localStorage                      */
+	/* -------------------------------------------------------------------------- */
+
+	private getStore() {
+		const ls = localStorage.getItem(`${ACTION_TABLE}-${this.id}`);
+		if (!ls) return false;
+		try {
+			const data = JSON.parse(ls);
+			if (typeof data !== "object" || data === null) {
+				return false;
+			}
+			const hasKeys = ["sort", "direction", "filters"].some((key) => key in data);
+			if (hasKeys) {
+				return data as ActionTableStore;
+			} else {
+				return false;
+			}
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/* -------------------------------------------------------------------------- */
+	/*                      Private Method: Set localStorage                      */
+	/* -------------------------------------------------------------------------- */
+
+	private setStore(data: ActionTableStore) {
+		const lsData = this.getStore();
+		if (lsData) {
+			data = { ...lsData, ...data };
+		}
+		localStorage.setItem(`${ACTION_TABLE}-${this.id}`, JSON.stringify(data));
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -352,7 +387,7 @@ export class ActionTable extends HTMLElement {
 			if (this.rowsVisible === 0) {
 				console.error("no results found on initial render");
 				this.setFilters();
-				this.dispatchEvent(new Event("action-table-filters-reset"));
+				this.dispatchEvent(new Event(`${ACTION_TABLE}-filters-reset`));
 			}
 			// show tbody
 			this.tbody.style.display = "";

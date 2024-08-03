@@ -212,9 +212,7 @@ export class ActionTableFilters extends HTMLElement {
 	/* ------------------ If no args are passed then it resets ------------------ */
 
 	public setFilterElements(filters: FiltersObject) {
-		console.log("action-table-filters.setFilterElements", filters);
 		// 1. if there are filters then set the filters on all the elements
-
 		if (this.hasFilters(filters)) {
 			// enable reset button
 			this.enableReset();
@@ -228,17 +226,37 @@ export class ActionTableFilters extends HTMLElement {
 
 	/* --------------------------- Set Filter element --------------------------- */
 
+	/**
+	 * Sets the value of a select element, ignoring case, to match the provided value.
+	 *
+	 * @param {HTMLSelectElement} selectElement - The select element to set the value for.
+	 * @param {string} value - The value to set, case insensitive.
+	 */
+	private setSelectValueIgnoringCase(selectElement: HTMLSelectElement, value: string) {
+		value = value.toLowerCase();
+		Array.from(selectElement.options).some((option) => {
+			const optionValue = option.value.toLowerCase() || option.text.toLowerCase();
+
+			if (optionValue === value) {
+				option.selected = true;
+				this.toggleHighlight(selectElement);
+				return true;
+			} else return false;
+		});
+	}
+
 	public setFilterElement(columnName: string, values: string[]) {
+		if (values.length === 0) return;
+
+		// Find matching fields based on name
 		// Casting to types as we know what it is from selector
 
-		const filterElements = this.querySelectorAll("select, input") as NodeListOf<HTMLSelectElement | HTMLInputElement>;
+		const filterElements = this.querySelectorAll(`select[name="${columnName}" i], input[name="${columnName}" i]`) as NodeListOf<HTMLSelectElement | HTMLInputElement>;
 
 		filterElements.forEach((el) => {
-			if (el.name.toLowerCase() !== columnName || values.length === 0) return;
-
 			if (el instanceof HTMLSelectElement) {
 				el.value = values[0];
-				this.toggleHighlight(el);
+				this.setSelectValueIgnoringCase(el, values[0]);
 			}
 			if (el instanceof HTMLInputElement) {
 				if (el.type === "checkbox") {

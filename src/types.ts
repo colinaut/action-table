@@ -34,6 +34,14 @@ export type ActionTableEventDetail = {
 	rowsVisible?: number;
 };
 
-export type ActionTableSortStore = { sort: string; direction: "ascending" | "descending" };
+// export type ActionTableSortStore = { sort: string; direction: "ascending" | "descending" };
 
 export type UpdateContentDetail = { sort?: string; filter?: string } | string;
+
+export type Direction = "ascending" | "descending";
+
+export type ActionTableStore = {
+	filters?: FiltersObject;
+	sort?: string;
+	direction?: Direction;
+};
