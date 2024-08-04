@@ -305,19 +305,14 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private getStore() {
-		const ls = localStorage.getItem(`${ACTION_TABLE}-${this.id}`);
-		if (!ls) return false;
 		try {
-			const data = JSON.parse(ls);
-			if (typeof data !== "object" || data === null) {
-				return false;
+			const ls = localStorage.getItem(`${ACTION_TABLE}-${this.id}`);
+			const data = ls && JSON.parse(ls);
+			if (typeof data === "object" && data !== null) {
+				const hasKeys = ["sort", "direction", "filters"].some((key) => key in data);
+				if (hasKeys) return data as ActionTableStore;
 			}
-			const hasKeys = ["sort", "direction", "filters"].some((key) => key in data);
-			if (hasKeys) {
-				return data as ActionTableStore;
-			} else {
-				return false;
-			}
+			return false;
 		} catch (e) {
 			return false;
 		}
@@ -328,7 +323,7 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private setStore(data: ActionTableStore) {
-		const lsData = this.getStore();
+		const lsData = this.getStore() || {};
 		if (lsData) {
 			data = { ...lsData, ...data };
 		}
@@ -519,7 +514,6 @@ export class ActionTable extends HTMLElement {
 			// 1.1 sort through all mutations
 			mutations.forEach((mutation) => {
 				let target = mutation.target;
-				// TODO: simplify this and make it less breakable. Need to somehow detect if there is a TD parent before doing anything
 				// If target is a text node, get its parentNode
 				if (target.nodeType === 3 && target.parentNode) target = target.parentNode;
 				// ignore if this is not an HTMLElement
