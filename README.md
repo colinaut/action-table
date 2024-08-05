@@ -69,7 +69,7 @@ You can add `contenteditable` to any td and action-table will recognize this, an
 
 * sort: name of the default column to sort by
 * direction: set the direction "ascending" or "descending" (defaults to ascending)
-* store: add the store attribute to have action-table store the sort and filters in localStorage so that it retains the state on reload. LocalStorage will override initial attributes. Note, if you have more than one action-table on a page you should give them different id attributes so that they store data in localStorage separately.
+* store: add the store attribute to have action-table store the sort and filters in localStorage so that it retains the state on reload. LocalStorage will override initial attributes. String added to the `store` attribute will be the name used for localStorage. Defaults to 'action-table' if none specified.
 * urlparams: add the urlparams attribute to have the action-table grab sort and filters from url params on load. URL params will override sort and direction attributes, and localStorage.
 
 ### Sorting
