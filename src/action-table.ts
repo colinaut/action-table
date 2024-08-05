@@ -240,7 +240,7 @@ export class ActionTable extends HTMLElement {
 				// only fire if event target is a button with data-col
 				if (el instanceof HTMLButtonElement && el.dataset.col) {
 					const name = el.dataset.col;
-					let direction: "ascending" | "descending" = "ascending";
+					let direction: Direction = "ascending";
 					if (this.sort === name && this.direction === "ascending") {
 						direction = "descending";
 					}
@@ -519,8 +519,8 @@ export class ActionTable extends HTMLElement {
 					if (td.hasAttribute("contenteditable") && td === document.activeElement) {
 						// add function for event listener
 						// Make sure that the event listener is only added once
-						if (!td.hasAttribute("at-editable")) {
-							td.setAttribute("at-editable", "");
+						if (!td.dataset.edit) {
+							td.dataset.edit = "true";
 							td.addEventListener("blur", () => this.updateContent(td));
 						}
 					} else {
