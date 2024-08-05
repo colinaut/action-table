@@ -1,8 +1,6 @@
 import { ColsArray, FiltersObject, SingleFilterObject, ActionCell, ActionRow, ActionTableEventDetail, UpdateContentDetail, Direction, ActionTableStore } from "./types";
 import "./action-table-no-results";
 
-const ACTION_TABLE = "action-table";
-
 export class ActionTable extends HTMLElement {
 	constructor() {
 		super();
@@ -92,13 +90,8 @@ export class ActionTable extends HTMLElement {
 	}
 
 	// store attribute to trigger loading and saving to sort and filters localStorage
-	get store(): boolean {
-		return this.hasAttribute("store");
-	}
-
-	// This is used for localStorage naming purposes
-	get id(): string {
-		return this.getCleanAttr("id");
+	get store(): string {
+		return this.hasAttribute("store") ? this.getCleanAttr("store") || "action-table" : "";
 	}
 
 	get pagination(): number {
@@ -204,7 +197,7 @@ export class ActionTable extends HTMLElement {
 				this.sortTable();
 			}
 			if (name === "pagination") {
-				console.log("attributeChangedCallback: pagination", oldValue, newValue);
+				// console.log("attributeChangedCallback: pagination", oldValue, newValue);
 				this.dispatch({ pagination: this.pagination });
 			}
 			this.appendRows();
@@ -272,7 +265,7 @@ export class ActionTable extends HTMLElement {
 		});
 
 		// Listens for action-table-filter event from action-table-filters
-		this.addEventListener(`${ACTION_TABLE}-filter`, (event) => {
+		this.addEventListener(`action-table-filter`, (event) => {
 			if (event.detail) {
 				// 1. If detail is defined then add it to the filters object
 				const filters = { ...this.filters, ...event.detail };
@@ -291,7 +284,7 @@ export class ActionTable extends HTMLElement {
 		});
 
 		// Listens for action-table-update event used by custom elements that want to announce content changes
-		this.addEventListener(`${ACTION_TABLE}-update`, (event) => {
+		this.addEventListener(`action-table-update`, (event) => {
 			const target = event.target;
 			if (target instanceof Element) {
 				// console.log("🥳 action-table: update event", update);
@@ -306,7 +299,7 @@ export class ActionTable extends HTMLElement {
 
 	private getStore() {
 		try {
-			const ls = localStorage.getItem(`${ACTION_TABLE}-${this.id}`);
+			const ls = localStorage.getItem(this.store);
 			const data = ls && JSON.parse(ls);
 			if (typeof data === "object" && data !== null) {
 				const hasKeys = ["sort", "direction", "filters"].some((key) => key in data);
@@ -327,7 +320,7 @@ export class ActionTable extends HTMLElement {
 		if (lsData) {
 			data = { ...lsData, ...data };
 		}
-		localStorage.setItem(`${ACTION_TABLE}-${this.id}`, JSON.stringify(data));
+		localStorage.setItem(this.store, JSON.stringify(data));
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -375,7 +368,7 @@ export class ActionTable extends HTMLElement {
 	/* ------------------------- Delayed Sort and Filter ------------------------ */
 
 	private sortAndFilter = this.delayUntilNoLongerCalled(() => {
-		console.log("🎲 sortAndFilter", this.id);
+		console.log("🎲 sortAndFilter");
 		this.filterTable();
 		this.sortTable();
 		this.appendRows();
@@ -385,7 +378,7 @@ export class ActionTable extends HTMLElement {
 			if (this.rowsVisible === 0) {
 				console.error("no results found on initial render");
 				this.setFilters();
-				this.dispatchEvent(new Event(`${ACTION_TABLE}-filters-reset`));
+				this.dispatchEvent(new Event(`action-table-filters-reset`));
 			}
 			// show tbody
 			this.tbody.style.display = "";
@@ -524,12 +517,12 @@ export class ActionTable extends HTMLElement {
 				if (td instanceof HTMLTableCellElement) {
 					// If this is a contenteditable element that is focused then only update on blur
 					if (td.hasAttribute("contenteditable") && td === document.activeElement) {
-						// function for event listener.
-						const updateContentEditable = () => this.updateContent(td);
-
-						// remove event listener and add new one so it's not duplicated
-						td.removeEventListener("blur", updateContentEditable);
-						td.addEventListener("blur", updateContentEditable);
+						// add function for event listener
+						// Make sure that the event listener is only added once
+						if (!td.hasAttribute("at-editable")) {
+							td.setAttribute("at-editable", "");
+							td.addEventListener("blur", () => this.updateContent(td));
+						}
 					} else {
 						// else update
 						this.updateContent(td);
