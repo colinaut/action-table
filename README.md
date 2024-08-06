@@ -73,6 +73,7 @@ You can add `contenteditable` to any td and action-table will recognize this, an
 * urlparams: add the urlparams attribute to have the action-table grab sort and filters from url params on load. URL params will override sort and direction attributes, and localStorage.
 
 ### Sorting
+
 Sorting is done based the cell value: numbers are sorted numerically, machine readable dates are sorted by date, and otherwise sorted as text. By adding the `store` attribute to the action-table it will store the sort and filters in localStorage.
 
 The sort order can also be set with a comma separated list in the `data-order` attribute on the th for the column. For instance, adding `data-order="Jan,Feb,Mar"` to the th will force the column to sort using that order as long as the cell values match. Non-matching cell values revert to base sort function.
@@ -86,6 +87,7 @@ The cell value is determined by:
   * Checkboxes based on checked status.
 
 ### Filtering
+
 Filtering is done via the public filterTable() method. You can trigger this with javascript or better just use the action-table-filters element to set up controls. If the filter hides all results, the table automatically show a message indicating "No Results" along with a button to reset the filters. If on load all results are filtered out then it will automatically reset the filters. By adding the `store` attribute to the action-table it will store the sort and filters in localStorage. This protects against odd filter conditions in localStorage or URLparams.
 
 Filtering is based on the content of the cell much like sorting, except it uses a data-filter attribute:

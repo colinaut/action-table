@@ -12,17 +12,9 @@ export type FiltersObject = {
 	[key: string]: SingleFilterObject;
 };
 
-export type ActionCell = HTMLTableCellElement & {
-	actionTable: {
-		col: string;
-		sort: string;
-		filter: string;
-		checked?: boolean;
-	};
-};
-
-export type ActionRow = HTMLTableRowElement & {
-	hideRow: boolean;
+export type ActionTableCellData = {
+	sort: string;
+	filter: string;
 };
 
 export type PaginationProps = { page?: number; pagination?: number; rowsShown?: number };

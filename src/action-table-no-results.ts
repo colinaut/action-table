@@ -10,12 +10,8 @@ export class ActionTableNoResults extends HTMLElement {
 	constructor() {
 		super();
 		const actionTable = this.closest("action-table") as ActionTable;
-		const { rowsVisible } = actionTable;
-		if (rowsVisible === 0) {
-			this.style.display = "";
-		} else {
-			this.style.display = "none";
-		}
+		// Hide on loading
+		this.style.display = "none";
 		this.addEventListener("click", (e) => {
 			// if target is reset button
 			if (e.target instanceof HTMLButtonElement && e.target.type === "reset") {
@@ -32,7 +28,7 @@ export class ActionTableNoResults extends HTMLElement {
 
 		actionTable.addEventListener("action-table", (e) => {
 			const detail = e.detail;
-			console.log("action-table", detail);
+			// console.log("action-table", detail);
 
 			if (detail?.rowsVisible === 0) {
 				this.style.display = "";

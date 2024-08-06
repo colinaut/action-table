@@ -77,11 +77,11 @@ export class ActionTablePagination extends HTMLElement {
 	}
 
 	private changeLabel(page: number) {
-		const { pagination, rowsVisible } = this.actionTable;
+		const { pagination, rowsSet } = this.actionTable;
 
 		const label = this.getAttribute("label") || "Showing {rows} of {total}:";
 
-		const labelStr = label.replace("{rows}", `${page * pagination - pagination + 1}-${page * pagination}`).replace("{total}", `${rowsVisible}`);
+		const labelStr = label.replace("{rows}", `${page * pagination - pagination + 1}-${page * pagination}`).replace("{total}", `${rowsSet.size}`);
 
 		const labelSpan = this.querySelector("span.pagination-label");
 		if (labelSpan) labelSpan.textContent = labelStr;

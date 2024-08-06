@@ -1,5 +1,10 @@
-import { ColsArray, FiltersObject, SingleFilterObject, ActionCell, ActionRow, ActionTableEventDetail, UpdateContentDetail, Direction, ActionTableStore } from "./types";
+import { ColsArray, FiltersObject, SingleFilterObject, ActionTableCellData, ActionTableEventDetail, Direction, ActionTableStore } from "./types";
 import "./action-table-no-results";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function hasKeys(obj: any): boolean {
+	return Object.keys(obj).length > 0;
+}
 
 export class ActionTable extends HTMLElement {
 	constructor() {
@@ -17,7 +22,7 @@ export class ActionTable extends HTMLElement {
 			const lsActionTable = this.getStore();
 			if (lsActionTable) {
 				this.sort = lsActionTable.sort || this.sort;
-				this.direction = lsActionTable.direction || this.direction;
+				this.direction = lsActionTable.direction || this.direction || "ascending";
 				this.filters = lsActionTable.filters || this.filters;
 			}
 		}
@@ -61,7 +66,7 @@ export class ActionTable extends HTMLElement {
 	public table!: HTMLTableElement;
 	public tbody!: HTMLTableSectionElement;
 	public cols: ColsArray = [];
-	public rows: Array<ActionRow> = [];
+	public rows: Array<HTMLTableRowElement> = [];
 	public filters: FiltersObject = {};
 
 	/* -------------------------------------------------------------------------- */
@@ -78,12 +83,11 @@ export class ActionTable extends HTMLElement {
 	}
 
 	// direction attribute to set the sort direction
-	get direction(): Direction {
+	get direction(): Direction | null {
 		const direction = this.getCleanAttr("direction");
 		if (direction === "ascending" || direction === "descending") {
 			return direction;
-		}
-		return "ascending";
+		} else return null;
 	}
 	set direction(value: Direction) {
 		this.setAttribute("direction", value);
@@ -116,13 +120,17 @@ export class ActionTable extends HTMLElement {
 	}
 
 	private dispatch(detail: ActionTableEventDetail) {
-		console.log("dispatch", detail);
+		// console.log("dispatch", detail);
 		this.dispatchEvent(
 			new CustomEvent<ActionTableEventDetail>("action-table", {
 				detail,
 			})
 		);
 	}
+
+	public tableContent = new WeakMap<HTMLTableCellElement, ActionTableCellData>();
+	// set of rows that are shown in table based on filters
+	public rowsSet = new Set<HTMLTableRowElement>();
 
 	private getCleanAttr(attr: string): string {
 		return this.getAttribute(attr)?.trim().toLowerCase() || "";
@@ -140,47 +148,26 @@ export class ActionTable extends HTMLElement {
 		// 1. Get table, tbody, rows, and column names in this.cols
 		const table = this.querySelector("table");
 		// make sure table with thead and tbody exists
-		if (table && table.querySelector("thead tr th") && table.querySelector("tbody tr td")) {
+		if (table && table.querySelector("thead th") && table.querySelector("tbody td")) {
 			this.table = table;
 			// casting type as we know it exists due to querySelector above
 			this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
-			this.rows = Array.from(table.querySelectorAll("tbody tr")) as Array<ActionRow>;
+			this.rows = Array.from(this.tbody.querySelectorAll("tr")) as Array<HTMLTableRowElement>;
 		} else {
-			throw new Error("Could not find table with thead and tbody in action-table");
+			throw new Error("Could not find table with thead and tbody");
 		}
-
-		const hasFilters = Object.keys(this.filters).length > 0;
-
-		// 2. If no filter or sort then append rows now as we don't need to know the header or cell data
-		if (!hasFilters && !this.sort) {
-			this.appendRows();
-		} else {
-			// If there are sort or filters then hide tbody; it will be shown when rows are appended later after sort and filter
+		// 2. Hide tbody if there is sort or filters; then sort and filter
+		if (this.sort || hasKeys(this.filters)) {
 			this.tbody.style.display = "none";
-		}
-
-		// 3. get column names and add sort buttons
-		this.getColumns();
-
-		// 4. Get table content
-		this.getTableContent();
-
-		// 6. if filters or sort then trigger sort and filter and append rows
-		if (hasFilters || this.sort) {
-			// 6.1 remove filters that are not in the table
-			Object.keys(this.filters).forEach((key) => {
-				if (!this.cols.some((col) => col.name === key)) {
-					delete this.filters[key];
-				}
-			});
-			// 6.2 sort, filter, and append rows
 			this.sortAndFilter();
 		}
 
-		// 7. Add mutation observer to tbody
+		this.getColumns();
+
 		this.addObserver();
 
 		console.timeEnd("Connected Callback");
+		console.log(this.store);
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -194,6 +181,7 @@ export class ActionTable extends HTMLElement {
 		// only fires if the value actually changes and if the rows is not empty, which means it has grabbed the cellContent
 		if (oldValue !== newValue && this.rows.length > 0) {
 			if (name === "sort" || name === "direction") {
+				console.log("attributeChangedCallback: sort", oldValue, newValue);
 				this.sortTable();
 			}
 			if (name === "pagination") {
@@ -253,6 +241,10 @@ export class ActionTable extends HTMLElement {
 			false
 		);
 
+		const findCell = (el: HTMLElement) => {
+			return (el.matches("td") ? el : el.closest("td")) as HTMLTableCellElement;
+		};
+
 		// Listens for checkboxes in the table since mutation observer does not support checkbox changes
 		this.addEventListener("change", (event) => {
 			const el = event.target;
@@ -260,7 +252,7 @@ export class ActionTable extends HTMLElement {
 			if (el instanceof HTMLInputElement && el.closest("td") && el.type === "checkbox") {
 				// get new content, sort and filter. This works for checkboxes and action-table-switch
 				console.log("event change", el);
-				this.updateContent(el);
+				this.updateCellValues(findCell(el));
 			}
 		});
 
@@ -286,9 +278,12 @@ export class ActionTable extends HTMLElement {
 		// Listens for action-table-update event used by custom elements that want to announce content changes
 		this.addEventListener(`action-table-update`, (event) => {
 			const target = event.target;
-			if (target instanceof Element) {
-				// console.log("🥳 action-table: update event", update);
-				this.updateContent(target, event.detail);
+			if (target instanceof HTMLElement) {
+				let values: Partial<ActionTableCellData> = {};
+				if (typeof event.detail === "string") {
+					values = { sort: event.detail, filter: event.detail };
+				} else values = event.detail;
+				this.updateCellValues(findCell(target), values);
 			}
 		});
 	}
@@ -321,18 +316,6 @@ export class ActionTable extends HTMLElement {
 			data = { ...lsData, ...data };
 		}
 		localStorage.setItem(this.store, JSON.stringify(data));
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                       Private Method: update content                       */
-	/* -------------------------------------------------------------------------- */
-
-	private updateContent(el: Element, update: UpdateContentDetail = {}): void {
-		const cell = (el.matches("td") ? el : el.closest("td")) as ActionCell;
-		if (!cell) return;
-		update = typeof update === "string" ? { sort: update, filter: update } : update;
-		this.setCellContent(cell, update);
-		this.sortAndFilter();
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -375,7 +358,7 @@ export class ActionTable extends HTMLElement {
 		// If tbody is hidden then this is the initial render
 		if (this.tbody.matches("[style*=none]")) {
 			// if there are no rows then automatically reset filters
-			if (this.rowsVisible === 0) {
+			if (this.rowsSet.size === 0) {
 				console.error("no results found on initial render");
 				this.setFilters();
 				this.dispatchEvent(new Event(`action-table-filters-reset`));
@@ -433,7 +416,7 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 	/*                     Private Method: get cell content                        */
 	/* -------------------------------------------------------------------------- */
-	private getCellContent(cell: HTMLTableCellElement | ActionCell): string {
+	private getCellContent(cell: HTMLTableCellElement): string {
 		// 1. get cell content with innerText; set to empty string if null
 		let cellContent: string = (cell.textContent || "").trim();
 
@@ -448,10 +431,6 @@ export class ActionTable extends HTMLElement {
 			const checkbox = cell.querySelector("input[type=checkbox]");
 			if (checkbox instanceof HTMLInputElement && checkbox.checked) {
 				cellContent = checkbox.value;
-				if ("actionTable" in cell) {
-					// this is needed so all row search ignores checkbox values
-					cell.actionTable = { ...cell.actionTable, checked: true };
-				}
 			}
 			// 3.3 if custom element with shadowRoot then get text content from shadowRoot
 			const customElement = cell.querySelector(":defined");
@@ -463,36 +442,33 @@ export class ActionTable extends HTMLElement {
 		return cellContent.trim();
 	}
 
-	/* -------------------------------------------------------------------------- */
-	/*                        Private Method Get Table Data                       */
-	/* -------------------------------------------------------------------------- */
-	/* ------- Get all table content as data for quicker sorting/filtering ------ */
-
-	private getTableContent() {
-		// eslint-disable-next-line no-console
-		console.time("getTableContent");
-
-		this.rows.forEach((row) => {
-			// const rowObj: RowData = { node: row, columns: {} };
-			// 1. grab all cells in the row
-			const cells = row.querySelectorAll("td") as NodeListOf<ActionCell>;
-			cells.forEach((cell, i) => {
-				// 1. get matching column name
-				const col = this.cols[i];
-				this.setCellContent(cell, { col: col.name });
-			});
-		});
-		// eslint-disable-next-line no-console
-		console.timeEnd("getTableContent");
-	}
-
 	/* ------------------------------------------------------------------------- */
 	/*              Private Method: Set Cell Content in td attribute              */
 	/* -------------------------------------------------------------------------- */
 
-	private setCellContent(cell: ActionCell, update: { col?: string; sort?: string; filter?: string } = {}) {
+	public getCellValues(cell: HTMLTableCellElement): ActionTableCellData {
+		// 1. If data exists return it; else get it
+		if (this.tableContent.has(cell)) {
+			// console.log("getCellValues: Cached");
+			// @ts-expect-error has checks for data
+			return this.tableContent.get(cell);
+		} else {
+			// console.log("getCellValues: Set");
+			const cellValues = this.setCellValues(cell);
+			return cellValues;
+		}
+	}
+
+	private setCellValues(cell: HTMLTableCellElement, values: Partial<ActionTableCellData> = {}) {
 		const cellContent = this.getCellContent(cell);
-		cell.actionTable = { ...cell.actionTable, sort: cell.dataset.sort || cellContent, filter: cell.dataset.filter || cellContent, ...update };
+		const cellValues = { sort: cell.dataset.sort || cellContent, filter: cell.dataset.filter || cellContent, ...values };
+		this.tableContent.set(cell, cellValues);
+		return cellValues;
+	}
+
+	private updateCellValues(cell: HTMLTableCellElement, values: Partial<ActionTableCellData> = {}) {
+		this.setCellValues(cell, values);
+		this.sortAndFilter();
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -521,11 +497,13 @@ export class ActionTable extends HTMLElement {
 						// Make sure that the event listener is only added once
 						if (!td.dataset.edit) {
 							td.dataset.edit = "true";
-							td.addEventListener("blur", () => this.updateContent(td));
+							td.addEventListener("blur", () => {
+								this.updateCellValues(td);
+							});
 						}
 					} else {
 						// else update
-						this.updateContent(td);
+						this.updateCellValues(td);
 					}
 				}
 
@@ -549,7 +527,7 @@ export class ActionTable extends HTMLElement {
 
 		// 1. Save current state of numberOfPages
 		const currentNumberOfPages = this.numberOfPages;
-		const currentRowsVisible = this.rowsVisible;
+		const currentRowsVisible = this.rowsSet.size;
 
 		// 2. get filter value for whole row based on special reserved name "action-table"
 		const filterForWholeRow = this.filters["action-table"];
@@ -558,12 +536,13 @@ export class ActionTable extends HTMLElement {
 			// 3.1 set base display value as ""
 			let hide = false;
 			// 3.2 get td cells
-			const cells = row.querySelectorAll("td") as NodeListOf<ActionCell>;
+			const cells = row.querySelectorAll("td") as NodeListOf<HTMLTableCellElement>;
 			// 3.3 if filter value for whole row exists then run filter against innerText of entire row content
 			if (filterForWholeRow) {
 				// 3.3.1 build string of all td data-filter values, ignoring checkboxes
+				// console.log("filterForWholeRow");
 				const content = Array.from(cells)
-					.map((cell) => (cell.actionTable.checked ? "" : cell.actionTable.filter))
+					.map((cell) => (cell.querySelector('input[type="checkbox"]') ? "" : this.getCellValues(cell).filter))
 					.join(" ");
 
 				if (this.shouldHide(filterForWholeRow, content)) {
@@ -574,14 +553,19 @@ export class ActionTable extends HTMLElement {
 			cells.forEach((cell, i) => {
 				const filter = this.filters[this.cols[i].name];
 				if (!filter) return;
+				// console.log("filter cell", filter);
 
-				if (this.shouldHide(filter, cell.actionTable.filter)) {
+				if (this.shouldHide(filter, this.getCellValues(cell).filter)) {
 					hide = true;
 				}
 			});
 
 			// 3.5 set display
-			row.hideRow = hide;
+			if (hide) {
+				this.rowsSet.delete(row);
+			} else {
+				this.rowsSet.add(row);
+			}
 		});
 
 		// 4. If number of pages changed, update pagination
@@ -590,8 +574,8 @@ export class ActionTable extends HTMLElement {
 		if (this.numberOfPages !== currentNumberOfPages) {
 			this.dispatch({ numberOfPages: this.numberOfPages });
 		}
-		if (this.rowsVisible !== currentRowsVisible) {
-			this.dispatch({ rowsVisible: this.rowsVisible });
+		if (this.rowsSet.size !== currentRowsVisible) {
+			this.dispatch({ rowsVisible: this.rowsSet.size });
 		}
 		// console.timeEnd("filterTable");
 	}
@@ -635,6 +619,7 @@ export class ActionTable extends HTMLElement {
 	/* ------------- Also triggered by local storage and URL params ------------- */
 
 	private sortTable(columnName = this.sort, direction = this.direction) {
+		if (!this.sort || !direction) return;
 		// eslint-disable-next-line no-console
 		console.time("sortTable");
 		columnName = columnName.toLowerCase();
@@ -655,15 +640,15 @@ export class ActionTable extends HTMLElement {
 			// 2. Sort rows
 			this.rows.sort((r1, r2) => {
 				// 1. If descending sort, swap rows
-				if (this.direction === "descending") {
+				if (direction === "descending") {
 					const temp = r1;
 					r1 = r2;
 					r2 = temp;
 				}
 
 				// 2. Get content from stored actionTable.sort; If it matches value in sort order exists then return index
-				const a: string = checkSortOrder((r1.children[columnIndex] as ActionCell).actionTable.sort);
-				const b: string = checkSortOrder((r2.children[columnIndex] as ActionCell).actionTable.sort);
+				const a: string = checkSortOrder(this.getCellValues(r1.children[columnIndex] as HTMLTableCellElement).sort);
+				const b: string = checkSortOrder(this.getCellValues(r2.children[columnIndex] as HTMLTableCellElement).sort);
 
 				return this.alphaNumSort(a, b);
 			});
@@ -735,7 +720,7 @@ export class ActionTable extends HTMLElement {
 		this.rows.forEach((row) => {
 			let display = "none";
 			// if row not hidden by filter
-			if (!row.hideRow) {
+			if (this.rowsSet.has(row)) {
 				// increment current rows
 				currentRowsVisible++;
 				// if row not hidden by pagination
@@ -766,12 +751,8 @@ export class ActionTable extends HTMLElement {
 		}
 	}
 
-	get rowsVisible(): number {
-		return this.rows.filter((row) => !row.hideRow).length;
-	}
-
 	get numberOfPages(): number {
-		return this.pagination > 0 ? Math.ceil(this.rowsVisible / this.pagination) : 1;
+		return this.pagination > 0 ? Math.ceil(this.rowsSet.size / this.pagination) : 1;
 	}
 }
 

@@ -31,20 +31,14 @@ export class ActionTableFilterMenu extends HTMLElement {
 
 		// 8. Review all cells for filter values
 		Array.from(cells).forEach((cell) => {
-			if (cell.dataset.filter) {
-				// 8.1 If data-filter exists, add to options
-				options.push(cell.dataset.filter);
+			const subItems = cell.querySelectorAll(`span, ul > li`) as NodeListOf<HTMLElement>;
+			if (subItems?.length > 0) {
+				// 8.3 If subitems exist, get all options in subitems
+				const subOptions = Array.from(subItems).map((item) => item.textContent || "");
+				options = options.concat(subOptions);
 			} else {
-				// 8.2 If data-filter does not exist, check for subitems
-				const subItems = cell.querySelectorAll(`span, ul > li`) as NodeListOf<HTMLElement>;
-				if (subItems?.length > 0) {
-					// 8.3 If subitems exist, get all options in subitems
-					const subOptions = Array.from(subItems).map((item) => item.innerText);
-					options = options.concat(subOptions);
-				} else {
-					// 8.4 If subitems do not exist, get innerText of cell
-					options.push(cell.innerText);
-				}
+				// 8.4 If subitems do not exist, get filter value of cell
+				options.push(actionTable.getCellValues(cell).filter);
 			}
 		});
 

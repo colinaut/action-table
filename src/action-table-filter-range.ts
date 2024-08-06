@@ -1,4 +1,3 @@
-import type { ActionCell } from "./types";
 import type { ActionTable } from "./action-table";
 export class ActionTableFilterRange extends HTMLElement {
 	// private shadow: ShadowRoot;
@@ -63,10 +62,10 @@ export class ActionTableFilterRange extends HTMLElement {
 
 		// 6. Get all cells in column
 		const columnTDs = `td:nth-child(${columnIndex + 1})`;
-		const cells = tbody.querySelectorAll(columnTDs) as NodeListOf<ActionCell>;
+		const cells = tbody.querySelectorAll(columnTDs) as NodeListOf<HTMLTableCellElement>;
 
 		return Array.from(cells).reduce((total: number[], current) => {
-			const num = Number(current.actionTable.filter);
+			const num = Number(actionTable.getCellValues(current).filter);
 			let min = total.length === 2 ? total[0] : num;
 			let max = total.length === 2 ? total[1] : num;
 			min = min < num ? min : num;
