@@ -541,9 +541,14 @@ export class ActionTable extends HTMLElement {
 			if (filterForWholeRow) {
 				// 3.3.1 build string of all td data-filter values, ignoring checkboxes
 				// console.log("filterForWholeRow");
-				const content = Array.from(cells)
-					.map((cell) => (cell.querySelector('input[type="checkbox"]') ? "" : this.getCellValues(cell).filter))
-					.join(" ");
+				// TODO: add ability to only filter some columns data-ignore with name or index or data-only attribute
+				const cellsFiltered = Array.from(cells).filter((_c, i) => {
+					console.log("🚀 ~ ActionTable ~ this.cols[i].name:", this.filters["action-table"].cols, this.cols[i].name);
+					return this.filters["action-table"].cols ? this.filters["action-table"].cols.includes(this.cols[i].name.toLowerCase()) : true;
+				});
+				console.log("🚀 ~ ActionTable ~ this.rows.forEach ~ cellsFiltered:", cellsFiltered);
+
+				const content = cellsFiltered.map((cell) => (cell.querySelector('input[type="checkbox"]') ? "" : this.getCellValues(cell).filter)).join(" ");
 
 				if (this.shouldHide(filterForWholeRow, content)) {
 					hide = true;

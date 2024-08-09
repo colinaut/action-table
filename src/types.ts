@@ -6,6 +6,7 @@ export type SingleFilterObject = {
 	regex?: boolean;
 	exact?: boolean;
 	range?: boolean;
+	cols?: string[];
 };
 
 export type FiltersObject = {
