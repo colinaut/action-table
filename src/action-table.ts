@@ -153,6 +153,8 @@ export class ActionTable extends HTMLElement {
 			// casting type as we know it exists due to querySelector above
 			this.tbody = table.querySelector("tbody") as HTMLTableSectionElement;
 			this.rows = Array.from(this.tbody.querySelectorAll("tr")) as Array<HTMLTableRowElement>;
+			// add each row to rowsSet
+			this.rowsSet = new Set(this.rows);
 		} else {
 			throw new Error("Could not find table with thead and tbody");
 		}
@@ -167,7 +169,7 @@ export class ActionTable extends HTMLElement {
 		this.addObserver();
 
 		console.timeEnd("Connected Callback");
-		console.log(this.store);
+		console.log("store:", this.store);
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -373,7 +375,7 @@ export class ActionTable extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private getColumns(): void {
-		console.time("getColumns");
+		// console.time("getColumns");
 		// 1. Get column headers
 		// casting type as we know what it is from selector
 		const ths = this.table.querySelectorAll("thead th") as NodeListOf<HTMLTableCellElement>;
@@ -410,7 +412,7 @@ export class ActionTable extends HTMLElement {
 		}
 		// console.log("action-table cols", this.cols);
 		// 8. Return cols array
-		console.timeEnd("getColumns");
+		// console.timeEnd("getColumns");
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -453,8 +455,8 @@ export class ActionTable extends HTMLElement {
 			// @ts-expect-error has checks for data
 			return this.tableContent.get(cell);
 		} else {
-			// console.log("getCellValues: Set");
 			const cellValues = this.setCellValues(cell);
+			// console.log("getCellValues: Set", cellValues);
 			return cellValues;
 		}
 	}
@@ -626,7 +628,7 @@ export class ActionTable extends HTMLElement {
 	private sortTable(columnName = this.sort, direction = this.direction) {
 		if (!this.sort || !direction) return;
 		// eslint-disable-next-line no-console
-		console.time("sortTable");
+		// console.time("sortTable");
 		columnName = columnName.toLowerCase();
 		// 1. Get column index from column name
 		const columnIndex = this.cols.findIndex((col) => col.name === columnName);
@@ -655,6 +657,8 @@ export class ActionTable extends HTMLElement {
 				const a: string = checkSortOrder(this.getCellValues(r1.children[columnIndex] as HTMLTableCellElement).sort);
 				const b: string = checkSortOrder(this.getCellValues(r2.children[columnIndex] as HTMLTableCellElement).sort);
 
+				// console.log("a", a, "b", b);
+
 				return this.alphaNumSort(a, b);
 			});
 
@@ -676,7 +680,7 @@ export class ActionTable extends HTMLElement {
 			});
 		}
 		// eslint-disable-next-line no-console
-		console.timeEnd("sortTable");
+		// console.timeEnd("sortTable");
 	}
 
 	/* --------------------------- Public Sort Method --------------------------- */
@@ -706,7 +710,7 @@ export class ActionTable extends HTMLElement {
 	/* --------- Sets row visibility based on sort,filter and pagination -------- */
 
 	private appendRows(): void {
-		// console.time("appendRows");
+		console.time("appendRows");
 
 		// Helper function for hiding rows based on pagination
 		const isActivePage = (i: number): boolean => {
@@ -742,7 +746,7 @@ export class ActionTable extends HTMLElement {
 
 		this.tbody.prepend(fragment);
 
-		// console.timeEnd("appendRows");
+		console.timeEnd("appendRows");
 
 		if (this.pagination > 0) {
 			// If page is greater than number of pages, set page to number of pages
