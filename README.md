@@ -156,7 +156,9 @@ Custom dual range slider element for filtering by number ranges. Can only be use
 
 ### Action Table Filter Manual Search Field
 
-Just add `<input type="search name="column name" />` and action-table-filters will listen for input changes and filter the results. This uses "input" event as default but if you prefer blur then add data-event="blur" to the input field.
+Just add `<input type="search" name="column name" />` and action-table-filters will listen for input changes and filter the results. This uses "input" event as default but if you prefer blur then add data-event="blur" to the input field.
+
+If you want to search every column then use name="action-table". By default this searches every column. You can limit this search by adding the columns to be searched as a comma separated string as such to the search input element. `data-cols="column,column2"`.
 
 ### Action Table Filter Reset
 
