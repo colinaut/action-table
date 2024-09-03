@@ -40,18 +40,22 @@ export class ActionTableFilters extends HTMLElement {
 	/* -------------------------------------------------------------------------- */
 
 	private addEventListeners(): void {
+		const hasAttr = (el: HTMLElement, attr: string) => {
+			return el.hasAttribute(attr) || !!el.closest(`[${attr}]`);
+		};
 		/* ------------ Event Listeners for select/checkbox/radio ------------ */
 		this.addEventListener("input", (e) => {
 			const el = e.target;
 			if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement) {
-				const exclusive = el.hasAttribute("exclusive") || !!el.closest("[exclusive]");
-				const regex = el.hasAttribute("regex") || !!el.closest("[regex]");
-				const exact = el.hasAttribute("exact") || !!el.closest("[exact]");
+				const exclusive = hasAttr(el, "exclusive");
+				const regex = hasAttr(el, "regex");
+				const exact = hasAttr(el, "exact");
+				const cols = el.dataset.cols ? el.dataset.cols.toLowerCase().split(",") : undefined;
 				const columnName = el.name.toLowerCase();
 				if (el instanceof HTMLSelectElement) {
 					this.toggleHighlight(el);
 					const selectedOptions = Array.from(el.selectedOptions).map((option) => option.value);
-					this.dispatch({ [columnName]: { values: selectedOptions, exclusive, regex, exact } });
+					this.dispatch({ [columnName]: { values: selectedOptions, exclusive, regex, exact, cols } });
 				}
 				if (el instanceof HTMLInputElement) {
 					if (el.type === "checkbox") {
@@ -62,10 +66,10 @@ export class ActionTableFilters extends HTMLElement {
 								return e.checked;
 							})
 							.map((checkbox) => checkbox.value);
-						this.dispatch({ [columnName]: { values: checkboxValues, exclusive, regex, exact } });
+						this.dispatch({ [columnName]: { values: checkboxValues, exclusive, regex, exact, cols } });
 					}
 					if (el.type === "radio") {
-						this.dispatch({ [columnName]: { values: [el.value], exclusive, regex, exact } });
+						this.dispatch({ [columnName]: { values: [el.value], exclusive, regex, exact, cols } });
 					}
 					if (el.type === "range") {
 						const sliders = this.querySelectorAll("input[type=range][name='" + el.name + "']") as NodeListOf<HTMLInputElement>;
@@ -107,7 +111,11 @@ export class ActionTableFilters extends HTMLElement {
 			const event = el.dataset.event || "input";
 			el.addEventListener(event, () => {
 				this.toggleHighlight(el);
-				const debouncedFilter = debounce(() => this.dispatch({ [el.name]: { values: [el.value] } }));
+				const exclusive = hasAttr(el, "exclusive");
+				const regex = hasAttr(el, "regex");
+				const exact = hasAttr(el, "exact");
+				const cols = el.dataset.cols ? el.dataset.cols.toLowerCase().split(",") : undefined;
+				const debouncedFilter = debounce(() => this.dispatch({ [el.name]: { values: [el.value], exclusive, regex, exact, cols } }));
 				debouncedFilter();
 			});
 		});

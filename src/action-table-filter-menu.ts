@@ -32,7 +32,7 @@ export class ActionTableFilterMenu extends HTMLElement {
 		// 8. Review all cells for filter values
 		Array.from(cells).forEach((cell) => {
 			const subItems = cell.querySelectorAll(`span, ul > li`) as NodeListOf<HTMLElement>;
-			if (subItems?.length > 0) {
+			if (!cell.dataset.filter && subItems?.length > 0) {
 				// 8.3 If subitems exist, get all options in subitems
 				const subOptions = Array.from(subItems).map((item) => item.textContent || "");
 				options = options.concat(subOptions);
