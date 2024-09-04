@@ -12,6 +12,7 @@ export class ActionTablePagination extends HTMLElement {
 	private group = 1;
 	private maxGroups = 1;
 	private actionTable = this.closest("action-table") as ActionTable;
+	private rowsVisible = 0;
 
 	public connectedCallback(): void {
 		this.render();
@@ -78,6 +79,8 @@ export class ActionTablePagination extends HTMLElement {
 
 	private changeLabel(page: number) {
 		const { pagination, rowsSet } = this.actionTable;
+		// update rowsVisible from current set size
+		this.rowsVisible = rowsSet.size;
 
 		const label = this.getAttribute("label") || "Showing {rows} of {total}:";
 
@@ -138,9 +141,14 @@ export class ActionTablePagination extends HTMLElement {
 		});
 
 		this.actionTable.addEventListener("action-table", (e) => {
-			const { page, pagination, numberOfPages } = e.detail;
+			const { page, pagination, numberOfPages, rowsVisible } = e.detail;
 			console.log("action-table pagination", e.detail);
-			if ((page && page !== this.page) || (numberOfPages !== undefined && numberOfPages !== this.numberOfPages) || pagination !== undefined) {
+			if (
+				(page && page !== this.page) ||
+				(numberOfPages !== undefined && numberOfPages !== this.numberOfPages) ||
+				pagination !== undefined ||
+				rowsVisible !== this.rowsVisible
+			) {
 				console.log("action-table pagination render", page, this.page, pagination, numberOfPages, this.numberOfPages);
 				this.render();
 			}
