@@ -83,11 +83,9 @@ export class ActionTable extends HTMLElement {
 	}
 
 	// direction attribute to set the sort direction
-	get direction(): Direction | null {
+	get direction(): Direction {
 		const direction = this.getCleanAttr("direction");
-		if (direction === "ascending" || direction === "descending") {
-			return direction;
-		} else return null;
+		return direction === "descending" ? direction : "ascending";
 	}
 	set direction(value: Direction) {
 		this.setAttribute("direction", value);
@@ -159,6 +157,7 @@ export class ActionTable extends HTMLElement {
 			throw new Error("Could not find table with thead and tbody");
 		}
 		// 2. Hide tbody if there is sort or filters; then sort and filter
+
 		if (this.sort || hasKeys(this.filters)) {
 			this.tbody.style.display = "none";
 			this.sortAndFilter();
