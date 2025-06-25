@@ -25,6 +25,8 @@ export type ActionTableEventDetail = {
 	pagination?: number;
 	numberOfPages?: number;
 	rowsVisible?: number;
+	sort?: string;
+	direction?: Direction;
 };
 
 // export type ActionTableSortStore = { sort: string; direction: "ascending" | "descending" };

@@ -677,6 +677,8 @@ export class ActionTable extends HTMLElement {
 				const ariaSort = i === columnIndex ? direction : "none";
 				th.setAttribute("aria-sort", ariaSort);
 			});
+
+			this.dispatch({ sort: this.sort, direction: this.direction });
 		}
 		// eslint-disable-next-line no-console
 		// console.timeEnd("sortTable");
